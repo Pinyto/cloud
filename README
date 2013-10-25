@@ -1,1 +1,6 @@
-This is the Pinyto backend.
+This is the Pinyto Backend.
+
+Dependencies
+------------
+* Django 1.5.5
+* PyMongo
