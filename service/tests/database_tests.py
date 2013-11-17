@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.test import TestCase
 from service.database import remove_underscore_fields, remove_underscore_fields_list
 
