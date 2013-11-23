@@ -24,5 +24,6 @@ class Librarian(PinytoAPI):
             books = self.find({'type': 'book'})
             return json_response(books)
         else:
-            return json_response(
-                {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
+            return False
+            #return json_response(
+            #    {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
