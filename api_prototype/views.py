@@ -4,6 +4,29 @@ This File is part of Pinyto
 """
 from pymongo import MongoClient  # hmm
 from service.database import remove_underscore_fields_list
+from service.response import json_response
+
+ApiClasses = [('librarian.views', 'Librarian')]
+
+
+def load(request):
+    """
+    If a request is processed
+    all API-Classes get called in the order specified in ApiClasses.
+    If a view returns False the next Class is called. If one view
+    returns json the chain completes.
+
+    @param request:
+    @return: json
+    """
+    for api_class_origin, api_class_name in ApiClasses:
+        module = __import__(api_class_origin, globals(), locals(), api_class_name)
+        api_object = getattr(module, api_class_name)()
+        result = api_object.view(request)
+        if result:
+            return result
+    return json_response(
+        {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
 
 
 class PinytoAPI(object):

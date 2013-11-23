@@ -1,3 +1,7 @@
+# coding=utf-8
+"""
+This File is part of Pinyto
+"""
 # Django settings for pinytoCloud project.
 
 DEBUG = True

@@ -25,5 +25,3 @@ class Librarian(PinytoAPI):
             return json_response(books)
         else:
             return False
-            #return json_response(
-            #    {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})

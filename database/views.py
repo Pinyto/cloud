@@ -1,3 +1,7 @@
+# coding=utf-8
+"""
+This File is part of Pinyto
+"""
 from django.http import HttpResponse
 from project_path import project_path
 from pymongo import MongoClient
@@ -5,6 +9,11 @@ import json
 
 
 def home(request):
+    """
+    This should not be necessary.
+    @param request:
+    @return:
+    """
     with open(project_path("static/index.html"), 'r') as index_html_file:
         return HttpResponse(index_html_file.read(), mimetype='text/html')
 
