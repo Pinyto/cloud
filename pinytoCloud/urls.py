@@ -9,8 +9,7 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns(
-    'api_prototype.views',
-    #'database.views',
+    'database.views',
 
     url(r'^\.store$', 'store', name='store'),
 
@@ -22,5 +21,10 @@ urlpatterns = patterns(
 
     #url(r'^[^.].*', 'home', name='home'),
     #url(r'^$', 'home', name='home'),
+)
+
+urlpatterns += patterns(
+    'api_prototype.views',
+
     url(r'^$', 'load', name='load'),
 )
