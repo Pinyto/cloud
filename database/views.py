@@ -5,7 +5,8 @@ This File is part of Pinyto
 from django.http import HttpResponse
 from project_path import project_path
 from pymongo import MongoClient
-import json
+from service.response import json_response
+from datetime import datetime
 
 
 def home(request):
@@ -25,14 +26,16 @@ def store(request):
 
     :param request:
     """
-    db = MongoClient().pinyto
-    leute = db.leute.find()
-    data = []
-    for jemand in leute:
-        person = {}
-        for key in jemand:
-            if key[0] != '_':
-                person[key] = jemand[key]
-        data.append(person)
-    return HttpResponse(json.dumps(data), mimetype='application/json')
-    pass
+    data = request.POST.get('data')
+    data_type = request.POST.get('type')
+    if data and data_type:
+        db = MongoClient().pinyto.data
+        document = {'type': data_type,
+                    'time': datetime.utcnow(),
+                    'data': data}
+        db.insert(document)
+        return json_response({'success': True})
+    else:
+        return json_response({'error': "If you want to store data you have to sand your " +
+                                       "data as json string in a POST request in the parameter 'data'. " +
+                                       "You also have to supply a type string for the data."})
