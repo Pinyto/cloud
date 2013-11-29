@@ -3,6 +3,7 @@
 This File is part of Pinyto
 """
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from project_path import project_path
 from pymongo import MongoClient
 from service.response import json_response
@@ -19,6 +20,7 @@ def home(request):
         return HttpResponse(index_html_file.read(), mimetype='text/html')
 
 
+@csrf_exempt
 def store(request):
     """
     Store document in any format. The date of creation and request.user will be
@@ -26,6 +28,7 @@ def store(request):
 
     :param request:
     """
+    print("Store!")
     data = request.POST.get('data')
     data_type = request.POST.get('type')
     if data and data_type:

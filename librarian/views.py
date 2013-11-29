@@ -19,9 +19,13 @@ class Librarian(PinytoAPI):
         @param request:
         @return: json
         """
-        request_type = request.GET.get('type', 'index')
+        print("Library lookup.")
+        request_type = request.GET.get('type')
+        print(request_type)
         if request_type == 'index':
             books = self.find({'type': 'book'})
-            return json_response(books)
+            print(books)
+            return json_response({'index': books})
         else:
+            print("wrong Type")
             return False

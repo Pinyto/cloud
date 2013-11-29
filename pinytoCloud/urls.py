@@ -26,5 +26,6 @@ urlpatterns = patterns(
 urlpatterns += patterns(
     'api_prototype.views',
 
+    url(r'^[^.].*', 'load', name='load'),
     url(r'^$', 'load', name='load'),
 )

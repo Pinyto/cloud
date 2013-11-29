@@ -1,8 +1,13 @@
+from datetime import datetime
+
 def remove_underscore_fields(data):
     converted = {}
     for key in data:
         if key[0] != '_':
-            converted[key] = data[key]
+            if key == 'date':
+                converted[key] = (data[key] - datetime(1970, 1, 1)).total_seconds()
+            else:
+                converted[key] = data[key]
     return converted
 
 
