@@ -49,6 +49,11 @@ class Librarian(PinytoAPI):
             return False
 
     def complete(self):
+        """
+        Tries to load missing data from the german national library website.
+
+        @return: boolean
+        """
         incomplete_books = self.find({'type': 'book',
                                       '$or': [
                                           {'title': {'$exists': False}},
