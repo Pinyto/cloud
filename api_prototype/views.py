@@ -50,8 +50,7 @@ class PinytoAPI(object):
         """
         return remove_underscore_fields_list(self.db.find(query))
 
-    @staticmethod
-    def compress():
+    def compress(self):
         """
         This function is called if the available space should be used
         more efficiently. You should implement this method if the data
@@ -62,8 +61,7 @@ class PinytoAPI(object):
         """
         return False
 
-    @staticmethod
-    def complete():
+    def complete(self):
         """
         This function gets called when incomplete data needs to get
         completed. This type of data completion needs to be automatic

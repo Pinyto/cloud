@@ -5,6 +5,8 @@ This File is part of Pinyto
 
 from api_prototype.views import PinytoAPI
 from service.response import *
+from httplib import HTTPSConnection
+from bs4 import BeautifulSoup
 
 
 class Librarian(PinytoAPI):
@@ -45,3 +47,21 @@ class Librarian(PinytoAPI):
         else:
             print("wrong Type")
             return False
+
+    def complete(self):
+        incomplete_books = self.find({'type': 'book',
+                                      '$or': [
+                                          {'title': {'$exists': False}},
+                                          {'description': {'$exists': False}}
+                                      ]})
+        for book in incomplete_books:
+            query = ''
+            if book['ean']:
+                query = book['ean']
+            if book['isbn']:
+                query = book['isbn']
+            connection = HTTPSConnection('portal.dnb.de/opac.htm?query='+query+'&method=simpleSearch')
+            response = connection.read()
+            print(response)
+            soup = BeautifulSoup(response)
+        return False
