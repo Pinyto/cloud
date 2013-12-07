@@ -39,7 +39,6 @@ class PinytoAPI(object):
 
     def __init__(self):
         self.db = MongoClient().pinyto.data  # hmm
-        self.complete()
 
     def find(self, query):
         """

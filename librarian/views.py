@@ -48,6 +48,17 @@ class Librarian(PinytoAPI):
             print("wrong Type")
             return False
 
+    @staticmethod
+    def extract_content(tag):
+        """
+        Takes a tag and returns the string content without markup.
+        @return: string
+        """
+        content = ''
+        for child in tag.findAll(True):
+            content += child.string
+        return content
+
     def complete(self):
         """
         Tries to load missing data from the german national library website.
@@ -59,14 +70,28 @@ class Librarian(PinytoAPI):
                                           {'title': {'$exists': False}},
                                           {'description': {'$exists': False}}
                                       ]})
+        print('::Anzahl: '+str(len(incomplete_books)))
         for book in incomplete_books:
             query = ''
-            if book['ean']:
+            if 'ean' in book:
                 query = book['ean']
-            if book['isbn']:
+            if 'isbn' in book:
                 query = book['isbn']
-            connection = HTTPSConnection('portal.dnb.de/opac.htm?query='+query+'&method=simpleSearch')
-            response = connection.read()
-            print(response)
-            soup = BeautifulSoup(response)
+            connection = HTTPSConnection('portal.dnb.de')
+            connection.request('GET', '/opac.htm?query='+query+'&method=simpleSearch')
+            response = connection.getresponse()
+            content = response.read()
+            soup = BeautifulSoup(content)
+            table = soup.find('table')
+            for tr in table.findAll('tr'):
+                field_name = ''
+                for td in tr.findAll('td', recursive=False):
+                    if field_name == 'Person(en)':
+                        content = self.extract_content(td)
+                        print(content)
+                    name_tag = td.find('strong')
+                    if name_tag:
+                        field_name = name_tag.string
+
+            connection.close()
         return False
