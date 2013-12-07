@@ -84,10 +84,10 @@ class Librarian(PinytoAPI):
         completion_successful = True
         for book in incomplete_books:
             query = ''
-            if 'ean' in book:
-                query = book['ean']
             if 'isbn' in book:
                 query = book['isbn']
+            if 'ean' in book:
+                query = book['ean']
             connection = HTTPSConnection('portal.dnb.de')
             connection.request('GET', '/opac.htm?query=' + query + '&method=simpleSearch')
             response = connection.getresponse()
