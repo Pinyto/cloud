@@ -55,9 +55,11 @@ class Librarian(PinytoAPI):
         @return: string
         """
         content = ''
+        if tag.string:
+            content += tag.string
         for child in tag.findAll(True):
             content += child.string
-        return content
+        return ' '.join(content.split())
 
     def complete(self):
         """
@@ -82,16 +84,35 @@ class Librarian(PinytoAPI):
             response = connection.getresponse()
             content = response.read()
             soup = BeautifulSoup(content)
-            table = soup.find('table')
+            table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})  # They have a typo here!
             for tr in table.findAll('tr'):
                 field_name = ''
                 for td in tr.findAll('td', recursive=False):
-                    if field_name == 'Person(en)':
-                        content = self.extract_content(td)
-                        print(content)
+                    # set Author
+                    if not 'author' in book:
+                        if field_name == 'Person(en)':
+                            book['author'] = self.extract_content(td)
+                    # set Title
+                    if not 'title' in book:
+                        if field_name == 'Mehrteiliges Werk':
+                            book['title'] = self.extract_content(td)
+                        if field_name == 'Titel':
+                            book['title'] = self.extract_content(td)
+                    # set ISBN
+                    if not 'isbn' in book:
+                        if field_name == 'ISBN/Einband/Preis':
+                            isbn, more = self.extract_content(td).split(' ', 1)
+                            book['isbn'] = isbn
+                    # set EAN
+                    if not 'ean' in book:
+                        if field_name == 'EAN':
+                            book['ean'] = self.extract_content(td)
+                    # find label
                     name_tag = td.find('strong')
                     if name_tag:
                         field_name = name_tag.string
 
+            print('_____________')
+            print(book)
             connection.close()
         return False
