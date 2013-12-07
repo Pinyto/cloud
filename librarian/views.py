@@ -98,6 +98,14 @@ class Librarian(PinytoAPI):
                             book['title'] = self.extract_content(td)
                         if field_name == 'Titel':
                             book['title'] = self.extract_content(td)
+                    # set Uniform Title
+                    if not 'uniform_title' in book:
+                        if field_name == 'Einheitssachtitel':
+                            book['uniform_title'] = self.extract_content(td)
+                    # set Year
+                    if not 'year' in book:
+                        if field_name == 'Erscheinungsjahr':
+                            book['year'] = self.extract_content(td)
                     # set ISBN
                     if not 'isbn' in book:
                         if field_name == 'ISBN/Einband/Preis':
