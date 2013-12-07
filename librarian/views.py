@@ -106,6 +106,22 @@ class Librarian(PinytoAPI):
                     if not 'year' in book:
                         if field_name == 'Erscheinungsjahr':
                             book['year'] = self.extract_content(td)
+                    # set Languages
+                    if not 'languages' in book:
+                        if field_name == 'Sprache(n)':
+                            book['languages'] = self.extract_content(td)
+                    # set Category
+                    if not 'category' in book:
+                        if field_name == 'Sachgruppe(n)':
+                            book['category'] = self.extract_content(td)
+                    # set Publisher
+                    if not 'publisher' in book:
+                        if field_name == 'Verleger':
+                            book['publisher'] = self.extract_content(td)
+                    # set Edition
+                    if not 'edition' in book:
+                        if field_name == 'Ausgabe':
+                            book['edition'] = self.extract_content(td)
                     # set ISBN
                     if not 'isbn' in book:
                         if field_name == 'ISBN/Einband/Preis':
