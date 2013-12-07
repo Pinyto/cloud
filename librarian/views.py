@@ -6,7 +6,7 @@ This File is part of Pinyto
 from api_prototype.views import PinytoAPI
 from service.response import *
 from httplib import HTTPSConnection
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 
 
 class Librarian(PinytoAPI):
@@ -48,18 +48,24 @@ class Librarian(PinytoAPI):
             print("wrong Type")
             return False
 
-    @staticmethod
-    def extract_content(tag):
+    def extract_content(self, tag):
         """
         Takes a tag and returns the string content without markup.
+
+        @param tag: BeautifulSoup Tag
         @return: string
         """
-        content = ''
-        if tag.string:
-            content += tag.string
+        content = u''
+        for c in tag.contents:
+            if not isinstance(c, NavigableString):
+                content += self.extract_content(c)
+            content += unicode(c)
         for child in tag.findAll(True):
-            content += child.string
-        return ' '.join(content.split())
+            for c in child.contents:
+                if not isinstance(c, NavigableString):
+                    content += self.extract_content(c)
+                content += unicode(c)
+        return u' '.join(content.split())
 
     def complete(self):
         """
@@ -72,7 +78,7 @@ class Librarian(PinytoAPI):
                                           {'title': {'$exists': False}},
                                           {'description': {'$exists': False}}
                                       ]})
-        print('::Anzahl: '+str(len(incomplete_books)))
+        print('::Anzahl: ' + str(len(incomplete_books)))
         for book in incomplete_books:
             query = ''
             if 'ean' in book:
@@ -80,7 +86,7 @@ class Librarian(PinytoAPI):
             if 'isbn' in book:
                 query = book['isbn']
             connection = HTTPSConnection('portal.dnb.de')
-            connection.request('GET', '/opac.htm?query='+query+'&method=simpleSearch')
+            connection.request('GET', '/opac.htm?query=' + query + '&method=simpleSearch')
             response = connection.getresponse()
             content = response.read()
             soup = BeautifulSoup(content)
@@ -90,46 +96,65 @@ class Librarian(PinytoAPI):
                 for td in tr.findAll('td', recursive=False):
                     # set Author
                     if not 'author' in book:
-                        if field_name == 'Person(en)':
+                        if field_name == u'Person(en)':
                             book['author'] = self.extract_content(td)
                     # set Title
                     if not 'title' in book:
-                        if field_name == 'Mehrteiliges Werk':
+                        if field_name == u'Mehrteiliges Werk':
                             book['title'] = self.extract_content(td)
-                        if field_name == 'Titel':
+                        if field_name == u'Titel':
                             book['title'] = self.extract_content(td)
                     # set Uniform Title
                     if not 'uniform_title' in book:
-                        if field_name == 'Einheitssachtitel':
+                        if field_name == u'Einheitssachtitel':
                             book['uniform_title'] = self.extract_content(td)
                     # set Year
                     if not 'year' in book:
-                        if field_name == 'Erscheinungsjahr':
-                            book['year'] = self.extract_content(td)
+                        if field_name == u'Zugehörige Bände':
+                            years = []
+                            for volume_tag in td.findAll('li'):
+                                volume_infos = self.extract_content(volume_tag).split('<br/>')
+                                try:
+                                    years.append(int(volume_infos[-1]))
+                                except ValueError:
+                                    pass
+                            if len(years) > 0:
+                                year = years[0]
+                                years_are_the_same = True
+                                for check_year in years:
+                                    if year != check_year:
+                                        years_are_the_same = False
+                                if years_are_the_same:
+                                    book['year'] = year
+                        if field_name == u'Erscheinungsjahr':
+                            try:
+                                book['year'] = int(self.extract_content(td))
+                            except ValueError:
+                                pass
                     # set Languages
                     if not 'languages' in book:
-                        if field_name == 'Sprache(n)':
+                        if field_name == u'Sprache(n)':
                             book['languages'] = self.extract_content(td)
                     # set Category
                     if not 'category' in book:
-                        if field_name == 'Sachgruppe(n)':
+                        if field_name == u'Sachgruppe(n)':
                             book['category'] = self.extract_content(td)
                     # set Publisher
                     if not 'publisher' in book:
-                        if field_name == 'Verleger':
+                        if field_name == u'Verleger':
                             book['publisher'] = self.extract_content(td)
                     # set Edition
                     if not 'edition' in book:
-                        if field_name == 'Ausgabe':
+                        if field_name == u'Ausgabe':
                             book['edition'] = self.extract_content(td)
                     # set ISBN
                     if not 'isbn' in book:
-                        if field_name == 'ISBN/Einband/Preis':
+                        if field_name == u'ISBN/Einband/Preis':
                             isbn, more = self.extract_content(td).split(' ', 1)
                             book['isbn'] = isbn
                     # set EAN
                     if not 'ean' in book:
-                        if field_name == 'EAN':
+                        if field_name == u'EAN':
                             book['ean'] = self.extract_content(td)
                     # find label
                     name_tag = td.find('strong')
