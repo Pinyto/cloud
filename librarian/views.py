@@ -41,7 +41,11 @@ class Librarian(PinytoAPI):
             books = self.find({'type': 'book',
                                '$or': [
                                    {'title': {'$regex': search_string, '$options': 'i'}},
-                                   {'description': {'$regex': search_string, '$options': 'i'}}
+                                   {'uniform_title': {'$regex': search_string, '$options': 'i'}},
+                                   {'publisher': {'$regex': search_string, '$options': 'i'}},
+                                   {'year': {'$regex': search_string, '$options': 'i'}},
+                                   {'category': {'$regex': search_string, '$options': 'i'}},
+                                   {'author': {'$regex': search_string, '$options': 'i'}}
                                ]})
             return json_response({'index': books})
         else:
