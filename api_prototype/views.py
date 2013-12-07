@@ -42,12 +42,34 @@ class PinytoAPI(object):
 
     def find(self, query):
         """
-        Use this function to read from the database.
+        Use this function to read from the database. This method
+        removes all fields beginning with _ for returning a valid
+        json response.
 
         @param query:
         @return: dict
         """
         return remove_underscore_fields_list(self.db.find(query))
+
+    def find_documents(self, query):
+        """
+        Use this function to read from the database. This method
+        returns complete documents with _id fields. Do not use this
+        to construct json responses!
+
+        @param query:
+        @return: dict
+        """
+        return self.db.find(query)
+
+    def save(self, document):
+        """
+        Saves the document. The document must have a valid _id
+
+        @param document:
+        @return:
+        """
+        self.db.save(document)
 
     def compress(self):
         """

@@ -73,11 +73,11 @@ class Librarian(PinytoAPI):
 
         @return: boolean
         """
-        incomplete_books = self.find({'type': 'book',
-                                      '$or': [
-                                          {'title': {'$exists': False}},
-                                          {'description': {'$exists': False}}
-                                      ]})
+        incomplete_books = self.find_documents({'type': 'book',
+                                                '$or': [
+                                                    {'title': {'$exists': False}},
+                                                    {'description': {'$exists': False}}
+                                                ]})
         print('::Anzahl: ' + str(len(incomplete_books)))
         for book in incomplete_books:
             query = ''
@@ -161,7 +161,7 @@ class Librarian(PinytoAPI):
                     if name_tag:
                         field_name = name_tag.string
 
-            print('_____________')
-            print(book)
             connection.close()
+            # save the book
+            self.save(book)
         return False
