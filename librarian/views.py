@@ -63,11 +63,7 @@ class Librarian(PinytoAPI):
         for c in tag.contents:
             if not isinstance(c, NavigableString):
                 content += self.extract_content(c)
-            content += unicode(c)
-        for child in tag.findAll(True):
-            for c in child.contents:
-                if not isinstance(c, NavigableString):
-                    content += self.extract_content(c)
+            else:
                 content += unicode(c)
         return u' '.join(content.split())
 
@@ -79,8 +75,11 @@ class Librarian(PinytoAPI):
         """
         incomplete_books = self.find_documents({'type': 'book',
                                                 '$or': [
+                                                    {'author': {'$exists': False}},
                                                     {'title': {'$exists': False}},
-                                                    {'description': {'$exists': False}}
+                                                    {'uniform_title': {'$exists': False}},
+                                                    {'isbn': {'$exists': False}},
+                                                    {'ean': {'$exists': False}}
                                                 ]})
         completion_successful = True
         for book in incomplete_books:
