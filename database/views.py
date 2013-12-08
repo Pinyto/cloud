@@ -8,6 +8,7 @@ from project_path import project_path
 from pymongo import MongoClient
 from service.response import json_response
 from datetime import datetime
+import json
 
 
 def home(request):
@@ -31,11 +32,12 @@ def store(request):
     print("Store!")
     data = request.POST.get('data')
     data_type = request.POST.get('type')
+    print(data)
     if data and data_type:
         db = MongoClient().pinyto.data
         document = {'type': data_type,
                     'time': datetime.utcnow(),
-                    'data': data}
+                    'data': json.loads(data)}
         db.insert(document)
         return json_response({'success': True})
     else:

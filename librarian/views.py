@@ -23,14 +23,13 @@ class Librarian(PinytoAPI):
         """
         print("Library lookup.")
         request_type = request.GET.get('type')
-        print(request_type)
         if request_type == 'index':
             ean = request.GET.get('ean')
             isbn = request.GET.get('isbn')
             if ean:
-                books = self.find({'type': 'book', 'ean': ean})
+                books = self.find({'type': 'book', 'data.ean': ean})
             elif isbn:
-                books = self.find({'type': 'book', 'isbn': isbn})
+                books = self.find({'type': 'book', 'data.isbn': isbn})
             else:
                 books = self.find({'type': 'book'})
             print(books)
@@ -39,13 +38,14 @@ class Librarian(PinytoAPI):
             search_string = request.GET.get('searchstring')
             print('Serching for: ' + search_string)
             books = self.find({'type': 'book',
+                               'data': {'$exists': True},
                                '$or': [
-                                   {'title': {'$regex': search_string, '$options': 'i'}},
-                                   {'uniform_title': {'$regex': search_string, '$options': 'i'}},
-                                   {'publisher': {'$regex': search_string, '$options': 'i'}},
-                                   {'year': {'$regex': search_string, '$options': 'i'}},
-                                   {'category': {'$regex': search_string, '$options': 'i'}},
-                                   {'author': {'$regex': search_string, '$options': 'i'}}
+                                   {'data.title': {'$regex': search_string, '$options': 'i'}},
+                                   {'data.uniform_title': {'$regex': search_string, '$options': 'i'}},
+                                   {'data.publisher': {'$regex': search_string, '$options': 'i'}},
+                                   {'data.year': {'$regex': search_string, '$options': 'i'}},
+                                   {'data.category': {'$regex': search_string, '$options': 'i'}},
+                                   {'data.author': {'$regex': search_string, '$options': 'i'}}
                                ]})
             return json_response({'index': books})
         else:
@@ -74,20 +74,21 @@ class Librarian(PinytoAPI):
         @return: boolean
         """
         incomplete_books = self.find_documents({'type': 'book',
+                                                'data': {'$exists': True},
                                                 '$or': [
-                                                    {'author': {'$exists': False}},
-                                                    {'title': {'$exists': False}},
-                                                    {'uniform_title': {'$exists': False}},
-                                                    {'isbn': {'$exists': False}},
-                                                    {'ean': {'$exists': False}}
+                                                    {'data.author': {'$exists': False}},
+                                                    {'data.title': {'$exists': False}},
+                                                    {'data.uniform_title': {'$exists': False}},
+                                                    {'data.isbn': {'$exists': False}},
+                                                    {'data.ean': {'$exists': False}}
                                                 ]})
         completion_successful = True
         for book in incomplete_books:
             query = ''
-            if 'isbn' in book:
-                query = book['isbn']
-            if 'ean' in book:
-                query = book['ean']
+            if 'isbn' in book['data']:
+                query = book['data']['isbn']
+            if 'ean' in book['data']:
+                query = book['data']['ean']
             connection = HTTPSConnection('portal.dnb.de')
             connection.request('GET', '/opac.htm?query=' + query + '&method=simpleSearch')
             response = connection.getresponse()
@@ -102,24 +103,24 @@ class Librarian(PinytoAPI):
                     field_name = ''
                     for td in tr.findAll('td', recursive=False):
                         # set Author
-                        if not 'author' in book:
+                        if not 'author' in book['data']:
                             if field_name == u'Person(en)':
-                                book['author'] = self.extract_content(td)
+                                book['data']['author'] = self.extract_content(td)
 
                         # set Title
-                        if not 'title' in book:
+                        if not 'title' in book['data']:
                             if field_name == u'Mehrteiliges Werk':
-                                book['title'] = self.extract_content(td)
+                                book['data']['title'] = self.extract_content(td)
                             if field_name == u'Titel':
-                                book['title'] = self.extract_content(td)
+                                book['data']['title'] = self.extract_content(td)
 
                         # set Uniform Title
-                        if not 'uniform_title' in book:
+                        if not 'uniform_title' in book['data']:
                             if field_name == u'Einheitssachtitel':
-                                book['uniform_title'] = self.extract_content(td)
+                                book['data']['uniform_title'] = self.extract_content(td)
 
                         # set Year
-                        if not 'year' in book:
+                        if not 'year' in book['data']:
                             if field_name == u'Zugehörige Bände':
                                 years = []
                                 for volume_tag in td.findAll('li'):
@@ -135,43 +136,43 @@ class Librarian(PinytoAPI):
                                         if year != check_year:
                                             years_are_the_same = False
                                     if years_are_the_same:
-                                        book['year'] = year
+                                        book['data']['year'] = year
                             if field_name == u'Erscheinungsjahr':
                                 try:
-                                    book['year'] = int(self.extract_content(td))
+                                    book['data']['year'] = int(self.extract_content(td))
                                 except ValueError:
                                     pass
 
                         # set Languages
-                        if not 'languages' in book:
+                        if not 'languages' in book['data']:
                             if field_name == u'Sprache(n)':
-                                book['languages'] = self.extract_content(td)
+                                book['data']['languages'] = self.extract_content(td)
 
                         # set Category
-                        if not 'category' in book:
+                        if not 'category' in book['data']:
                             if field_name == u'Sachgruppe(n)':
-                                book['category'] = self.extract_content(td)
+                                book['data']['category'] = self.extract_content(td)
 
                         # set Publisher
-                        if not 'publisher' in book:
+                        if not 'publisher' in book['data']:
                             if field_name == u'Verleger':
-                                book['publisher'] = self.extract_content(td)
+                                book['data']['publisher'] = self.extract_content(td)
 
                         # set Edition
-                        if not 'edition' in book:
+                        if not 'edition' in book['data']:
                             if field_name == u'Ausgabe':
-                                book['edition'] = self.extract_content(td)
+                                book['data']['edition'] = self.extract_content(td)
 
                         # set ISBN
-                        if not 'isbn' in book:
+                        if not 'isbn' in book['data']:
                             if field_name == u'ISBN/Einband/Preis':
                                 isbn, more = self.extract_content(td).split(' ', 1)
-                                book['isbn'] = isbn
+                                book['data']['isbn'] = isbn
 
                         # set EAN
-                        if not 'ean' in book:
+                        if not 'ean' in book['data']:
                             if field_name == u'EAN':
-                                book['ean'] = self.extract_content(td)
+                                book['data']['ean'] = self.extract_content(td)
 
                         # find label
                         name_tag = td.find('strong')
