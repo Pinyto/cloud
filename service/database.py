@@ -16,7 +16,7 @@ def remove_underscore_fields(data):
     for key in data:
         if key[0] != '_':
             if key == 'time':
-                converted[key] = (data[key] - datetime(1970, 1, 1)).total_seconds()
+                converted[key] = str(data[key])
             else:
                 converted[key] = data[key]
     return converted
