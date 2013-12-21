@@ -7,6 +7,7 @@ from api_prototype.views import PinytoAPI
 from service.response import *
 from httplib import HTTPSConnection
 from bs4 import BeautifulSoup, NavigableString
+import json
 
 
 class Librarian(PinytoAPI):
@@ -49,6 +50,32 @@ class Librarian(PinytoAPI):
                                    {'data.author': {'$regex': search_string, '$options': 'i'}}
                                ]}, 42)
             return json_response({'index': books})
+        elif request_type == 'update':
+            book_data = json.loads(request.read().split('book=')[1])
+            print book_data
+            if book_data['type'] != 'book':
+                return json_response({'error': 'This is not a book.'})
+            book = None
+            if 'isbn' in book_data['data']:
+                try:
+                    book = self.find_documents({'type': 'book',
+                                            'data': {'$exists': True},
+                                            'data.isbn': book_data['data']['isbn']}, 1)[0]
+                except IndexError:
+                    return json_response({'error': 'There is no book with this ISBN which could be updated.'})
+            elif 'ean' in book_data['data']:
+                try:
+                    book = self.find_documents({'type': 'book',
+                                            'data': {'$exists': True},
+                                            'data.ean': book_data['data']['ean']}, 1)[0]
+                except IndexError:
+                    return json_response({'error': 'There is no book with this EAN which could be updated.'})
+            if not book:
+                return json_response({'error': 'The book you want to update could not be found.'})
+            for key in book_data['data']:
+                book['data'][key] = book_data['data'][key]
+            self.save(book)
+            return json_response({'success': True})
         elif request_type == 'statistics':
             return json_response({
                 'book_count': self.count({'type': 'book'}),

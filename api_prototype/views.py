@@ -5,10 +5,12 @@ This File is part of Pinyto
 from pymongo import MongoClient  # hmm
 from service.database import remove_underscore_fields_list
 from service.response import json_response
+from django.views.decorators.csrf import csrf_exempt
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
 
+@csrf_exempt  # This is probably unsafe and should be changed
 def load(request):
     """
     If a request is processed
@@ -61,7 +63,7 @@ class PinytoAPI(object):
         """
         return self.db.find(query).count()
 
-    def find_documents(self, query):
+    def find_documents(self, query, limit=0):
         """
         Use this function to read from the database. This method
         returns complete documents with _id fields. Do not use this
@@ -70,7 +72,7 @@ class PinytoAPI(object):
         @param query:
         @return: dict
         """
-        return self.db.find(query)
+        return self.db.find(query).limit(limit)
 
     def save(self, document):
         """
