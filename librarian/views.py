@@ -52,8 +52,8 @@ class Librarian(PinytoAPI):
         elif request_type == 'statistics':
             return json_response({
                 'book_count': self.count({'type': 'book'}),
-                'place_count': len(self.find_documents(
-                    {'type': 'book', 'data': {'$exists': True}}).distinct('data.place')),
+                'places_used': self.find_documents(
+                    {'type': 'book', 'data': {'$exists': True}}).distinct('data.place'),
                 'lent_count': self.count({'type': 'book',
                                           'data': {'$exists': True},
                                           'data.lent': {'$exists': True, '$ne': ""}})
