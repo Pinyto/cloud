@@ -23,6 +23,7 @@ class Librarian(PinytoAPI):
         """
         print("Library lookup.")
         request_type = request.GET.get('type')
+        print(request_type)
         if request_type == 'index':
             ean = request.GET.get('ean')
             isbn = request.GET.get('isbn')
@@ -46,9 +47,19 @@ class Librarian(PinytoAPI):
                                    {'data.year': {'$regex': search_string, '$options': 'i'}},
                                    {'data.category': {'$regex': search_string, '$options': 'i'}},
                                    {'data.author': {'$regex': search_string, '$options': 'i'}}
-                               ]})
+                               ]}, 42)
             return json_response({'index': books})
+        elif request_type == 'statistics':
+            return json_response({
+                'book_count': self.count({'type': 'book'}),
+                'place_count': len(self.find_documents(
+                    {'type': 'book', 'data': {'$exists': True}}).distinct('data.place')),
+                'lent_count': self.count({'type': 'book',
+                                          'data': {'$exists': True},
+                                          'data.lent': {'$exists': True, '$ne': ""}})
+            })
         else:
+            print(request.get_full_path())
             print("wrong Type")
             return False
 

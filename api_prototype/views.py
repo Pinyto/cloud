@@ -40,16 +40,26 @@ class PinytoAPI(object):
     def __init__(self):
         self.db = MongoClient().pinyto.data  # hmm
 
-    def find(self, query):
+    def find(self, query, limit=0):
         """
         Use this function to read from the database. This method
         removes all fields beginning with _ for returning a valid
         json response.
 
-        @param query:
+        @param query: json string
+        @param limit: int
         @return: dict
         """
-        return remove_underscore_fields_list(self.db.find(query))
+        return remove_underscore_fields_list(self.db.find(query).limit(limit))
+
+    def count(self, query):
+        """
+        Use this function to get a count from the database.
+
+        @param query: json string
+        @return: dict
+        """
+        return self.db.find(query).count()
 
     def find_documents(self, query):
         """
