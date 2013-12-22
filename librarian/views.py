@@ -48,7 +48,6 @@ class Librarian(PinytoAPI):
             return json_response({'index': books})
         elif request_type == 'update':
             book_data = json.loads(request.read().split('book=')[1])
-            print book_data
             if book_data['type'] != 'book':
                 return json_response({'error': 'This is not a book.'})
             book = None
