@@ -32,7 +32,6 @@ class Librarian(PinytoAPI):
                 books = self.find({'type': 'book', 'data.isbn': isbn})
             else:
                 books = self.find({'type': 'book'})
-            print(books)
             return json_response({'index': books})
         elif request_type == 'search':
             search_string = request.GET.get('searchstring')
