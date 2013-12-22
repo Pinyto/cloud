@@ -29,10 +29,8 @@ def store(request):
 
     :param request:
     """
-    print("Store!")
     data = request.POST.get('data')
     data_type = request.POST.get('type')
-    print(data)
     if data and data_type:
         db = MongoClient().pinyto.data
         document = {'type': data_type,

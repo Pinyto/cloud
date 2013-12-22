@@ -22,9 +22,7 @@ class Librarian(PinytoAPI):
         @param request:
         @return: json
         """
-        print("Library lookup.")
         request_type = request.GET.get('type')
-        print(request_type)
         if request_type == 'index':
             ean = request.GET.get('ean')
             isbn = request.GET.get('isbn')
@@ -38,7 +36,6 @@ class Librarian(PinytoAPI):
             return json_response({'index': books})
         elif request_type == 'search':
             search_string = request.GET.get('searchstring')
-            print('Serching for: ' + search_string)
             books = self.find({'type': 'book',
                                'data': {'$exists': True},
                                '$or': [
