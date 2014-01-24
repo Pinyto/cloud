@@ -4,6 +4,7 @@ This File is part of Pinyto
 """
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate
 from project_path import project_path
 from pymongo import MongoClient
 from service.response import json_response
@@ -19,6 +20,28 @@ def home(request):
     """
     with open(project_path("static/index.html"), 'r') as index_html_file:
         return HttpResponse(index_html_file.read(), mimetype='text/html')
+
+
+@csrf_exempt
+def login(request):
+    """
+    Login to the cloud. This also selects the collection (username).
+
+    @param request:
+    @return:
+    """
+    user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
+    if user is not None:
+        # the password verified for the user
+        if user.is_active:
+            return json_response({'authenticated': True})
+        else:
+            return json_response({'authenticated': False,
+                                  'error': "The password is valid, but the account has been disabled!"})
+    else:
+        # the authentication system was unable to verify the username and password
+        return json_response({'authenticated': False,
+                              'error': "The username and password were incorrect."})
 
 
 @csrf_exempt
