@@ -22,7 +22,6 @@ def load(request):
     @param request:
     @return: json
     """
-    print(request.user.username)
     for api_class_origin, api_class_name in ApiClasses:
         module = __import__(api_class_origin, globals(), locals(), api_class_name)
         api_object = getattr(module, api_class_name)(request.user.username)
