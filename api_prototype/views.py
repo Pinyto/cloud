@@ -2,7 +2,7 @@
 """
 This File is part of Pinyto
 """
-from pymongo import MongoClient  # hmm
+import pymongo 
 from service.database import remove_underscore_fields_list
 from service.response import json_response
 from django.views.decorators.csrf import csrf_exempt
@@ -40,7 +40,7 @@ class PinytoAPI(object):
     """
 
     def __init__(self):
-        self.db = MongoClient().pinyto.data  # hmm
+        self.db = pymongo.MongoClient().pinyto.data  # hmm
 
     def find(self, query, limit=0):
         """

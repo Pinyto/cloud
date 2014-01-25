@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 all_complete = False
                 # raise CommandError('Completion in ' + api_class_name + 'failed.')
 
-        if all_complete:
-            self.stdout.write('[Cron-Complete]: Successfully completed all data.')
-        else:
-            self.stdout.write('[Cron-Complete]: ERROR: Could not complete all data.')
+        #if all_complete:
+        #    self.stdout.write('[Cron-Complete]: Successfully completed all data.')
+        #else:
+        #    self.stdout.write('[Cron-Complete]: ERROR: Could not complete all data.')

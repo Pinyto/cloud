@@ -1,0 +1,132 @@
+body {
+    font-family: Verdana, sans-serif;
+}
+
+h2 {
+    margin: 1em 0.3em 0.5em 0.3em;
+    padding: 0.5em 0 0 0;
+}
+
+input {
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 2px 5px;
+}
+
+input:focus {
+    outline: none;
+    border-radius: 10px;
+    box-shadow: 0 0 6px blue;
+}
+
+a {
+    color: #0e6686;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #0e5473;
+}
+
+a:hover {
+    color: #13abdd;
+}
+
+.center {
+    text-align: center;
+}
+
+.box {
+    max-width: 50em;
+    min-height: 1.8em;
+    margin: 0.2em;
+    padding: 0.5em;
+    border: 1pt solid gray;
+    float: left;
+    box-shadow: 3px 4px 8px #C4C4C4;
+}
+
+.floating-list {
+    margin: 0;
+}
+
+.results {
+    clear: both;
+}
+
+ul {
+    padding-left: 0;
+}
+
+.results li {
+    list-style: none;
+    display: block;
+    min-height: 5em;
+}
+
+.box .head-data {
+    margin-bottom: 0.8em;
+    font-size: 8pt;
+}
+
+.box h2 {
+    font-size: 16pt;
+    font-weight: 700;
+    font-family: serif;
+    margin: 0 0 0.5em;
+}
+
+.box h2 .heading-year {
+    font-size: 12pt;
+    font-weight: normal;
+    font-family: sans-serif;
+}
+
+.additional-info {
+    font-size: 85%;
+}
+
+.sizeless {
+    width: 0;
+    height: 0;
+    position: absolute;
+    overflow: visible;
+    display: inline-block;
+}
+
+.places-list {
+    position: relative;
+    top: 1.4em;
+    left: -10.2em;
+    min-width: 9em;
+    line-height: 140%;
+    margin: 0;
+    padding: 0 0.5em;
+    background: white;
+    border: 1pt solid gray;
+    border-radius: 10px;
+    box-shadow: 3px 4px 8px #C4C4C4;
+    list-style: none;
+}
+
+.places-list .placeSelector {
+    cursor: pointer;
+}
+
+@media (max-width: 750px) {
+    .box {
+        width: 95.5%;
+    }
+}
+
+@media (min-width: 751px) and (max-width: 1500px) {
+    .box {
+        width: 46.6%;
+    }
+}
+
+@media (min-width: 1501px) {
+    .box {
+        width: 31.6%;
+    }
+}
