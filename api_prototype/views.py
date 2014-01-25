@@ -6,12 +6,10 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import remove_underscore_fields_list
 from service.response import json_response
-from django.views.decorators.csrf import csrf_exempt
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
 
-@csrf_exempt  # This is probably unsafe and should be changed
 def load(request):
     """
     If a request is processed

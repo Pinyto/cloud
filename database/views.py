@@ -5,6 +5,7 @@ This File is part of Pinyto
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login as backend_login
+from django.core.context_processors import csrf
 from project_path import project_path
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -36,7 +37,8 @@ def login(request):
         # the password verified for the user
         if user.is_active:
             backend_login(request, user)
-            return json_response({'authenticated': True})
+            return json_response({'authenticated': True,
+                                  'csrf_token': unicode(csrf(request)['csrf_token'])})
         else:
             return json_response({'authenticated': False,
                                   'error': "The password is valid, but the account has been disabled!"})
@@ -46,7 +48,6 @@ def login(request):
                               'error': "The username and password were incorrect."})
 
 
-@csrf_exempt
 def store(request):
     """
     Store document in any format. The date of creation and request.user will be
