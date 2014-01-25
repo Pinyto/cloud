@@ -4,7 +4,7 @@ This File is part of Pinyto
 """
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login as backend_login
+from django.contrib.auth import authenticate, login as backend_login, logout as backend_logout
 from django.core.context_processors import csrf
 from project_path import project_path
 from pymongo import MongoClient
@@ -33,6 +33,7 @@ def login(request):
     @return:
     """
     user = authenticate(username=request.POST.get('username'), password=request.POST.get('password'))
+    backend_logout(request)
     if user is not None:
         # the password verified for the user
         if user.is_active:
