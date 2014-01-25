@@ -131,6 +131,21 @@ class Librarian(PinytoAPI):
             content = response.read()
             soup = BeautifulSoup(content)
             table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})  # They have a typo here!
+            if not table:
+                print(soup)
+                # we propably found a list of results. lets check for that
+                result_list = soup.find('table', attrs={'summary': "Suchergebnis"})  # They have a typo here too!
+                if result_list:
+                    print(result_list)
+                    connection = HTTPSConnection('portal.dnb.de')
+                    connection.request('GET', result_list.a['href'])
+                    response = connection.getresponse()
+                    if response.status != 200:
+                        completion_successful = False
+                        continue
+                    content = response.read()
+                    soup = BeautifulSoup(content)
+                    table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})
             if table:
                 for tr in table.findAll('tr'):
                     field_name = ''

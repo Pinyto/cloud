@@ -2,15 +2,14 @@
 """
 This File is part of Pinyto
 """
-import pymongo 
+from pymongo import MongoClient
+from pymongo.collection import Collection
 from service.database import remove_underscore_fields_list
 from service.response import json_response
-from django.views.decorators.csrf import csrf_exempt
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
 
-@csrf_exempt  # This is probably unsafe and should be changed
 def load(request):
     """
     If a request is processed
@@ -23,7 +22,7 @@ def load(request):
     """
     for api_class_origin, api_class_name in ApiClasses:
         module = __import__(api_class_origin, globals(), locals(), api_class_name)
-        api_object = getattr(module, api_class_name)()
+        api_object = getattr(module, api_class_name)(request.user.username)
         result = api_object.view(request)
         if result:
             return result
@@ -39,8 +38,8 @@ class PinytoAPI(object):
     Class is called. If one view returns json the chain completes.
     """
 
-    def __init__(self):
-        self.db = pymongo.MongoClient().pinyto.data  # hmm
+    def __init__(self, username):
+        self.db = Collection(MongoClient().pinyto, username)
 
     def find(self, query, limit=0):
         """
