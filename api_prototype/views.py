@@ -20,14 +20,17 @@ def load(request):
     @param request:
     @return: json
     """
-    for api_class_origin, api_class_name in ApiClasses:
-        module = __import__(api_class_origin, globals(), locals(), api_class_name)
-        api_object = getattr(module, api_class_name)(request.user.username)
-        result = api_object.view(request)
-        if result:
-            return result
-    return json_response(
-        {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
+    if request.user.is_authenticated():
+        for api_class_origin, api_class_name in ApiClasses:
+            module = __import__(api_class_origin, globals(), locals(), api_class_name)
+            api_object = getattr(module, api_class_name)(request.user.username)
+            result = api_object.view(request)
+            if result:
+                return result
+        return json_response(
+            {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
+    else:
+        return json_response({'error': "You have to log in before you are allowed to read data."})
 
 
 class PinytoAPI(object):
