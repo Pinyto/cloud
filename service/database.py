@@ -2,10 +2,9 @@
 """
 This File is part of Pinyto
 """
-from datetime import datetime
 
 
-def remove_underscore_fields(data):
+def encode_underscore_fields(data):
     """
     Removes _id
 
@@ -19,10 +18,12 @@ def remove_underscore_fields(data):
                 converted[key] = str(data[key])
             else:
                 converted[key] = data[key]
+        else:
+            converted[key] = str(data[key])
     return converted
 
 
-def remove_underscore_fields_list(data_list):
+def encode_underscore_fields_list(data_list):
     """
     Removes _id for every dict in the list
 
@@ -31,5 +32,5 @@ def remove_underscore_fields_list(data_list):
     """
     converted_list = []
     for item in data_list:
-        converted_list.append(remove_underscore_fields(item))
+        converted_list.append(encode_underscore_fields(item))
     return converted_list

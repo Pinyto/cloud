@@ -4,7 +4,8 @@ This File is part of Pinyto
 """
 from pymongo import MongoClient
 from pymongo.collection import Collection
-from service.database import remove_underscore_fields_list
+from pymongo.son_manipulator import ObjectId
+from service.database import encode_underscore_fields_list
 from service.response import json_response
 
 ApiClasses = [('librarian.views', 'Librarian')]
@@ -47,14 +48,14 @@ class PinytoAPI(object):
     def find(self, query, limit=0):
         """
         Use this function to read from the database. This method
-        removes all fields beginning with _ for returning a valid
+        encodes all fields beginning with _ for returning a valid
         json response.
 
         @param query: json string
         @param limit: int
         @return: dict
         """
-        return remove_underscore_fields_list(self.db.find(query).limit(limit))
+        return encode_underscore_fields_list(self.db.find(query).limit(limit))
 
     def count(self, query):
         """
@@ -76,6 +77,16 @@ class PinytoAPI(object):
         """
         return self.db.find(query).limit(limit)
 
+    def find_document_for_id(self, id):
+        """
+        Find the document with the given ID in the database. On
+        success this returns a single document.
+
+        @param id: string
+        @return: dict
+        """
+        return self.db.find_one({'_id': ObjectId(id)})
+
     def save(self, document):
         """
         Saves the document. The document must have a valid _id
@@ -84,6 +95,15 @@ class PinytoAPI(object):
         @return:
         """
         self.db.save(document)
+
+    def remove(self, document):
+        """
+        Deletes the document. The document must have a valid _id
+
+        @param document:
+        @return:
+        """
+        self.db.remove(document['_id'])
 
     def compress(self):
         """

@@ -15,6 +15,26 @@ class Librarian(PinytoAPI):
     This class is used for managing books.
     """
 
+    def get_books_for_given_ean_or_isbn(self, book_data):
+        """
+        Searches for books with the ISBN from the book_data or if
+        there is none for books with the EAN from the book_data.
+
+        @param book_data:
+        @return:
+        """
+        if 'isbn' in book_data['data']:
+            books = list(self.find_documents({'type': 'book',
+                                              'data': {'$exists': True},
+                                              'data.isbn': book_data['data']['isbn']}))
+        elif 'ean' in book_data['data']:
+            books = list(self.find_documents({'type': 'book',
+                                              'data': {'$exists': True},
+                                              'data.ean': book_data['data']['ean']}))
+        else:
+            books = []
+        return books
+
     def view(self, request):
         """
         Public View
@@ -50,26 +70,23 @@ class Librarian(PinytoAPI):
             book_data = json.loads(request.read().split('book=')[1])
             if book_data['type'] != 'book':
                 return json_response({'error': 'This is not a book.'})
-            book = None
-            if 'isbn' in book_data['data']:
-                try:
-                    book = self.find_documents({'type': 'book',
-                                            'data': {'$exists': True},
-                                            'data.isbn': book_data['data']['isbn']}, 1)[0]
-                except IndexError:
-                    return json_response({'error': 'There is no book with this ISBN which could be updated.'})
-            elif 'ean' in book_data['data']:
-                try:
-                    book = self.find_documents({'type': 'book',
-                                            'data': {'$exists': True},
-                                            'data.ean': book_data['data']['ean']}, 1)[0]
-                except IndexError:
-                    return json_response({'error': 'There is no book with this EAN which could be updated.'})
-            if not book:
-                return json_response({'error': 'The book you want to update could not be found.'})
+            books = self.get_books_for_given_ean_or_isbn(book_data)
+            if not books:  # there was an error
+                return json_response({'error': 'There are no books with this ISBN or EAN which could be updated.'})
             for key in book_data['data']:
-                book['data'][key] = book_data['data'][key]
-            self.save(book)
+                for book in books:
+                    book['data'][key] = book_data['data'][key]
+            for book in books:
+                self.save(book)
+            return json_response({'success': True})
+        elif request_type == 'remove':
+            book_data = json.loads(request.read().split('book=')[1])
+            if book_data['type'] != 'book':
+                return json_response({'error': 'This is not a book.'})
+            book = self.find_document_for_id(book_data['_id'])
+            if not book:  # there was an error
+                return json_response({'error': 'There is no book with this ID which could be deleted.'})
+            self.remove(book)
             return json_response({'success': True})
         elif request_type == 'statistics':
             return json_response({
