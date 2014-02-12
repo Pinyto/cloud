@@ -70,6 +70,17 @@ class Librarian(PinytoAPI):
             book_data = json.loads(request.read().split('book=')[1])
             if book_data['type'] != 'book':
                 return json_response({'error': 'This is not a book.'})
+            book = self.find_document_for_id(book_data['_id'])
+            if not book:  # there was an error
+                return json_response({'error': 'There is no book with this ID which could be updated.'})
+            for key in book_data['data']:
+                book['data'][key] = book_data['data'][key]
+            self.save(book)
+            return json_response({'success': True})
+        elif request_type == 'update_all':
+            book_data = json.loads(request.read().split('book=')[1])
+            if book_data['type'] != 'book':
+                return json_response({'error': 'This is not a book.'})
             books = self.get_books_for_given_ean_or_isbn(book_data)
             if not books:  # there was an error
                 return json_response({'error': 'There are no books with this ISBN or EAN which could be updated.'})
