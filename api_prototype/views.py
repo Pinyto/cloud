@@ -7,6 +7,7 @@ from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import encode_underscore_fields_list
 from service.response import json_response
+from datetime import datetime
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
@@ -95,6 +96,20 @@ class PinytoAPI(object):
         @return:
         """
         self.db.save(document)
+
+    def insert(self, document):
+        """
+        Inserts a document. If the given document has a ID the
+        ID is removed and a new ID will be generated. Time will
+        be set to now.
+
+        @param document:
+        @return:
+        """
+        if '_id' in document:
+            del document['_id']
+        document['time'] = datetime.utcnow()
+        self.db.insert(document)
 
     def remove(self, document):
         """

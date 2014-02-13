@@ -90,6 +90,17 @@ class Librarian(PinytoAPI):
             for book in books:
                 self.save(book)
             return json_response({'success': True})
+        elif request_type == 'duplicate':
+            book_data = json.loads(request.read().split('book=')[1])
+            if book_data['type'] != 'book':
+                return json_response({'error': 'This is not a book.'})
+            book = self.find_document_for_id(book_data['_id'])
+            if not book:  # there was an error
+                return json_response({'error': 'There is no book with this ID which could be updated.'})
+            for key in book_data['data']:
+                book['data'][key] = book_data['data'][key]
+            self.insert(book)
+            return json_response({'success': True})
         elif request_type == 'remove':
             book_data = json.loads(request.read().split('book=')[1])
             if book_data['type'] != 'book':
