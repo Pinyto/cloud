@@ -11,6 +11,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.response import json_response
 from datetime import datetime
+from database.helpers import get_tags, get_str_or_discard
 import json
 
 
@@ -58,17 +59,21 @@ def store(request):
     """
     if request.user.is_authenticated():
         data = request.POST.get('data')
-        data_type = request.POST.get('type')
+        data_type = get_str_or_discard(request.POST.get('type'))
+        tags = request.POST.get('tags')
         if data and data_type:
             db = Collection(MongoClient().pinyto, request.user.username)
             document = {'type': data_type,
                         'time': datetime.utcnow(),
+                        'tags': get_tags(json.loads(tags)),
                         'data': json.loads(data)}
             db.insert(document)
             return json_response({'success': True})
         else:
             return json_response({'error': "If you want to store data you have to send your " +
                                            "data as json string in a POST request in the parameter 'data'. " +
-                                           "You also have to supply a type string for the data."})
+                                           "You also have to supply a type string for the data. " +
+                                           "Supplying tags in the parameter 'tags' is optional " +
+                                           "but strongly recommended."})
     else:
         return json_response({'error': "You have to log in before you are allowed to store data."})
