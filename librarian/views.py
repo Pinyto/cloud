@@ -5,7 +5,7 @@ This File is part of Pinyto
 
 from api_prototype.views import PinytoAPI
 from service.response import *
-from httplib import HTTPSConnection
+from service.http import secure_request
 from bs4 import BeautifulSoup, NavigableString
 import json
 
@@ -161,28 +161,20 @@ class Librarian(PinytoAPI):
                 query = book['data']['isbn']
             if 'ean' in book['data']:
                 query = book['data']['ean']
-            connection = HTTPSConnection('portal.dnb.de')
-            connection.request('GET', '/opac.htm?query=' + query + '&method=simpleSearch')
-            response = connection.getresponse()
-            if response.status != 200:
+            content = secure_request('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
+            if not content:
                 completion_successful = False
                 continue
-            content = response.read()
             soup = BeautifulSoup(content)
             table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})  # They have a typo here!
             if not table:
-                print(soup)
                 # we propably found a list of results. lets check for that
                 result_list = soup.find('table', attrs={'summary': "Suchergebnis"})  # They have a typo here too!
                 if result_list:
-                    print(result_list)
-                    connection = HTTPSConnection('portal.dnb.de')
-                    connection.request('GET', result_list.a['href'])
-                    response = connection.getresponse()
-                    if response.status != 200:
+                    content = secure_request('portal.dnb.de', result_list.a['href'])
+                    if not content:
                         completion_successful = False
                         continue
-                    content = response.read()
                     soup = BeautifulSoup(content)
                     table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})
             if table:
@@ -266,7 +258,6 @@ class Librarian(PinytoAPI):
                         if name_tag:
                             field_name = name_tag.string
 
-            connection.close()
             # save the book
             self.save(book)
         return completion_successful
