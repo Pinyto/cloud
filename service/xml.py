@@ -1,0 +1,22 @@
+# coding=utf-8
+"""
+This File is part of Pinyto
+"""
+
+from bs4 import NavigableString
+
+
+def extract_content(tag):
+        """
+        Takes a tag and returns the string content without markup.
+
+        @param tag: BeautifulSoup Tag
+        @return: string
+        """
+        content = u''
+        for c in tag.contents:
+            if not isinstance(c, NavigableString):
+                content += extract_content(c)
+            else:
+                content += unicode(c)
+        return u' '.join(content.split())

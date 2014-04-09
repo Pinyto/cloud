@@ -6,7 +6,8 @@ This File is part of Pinyto
 from api_prototype.views import PinytoAPI
 from service.response import *
 from service.http import secure_request
-from bs4 import BeautifulSoup, NavigableString
+from service.xml import extract_content
+from bs4 import BeautifulSoup
 import json
 
 
@@ -124,21 +125,6 @@ class Librarian(PinytoAPI):
             print("wrong Type")
             return False
 
-    def extract_content(self, tag):
-        """
-        Takes a tag and returns the string content without markup.
-
-        @param tag: BeautifulSoup Tag
-        @return: string
-        """
-        content = u''
-        for c in tag.contents:
-            if not isinstance(c, NavigableString):
-                content += self.extract_content(c)
-            else:
-                content += unicode(c)
-        return u' '.join(content.split())
-
     def complete(self):
         """
         Tries to load missing data from the german national library website.
@@ -184,26 +170,26 @@ class Librarian(PinytoAPI):
                         # set Author
                         if not 'author' in book['data']:
                             if field_name == u'Person(en)':
-                                book['data']['author'] = self.extract_content(td)
+                                book['data']['author'] = extract_content(td)
 
                         # set Title
                         if not 'title' in book['data']:
                             if field_name == u'Mehrteiliges Werk':
-                                book['data']['title'] = self.extract_content(td)
+                                book['data']['title'] = extract_content(td)
                             if field_name == u'Titel':
-                                book['data']['title'] = self.extract_content(td)
+                                book['data']['title'] = extract_content(td)
 
                         # set Uniform Title
                         if not 'uniform_title' in book['data']:
                             if field_name == u'Einheitssachtitel':
-                                book['data']['uniform_title'] = self.extract_content(td)
+                                book['data']['uniform_title'] = extract_content(td)
 
                         # set Year
                         if not 'year' in book['data']:
                             if field_name == u'Zugehörige Bände':
                                 years = []
                                 for volume_tag in td.findAll('li'):
-                                    volume_infos = self.extract_content(volume_tag).split('<br/>')
+                                    volume_infos = extract_content(volume_tag).split('<br/>')
                                     try:
                                         years.append(int(volume_infos[-1]))
                                     except ValueError:
@@ -218,40 +204,40 @@ class Librarian(PinytoAPI):
                                         book['data']['year'] = year
                             if field_name == u'Erscheinungsjahr':
                                 try:
-                                    book['data']['year'] = int(self.extract_content(td))
+                                    book['data']['year'] = int(extract_content(td))
                                 except ValueError:
                                     pass
 
                         # set Languages
                         if not 'languages' in book['data']:
                             if field_name == u'Sprache(n)':
-                                book['data']['languages'] = self.extract_content(td)
+                                book['data']['languages'] = extract_content(td)
 
                         # set Category
                         if not 'category' in book['data']:
                             if field_name == u'Sachgruppe(n)':
-                                book['data']['category'] = self.extract_content(td)
+                                book['data']['category'] = extract_content(td)
 
                         # set Publisher
                         if not 'publisher' in book['data']:
                             if field_name == u'Verleger':
-                                book['data']['publisher'] = self.extract_content(td)
+                                book['data']['publisher'] = extract_content(td)
 
                         # set Edition
                         if not 'edition' in book['data']:
                             if field_name == u'Ausgabe':
-                                book['data']['edition'] = self.extract_content(td)
+                                book['data']['edition'] = extract_content(td)
 
                         # set ISBN
                         if not 'isbn' in book['data']:
                             if field_name == u'ISBN/Einband/Preis':
-                                isbn, more = self.extract_content(td).split(' ', 1)
+                                isbn, more = extract_content(td).split(' ', 1)
                                 book['data']['isbn'] = isbn
 
                         # set EAN
                         if not 'ean' in book['data']:
                             if field_name == u'EAN':
-                                book['data']['ean'] = self.extract_content(td)
+                                book['data']['ean'] = extract_content(td)
 
                         # find label
                         name_tag = td.find('strong')
