@@ -1,7 +1,10 @@
 # coding=utf-8
+"""
+This File is part of Pinyto
+"""
 import unittest
 
-from service.tests import test_database, test_response
+from pinytoCloud.tests import test_authentication
 
 
 def suite():
@@ -12,7 +15,6 @@ def suite():
     """
     tests_loader = unittest.TestLoader().loadTestsFromModule
     test_suites = [
-        tests_loader(test_database),
-        tests_loader(test_response)
+        tests_loader(test_authentication)
     ]
     return unittest.TestSuite(test_suites)
