@@ -44,7 +44,7 @@ def authenticate(request):
     except IndexError:
         return json_response({'error': "User '" + username + "' is unknown. Please register first."})
     try:
-        key = user.keys.filter(hash=key_hash).all()[0].get_key()
+        key = user.keys.filter(key_hash=key_hash).all()[0].get_key()
     except IndexError:
         return json_response({'error': "This is not a registered public key of this user."})
     user.start_session()
