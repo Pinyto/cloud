@@ -42,3 +42,13 @@ class AuthenticateTest(TestCase):
         res = json.loads(response.content)
         self.assertIn('error', res)
         self.assertEqual(res['error'], "This is not a registered public key of this user.")
+
+    def test_successful_response(self):
+        response = self.client.post(
+            reverse('authenticate'),
+            {'username': 'hugo', 'keyhash': 'b44c98daa82c496c36727c32506df8f9bdd0e542af4b9498937d816ab28c9721'}
+        )
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertEqual('error', "This is not a registered public key of this user.")
