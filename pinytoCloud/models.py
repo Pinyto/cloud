@@ -10,6 +10,7 @@ from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16encode
 from hashlib import sha256
 from datetime import datetime
+from pinytoCloud.helpers import create_token
 import random
 
 
@@ -27,15 +28,13 @@ class User(models.Model):
 
         @return: User object
         """
-        ru = lambda: unichr(random.randint(33, 127))
-        token = u''.join([ru() for _ in xrange(16)])
         try:
-            self.session.token = token
+            self.session.token = create_token()
             self.session.timestamp = datetime.now()
             self.session.save()
             session = self.session
         except ObjectDoesNotExist:
-            session = Session(token=token, timestamp=datetime.now(), user=self)
+            session = Session(token=create_token(), timestamp=datetime.now(), user=self)
             session.save()
         return session
 

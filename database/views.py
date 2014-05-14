@@ -13,6 +13,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.response import json_response
 from datetime import datetime
+from hashlib import sha256
 from database.helpers import get_tags, get_str_or_discard
 from pinytoCloud.settings import PINYTO_KEY
 import json
@@ -49,7 +50,9 @@ def authenticate(request):
         return json_response({'error': "This is not a registered public key of this user."})
     user.start_session()
     encrypted_token = user.session.get_encrypted_token(key)
-    signature = PINYTO_KEY.sign(encrypted_token, get_random_bytes(16))
+    hasher = sha256()
+    hasher.update(encrypted_token)
+    signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
     return json_response({'encrypted_token': encrypted_token, 'signature': unicode(signature[0])})
 
 
