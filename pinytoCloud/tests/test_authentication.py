@@ -21,7 +21,11 @@ def mock_get_random_string(length=16):
 
 
 class MockCypher(object):
-    def encrypt(self, message):
+    """
+    This class mocks Crypto.Cipher objects and does nothing.
+    """
+    @staticmethod
+    def encrypt(message):
         """
         This does nothing.
 
@@ -68,8 +72,8 @@ class AuthenticateTest(TestCase):
     @patch('pinytoCloud.models.PKCS1_OAEP')
     @patch('database.views.get_random_bytes', mock_get_random_string)
     @patch('pinytoCloud.models.create_token', mock_get_random_string)
-    def test_successful_response(self, cypher_mock):
-        cypher_mock.new.return_value = MockCypher()
+    def test_successful_response(self, cipher_mock):
+        cipher_mock.new.return_value = MockCypher()
         response = self.client.post(
             reverse('authenticate'),
             {'username': 'hugo', 'keyhash': 'b44c98daa82c496c36727c32506df8f9bdd0e542af4b9498937d816ab28c9721'}
