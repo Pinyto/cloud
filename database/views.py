@@ -5,7 +5,7 @@ This File is part of Pinyto
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 #from django.contrib.auth import authenticate, login as backend_login, logout as backend_logout
-from pinytoCloud.models import User
+from pinytoCloud.models import User, StoredPublicKey
 from Crypto.Random import get_random_bytes
 from django.core.context_processors import csrf
 from project_path import project_path
@@ -36,7 +36,7 @@ def authenticate(request):
     Returns an encrypted token and the matching signature
 
     @param request:
-    @return: {encrypted_token: string, signature: string}
+    @return: json {encrypted_token: string, signature: string}
     """
     username = request.POST.get('username')
     key_hash = request.POST.get('keyhash')
@@ -54,6 +54,29 @@ def authenticate(request):
     hasher.update(encrypted_token)
     signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
     return json_response({'encrypted_token': encrypted_token, 'signature': unicode(signature[0])})
+
+
+@csrf_exempt
+def register(request):
+    """
+    Creates an account if possible and saves the public key.
+
+    @param request:
+    @return: json
+    """
+    username = request.POST.get('username')
+    key_data = json.loads(request.POST.get('public_key'))
+    if User.objects.filter(name=username).count() > 0:
+        return json_response({'error': "Username '" + username + "' is already taken. Try another username."})
+    if not 'N' in key_data or not 'e' in key_data:
+        return json_response(
+            {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
+        )
+    # TODO: Do sanity checks on the key data.
+    new_user = User(name=username)
+    new_user.save()
+    StoredPublicKey.create(new_user, key_data['N'], key_data['e'])
+    return json_response({'success': True})
 
 
 @csrf_exempt
