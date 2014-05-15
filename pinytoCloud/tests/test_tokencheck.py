@@ -7,6 +7,7 @@ from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import User, StoredPublicKey, Session
 from datetime import datetime
 import json
+import logging
 
 
 class TokenCheckTest(TestCase):
@@ -32,6 +33,7 @@ class TokenCheckTest(TestCase):
         e = long(65537)
         key = StoredPublicKey.create(hugo, n, e)
         session = hugo.start_session(key)
+        logging.disable(logging.CRITICAL)
         response = check_token(session.token, '123456789')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
