@@ -7,6 +7,8 @@ from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import encode_underscore_fields_list
 from service.response import json_response
+from pinytoCloud.checktoken import check_token
+from pinytoCloud.models import Session
 from datetime import datetime
 
 ApiClasses = [('librarian.views', 'Librarian')]
@@ -22,17 +24,20 @@ def load(request):
     @param request:
     @return: json
     """
-    if request.user.is_authenticated():
+    session = check_token(request.POST.get('token'), request.POST.get('signature'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
         for api_class_origin, api_class_name in ApiClasses:
             module = __import__(api_class_origin, globals(), locals(), api_class_name)
-            api_object = getattr(module, api_class_name)(request.user.username)
+            api_object = getattr(module, api_class_name)(session.user.name)
             result = api_object.view(request)
             if result:
                 return result
         return json_response(
             {'error': "The type of your request didn't match a known type. Please use one of [index] or no type."})
     else:
-        return json_response({'error': "You have to log in before you are allowed to read data."})
+        # session is not a session so it has to be response object with an error message
+        return session
 
 
 class PinytoAPI(object):
