@@ -72,10 +72,19 @@ def register(request):
         return json_response(
             {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
         )
-    # TODO: Do sanity checks on the key data.
+    try:
+        n = long(key_data['N'])
+        if n < pow(2, 3071):
+            return json_response({'error': "Factor N in the public key is too small. Please use 3072 bit."})
+    except ValueError:
+        return json_response({'error': "Factor N in the public key is not a number. It has to be a long integer."})
+    try:
+        e = long(key_data['e'])
+    except ValueError:
+        return json_response({'error': "Factor e in the public key is not a number. It has to be a long integer."})
     new_user = User(name=username)
     new_user.save()
-    StoredPublicKey.create(new_user, key_data['N'], key_data['e'])
+    StoredPublicKey.create(new_user, key_data['N'], e)
     return json_response({'success': True})
 
 
