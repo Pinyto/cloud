@@ -70,7 +70,7 @@ class AuthenticateTest(TestCase):
         self.assertEqual(res['error'], "This is not a registered public key of this user.")
 
     @patch('pinytoCloud.models.PKCS1_OAEP')
-    @patch('database.views.get_random_bytes', mock_get_random_string)
+    @patch('pinytoCloud.views.get_random_bytes', mock_get_random_string)
     @patch('pinytoCloud.models.create_token', mock_get_random_string)
     def test_successful_response(self, cipher_mock):
         cipher_mock.new.return_value = MockCypher()

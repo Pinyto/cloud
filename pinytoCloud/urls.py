@@ -9,10 +9,15 @@ from django.conf.urls import patterns, include, url
 # admin.autodiscover()
 
 urlpatterns = patterns(
-    'database.views',
+    'pinytoCloud.views',
 
     url(r'^authenticate$', 'authenticate', name='authenticate'),
     url(r'^register$', 'register', name='register'),
+)
+
+urlpatterns += patterns(
+    'database.views',
+
     url(r'^store$', 'store', name='store'),
     #url(r'^\.login$', 'login', name='login'),
 
