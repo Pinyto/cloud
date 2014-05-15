@@ -21,20 +21,22 @@ class User(models.Model):
     """
     name = models.CharField(max_length=30, primary_key=True)
 
-    def start_session(self):
+    def start_session(self, key_db_object):
         """
         Creates a session object with a new random token.
         If there is an existing session it will be overwritten
 
+        @param key_db_object: StoredPublicKey
         @return: User object
         """
         try:
             self.session.token = create_token()
             self.session.timestamp = datetime.now()
+            self.session.key = key_db_object
             self.session.save()
             session = self.session
         except ObjectDoesNotExist:
-            session = Session(token=create_token(), timestamp=datetime.now(), user=self)
+            session = Session(token=create_token(), timestamp=datetime.now(), key=key_db_object, user=self)
             session.save()
         return session
 
@@ -44,9 +46,9 @@ class StoredPublicKey(models.Model):
     This class is used to store public keys. The matching RSA object can be
     created with the get_key method.
     """
+    key_hash = models.CharField(max_length=10, primary_key=True)
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
-    key_hash = models.CharField(max_length=64)
     user = models.ForeignKey(User, related_name='keys')
 
     @classmethod
@@ -61,7 +63,7 @@ class StoredPublicKey(models.Model):
         """
         hasher = sha256()
         hasher.update(n + str(e))
-        stored_key = cls(user=user, N=n, e=e, key_hash=hasher.hexdigest())
+        stored_key = cls(user=user, N=n, e=e, key_hash=hasher.hexdigest()[:10])
         stored_key.save()
         return stored_key
 
@@ -82,13 +84,14 @@ class Session(models.Model):
     token = models.CharField(max_length=16, primary_key=True)
     timestamp = models.DateTimeField()
     user = models.OneToOneField(User, related_name='session')
+    key = models.OneToOneField(StoredPublicKey, related_name='related_session')
 
-    def get_encrypted_token(self, key):
+    def get_encrypted_token(self):
         """
         This method returns the session token encrypted with the key.
 
         @param key: RSA public key object
         @return:
         """
-        cipher = PKCS1_OAEP.new(key)
+        cipher = PKCS1_OAEP.new(self.key.get_key())
         return b16encode(cipher.encrypt(self.token))

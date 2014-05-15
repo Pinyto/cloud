@@ -76,7 +76,7 @@ class AuthenticateTest(TestCase):
         cipher_mock.new.return_value = MockCypher()
         response = self.client.post(
             reverse('authenticate'),
-            {'username': 'hugo', 'keyhash': 'b44c98daa82c496c36727c32506df8f9bdd0e542af4b9498937d816ab28c9721'}
+            {'username': 'hugo', 'keyhash': 'b44c98daa8'}
         )
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)

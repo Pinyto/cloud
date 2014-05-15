@@ -45,11 +45,11 @@ def authenticate(request):
     except IndexError:
         return json_response({'error': "User '" + username + "' is unknown. Please register first."})
     try:
-        key = user.keys.filter(key_hash=key_hash).all()[0].get_key()
+        key = user.keys.filter(key_hash=key_hash).all()[0]
     except IndexError:
         return json_response({'error': "This is not a registered public key of this user."})
-    user.start_session()
-    encrypted_token = user.session.get_encrypted_token(key)
+    user.start_session(key)
+    encrypted_token = user.session.get_encrypted_token()
     hasher = sha256()
     hasher.update(encrypted_token)
     signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
