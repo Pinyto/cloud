@@ -85,7 +85,7 @@ class RegisterTest(TestCase):
         res = json.loads(response.content)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
-        self.assertEqual(User.objects.filter(name='hugo').count(),1)
+        self.assertEqual(User.objects.filter(name='hugo').count(), 1)
         key = User.objects.filter(name='hugo').all()[0].keys.all()[0].get_key()
         self.assertEqual(key.n, long(n))
         self.assertEqual(key.e, long(e))
