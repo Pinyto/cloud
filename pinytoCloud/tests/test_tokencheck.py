@@ -6,6 +6,7 @@ from django.test import TestCase
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import User, StoredPublicKey, Session
 from datetime import datetime
+from dateutil.tz import tzlocal
 import json
 import logging
 
@@ -57,7 +58,7 @@ class TokenCheckTest(TestCase):
             "1158934104945289"
         e = long(65537)
         key = StoredPublicKey.create(hugo, n, e)
-        session = Session(token="abcdabcdabcdabcd", timestamp=datetime.now(), user=hugo, key=key)
+        session = Session(token="abcdabcdabcdabcd", timestamp=datetime.now(tzlocal()), user=hugo, key=key)
         session.save()
         return_value = check_token(
             session.token,
