@@ -65,7 +65,12 @@ def register(request):
     @return: json
     """
     username = request.POST.get('username')
-    key_data = json.loads(request.POST.get('public_key'))
+    if not username:
+        return json_response({'error': "You have to supply a username."})
+    try:
+        key_data = json.loads(request.POST.get('public_key'))
+    except TypeError:
+        return json_response({'error': "You have to supply a public_key."})
     if User.objects.filter(name=username).count() > 0:
         return json_response({'error': "Username '" + username + "' is already taken. Try another username."})
     if not 'N' in key_data or not 'e' in key_data:

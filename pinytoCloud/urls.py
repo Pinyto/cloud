@@ -11,7 +11,8 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns(
     'database.views',
 
-    url(r'^authenticate', 'authenticate', name='authenticate'),
+    url(r'^authenticate$', 'authenticate', name='authenticate'),
+    url(r'^register$', 'register', name='register'),
     url(r'^store$', 'store', name='store'),
     #url(r'^\.login$', 'login', name='login'),
 
