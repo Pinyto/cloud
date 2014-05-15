@@ -89,7 +89,7 @@ def register(request):
         return json_response({'error': "Factor e in the public key is not a number. It has to be a long integer."})
     new_user = User(name=username)
     new_user.save()
-    StoredPublicKey.create(new_user, key_data['N'], e)
+    StoredPublicKey.create(new_user, unicode(key_data['N']), e)
     return json_response({'success': True})
 
 
