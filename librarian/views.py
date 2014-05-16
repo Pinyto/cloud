@@ -43,10 +43,10 @@ class Librarian(PinytoAPI):
         @param request:
         @return: json
         """
-        request_type = request.GET.get('type')
+        request_type = request.POST.get('type')
         if request_type == 'index':
-            ean = request.GET.get('ean')
-            isbn = request.GET.get('isbn')
+            ean = request.POST.get('ean')
+            isbn = request.POST.get('isbn')
             if ean:
                 books = self.find({'type': 'book', 'data.ean': ean})
             elif isbn:
@@ -154,7 +154,7 @@ class Librarian(PinytoAPI):
             soup = BeautifulSoup(content)
             table = soup.find('table', attrs={'summary': "Vollanzeige des Suchergebnises"})  # They have a typo here!
             if not table:
-                # we propably found a list of results. lets check for that
+                # we probably found a list of results. lets check for that
                 result_list = soup.find('table', attrs={'summary': "Suchergebnis"})  # They have a typo here too!
                 if result_list:
                     content = secure_request('portal.dnb.de', result_list.a['href'])
