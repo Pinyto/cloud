@@ -55,7 +55,7 @@ def register(request):
     except TypeError:
         return json_response({'error': "You have to supply a public_key."})
     if User.objects.filter(name=username).count() > 0:
-        return json_response({'error': "Username '" + username + "' is already taken. Try another username."})
+        return json_response({'error': "Username " + username + " is already taken. Try another username."})
     if not 'N' in key_data or not 'e' in key_data:
         return json_response(
             {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
