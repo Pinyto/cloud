@@ -16,7 +16,7 @@ class RegisterTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "Username 'hugo' is already taken. Try another username.")
+        self.assertEqual(res['error'], "Username hugo is already taken. Try another username.")
 
     def test_no_username(self):
         response = self.client.post(reverse('register'), {'thing': '42'})

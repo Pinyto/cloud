@@ -30,18 +30,18 @@ class User(models.Model):
         @return: User object
         """
         try:
-            self.session.token = create_token()
-            self.session.timestamp = datetime.now(tzlocal())
-            self.session.key = key_db_object
-            self.session.save()
-        except ObjectDoesNotExist:
-            self.session = Session(
+            session = self.sessions.filter(key=key_db_object).all()[0]
+            session.token = create_token()
+            session.timestamp = datetime.now(tzlocal())
+            session.save()
+        except IndexError:
+            session = Session(
                 token=create_token(),
                 timestamp=datetime.now(tzlocal()),
                 key=key_db_object,
                 user=self)
-            self.session.save()
-        return self.session
+            session.save()
+        return session
 
 
 class StoredPublicKey(models.Model):
@@ -86,7 +86,7 @@ class Session(models.Model):
     """
     token = models.CharField(max_length=16, primary_key=True)
     timestamp = models.DateTimeField()
-    user = models.OneToOneField(User, related_name='session')  # TODO: multiple sessions
+    user = models.ForeignKey(User, related_name='sessions')
     key = models.OneToOneField(StoredPublicKey, related_name='related_session')
 
     def get_encrypted_token(self):
