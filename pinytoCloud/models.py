@@ -12,7 +12,6 @@ from hashlib import sha256
 from datetime import datetime
 from dateutil.tz import tzlocal
 from pinytoCloud.helpers import create_token
-import random
 
 
 class User(models.Model):
@@ -35,11 +34,14 @@ class User(models.Model):
             self.session.timestamp = datetime.now(tzlocal())
             self.session.key = key_db_object
             self.session.save()
-            session = self.session
         except ObjectDoesNotExist:
-            session = Session(token=create_token(), timestamp=datetime.now(tzlocal()), key=key_db_object, user=self)
-            session.save()
-        return session
+            self.session = Session(
+                token=create_token(),
+                timestamp=datetime.now(tzlocal()),
+                key=key_db_object,
+                user=self)
+            self.session.save()
+        return self.session
 
 
 class StoredPublicKey(models.Model):
@@ -84,7 +86,7 @@ class Session(models.Model):
     """
     token = models.CharField(max_length=16, primary_key=True)
     timestamp = models.DateTimeField()
-    user = models.OneToOneField(User, related_name='session')
+    user = models.OneToOneField(User, related_name='session')  # TODO: multiple sessions
     key = models.OneToOneField(StoredPublicKey, related_name='related_session')
 
     def get_encrypted_token(self):
