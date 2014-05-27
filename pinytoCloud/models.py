@@ -84,7 +84,7 @@ class Session(models.Model):
     """
     The session saves the session token used for verification.
     """
-    token = models.CharField(max_length=16, primary_key=True, unique=True)
+    token = models.CharField(max_length=16)
     timestamp = models.DateTimeField()
     user = models.ForeignKey(User, related_name='sessions')
     key = models.OneToOneField(StoredPublicKey, related_name='related_session', unique=True)
