@@ -49,7 +49,7 @@ class StoredPublicKey(models.Model):
     This class is used to store public keys. The matching RSA object can be
     created with the get_key method.
     """
-    key_hash = models.CharField(max_length=10, primary_key=True)
+    key_hash = models.CharField(max_length=10, primary_key=True, unique=True)
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
     user = models.ForeignKey(User, related_name='keys')
@@ -84,10 +84,10 @@ class Session(models.Model):
     """
     The session saves the session token used for verification.
     """
-    token = models.CharField(max_length=16, primary_key=True)
+    token = models.CharField(max_length=16, primary_key=True, unique=True)
     timestamp = models.DateTimeField()
     user = models.ForeignKey(User, related_name='sessions')
-    key = models.OneToOneField(StoredPublicKey, related_name='related_session')
+    key = models.OneToOneField(StoredPublicKey, related_name='related_session', unique=True)
 
     def get_encrypted_token(self):
         """
