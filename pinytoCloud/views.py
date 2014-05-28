@@ -32,6 +32,7 @@ def authenticate(request):
     except IndexError:
         return json_response({'error': "This is not a registered public key of this user."})
     user.start_session(key)
+    assert user.sessions.filter(key=key).all()[0].token == 'TOKEN'
     encrypted_token = user.sessions.filter(key=key).all()[0].get_encrypted_token()
     hasher = sha256()
     hasher.update(encrypted_token)
