@@ -97,4 +97,4 @@ class Session(models.Model):
         @return:
         """
         cipher = PKCS1_OAEP.new(self.key.get_key())
-        return b16encode(cipher.encrypt(self.token))
+        return b16encode(cipher.encrypt(self.token.encode('ascii')))
