@@ -31,8 +31,8 @@ def authenticate(request):
         key = user.keys.filter(key_hash=key_hash).all()[0]
     except IndexError:
         return json_response({'error': "This is not a registered public key of this user."})
-    user.start_session(key)
-    encrypted_token = user.sessions.filter(key=key).all()[0].get_encrypted_token()
+    session = user.start_session(key)
+    encrypted_token = session.get_encrypted_token()
     hasher = sha256()
     hasher.update(encrypted_token)
     signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
