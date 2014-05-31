@@ -23,6 +23,8 @@ def authenticate(request):
     """
     username = request.POST.get('username')
     key_hash = request.POST.get('keyhash')
+    if not username or not key_hash:
+        return json_response({'error': "You have to supply a username and a keyhash to authenticate."})
     try:
         user = User.objects.filter(name=username).all()[0]
     except IndexError:
