@@ -176,7 +176,7 @@ class Librarian(PinytoAPI):
                         if not 'title' in book['data']:
                             if field_name == u'Mehrteiliges Werk':
                                 book['data']['title'] = extract_content(td)
-                            if field_name == u'Titel':
+                            if u'Titel' in field_name:
                                 book['data']['title'] = extract_content(td)
 
                         # set Uniform Title
