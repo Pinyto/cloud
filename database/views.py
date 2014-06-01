@@ -29,7 +29,7 @@ def store(request):
         data_type = get_str_or_discard(str(request.POST.get('type')))
         try:
             tags = get_tags(json.loads(request.POST.get('tags')))
-        except ValueError:
+        except TypeError or ValueError:
             tags = []
         if data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
