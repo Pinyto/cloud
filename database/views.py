@@ -22,7 +22,7 @@ def store(request):
 
     :param request:
     """
-    session = check_token(request.POST.get('token'), request.POST.get('signature'))
+    session = check_token(request.POST.get('token'))
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         data = request.POST.get('data')
