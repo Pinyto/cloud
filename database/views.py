@@ -26,7 +26,7 @@ def store(request):
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         data = request.POST.get('data')
-        data_type = get_str_or_discard(request.POST.get('type'))
+        data_type = get_str_or_discard(str(request.POST.get('type')))
         tags = request.POST.get('tags')
         if data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
@@ -37,7 +37,7 @@ def store(request):
             db.insert(document)
             return json_response({'success': True})
         else:
-            return json_response({'data': data, 'data_type': data_type, 'type': request.POST.get('type'), 'typetype': type(request.POST.get('type')), 'error': "If you want to store data you have to send your " +
+            return json_response({'data': data, 'data_type': data_type, 'type': str(request.POST.get('type')), 'typetype': type(request.POST.get('type')), 'error': "If you want to store data you have to send your " +
                                            "data as json string in a POST request in the parameter 'data'. " +
                                            "You also have to supply a type string for the data. " +
                                            "Supplying tags in the parameter 'tags' is optional " +
