@@ -37,7 +37,7 @@ def store(request):
             db.insert(document)
             return json_response({'success': True})
         else:
-            return json_response({'error': "If you want to store data you have to send your " +
+            return json_response({'data': data, 'data_type': data_type, 'error': "If you want to store data you have to send your " +
                                            "data as json string in a POST request in the parameter 'data'. " +
                                            "You also have to supply a type string for the data. " +
                                            "Supplying tags in the parameter 'tags' is optional " +
