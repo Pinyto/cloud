@@ -27,12 +27,15 @@ def store(request):
     if isinstance(session, Session):
         data = request.POST.get('data')
         data_type = get_str_or_discard(str(request.POST.get('type')))
-        tags = request.POST.get('tags')
+        try:
+            tags = get_tags(json.loads(request.POST.get('tags')))
+        except ValueError:
+            tags = []
         if data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
             document = {'type': data_type,
                         'time': datetime.utcnow(),
-                        'tags': get_tags(json.loads(tags)),
+                        'tags': tags,
                         'data': json.loads(data)}
             db.insert(document)
             return json_response({'success': True})
