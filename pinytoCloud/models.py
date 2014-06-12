@@ -4,7 +4,6 @@ In this file is the model definition for Pinyto users and for sessions.
 """
 
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16encode
@@ -93,8 +92,58 @@ class Session(models.Model):
         """
         This method returns the session token encrypted with the key.
 
-        @param key: RSA public key object
-        @return:
+        @return: base16 encoded encrypted token which is a string
         """
         cipher = PKCS1_OAEP.new(self.key.get_key())
         return b16encode(cipher.encrypt(self.token.encode('ascii')))
+
+
+class Assembly(models.Model):
+    """
+    An Assembly is a collection of ApiFunctions and Jobs which can be installed and activated
+    for the user en block. Each assembly has a unique identifier referencing the exact set of
+    ApiFunctions and Jobs. The original author can update his assembly and all users who
+    installed it automatically load the new version. A user may fork an assembly which creates
+    an exact clone with the forking user as new author.
+    """
+    name = models.CharField(max_length=42)
+    author = models.ForeignKey(User, related_name='assemblies')
+    description = models.TextField()
+
+    def fork(self, new_user):
+        """
+        A user may fork an assembly which creates an exact clone with the forking user as new
+        author.
+
+        @param new_user: User
+        @return: Assembly
+        """
+        fork = Assembly()
+        fork.name = self.name
+        fork.author = new_user
+        fork.description = self.description
+        fork.save()
+        return fork
+
+
+class ApiFunction(models.Model):
+    """
+    ApiFunctions answer to requests to a url in the format user/assemblyname/functionname.
+    They always return a json response.
+    """
+    name = models.CharField(max_length=42, primary_key=True)
+    code = models.TextField()
+    assembly = models.ForeignKey(Assembly, related_name='api_functions')
+
+
+class Job(models.Model):
+    """
+    Jobs are scripts that can be run on a regular basis or which are queued for later
+    execution (if the ApiFunction tries to return something early but additional work
+    needs to be done). This model saves these scripts. Jobs do not return anything but
+    save their work to the database. Results can be polled by ApiFunctions.
+    """
+    name = models.CharField(max_length=42, primary_key=True)
+    code = models.TextField()
+    assembly = models.ForeignKey(Assembly, related_name='jobs')
+    schedule = models.IntegerField(default=0) # each schedule minutes (0 means never)
