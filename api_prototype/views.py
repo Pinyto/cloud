@@ -10,8 +10,42 @@ from service.response import json_response
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
 from datetime import datetime
+from pinytoCloud.models import User, Assembly, ApiFunction
 
 ApiClasses = [('librarian.views', 'Librarian')]
+
+
+def api_call(request, user_name, assembly_name, function_name):
+    """
+    This selects a ApiFunction ant executes it if possible.
+
+    @param user_name: string
+    @param assembly_name: string
+    @param function_name: string
+    @param request: Django Request object
+    @return: json response
+    """
+    try:
+        user = User.objects.filter(name=user_name).all()[0]
+        assemblies = user.assemblies.filter(name=assembly_name).all()
+        if len(assemblies) > 1:
+            return json_response(
+                {'error': "The user has more than one assembly of this name. That does not make any sense."}
+            )
+        assembly = assemblies[0]
+    except IndexError:
+        return json_response(
+            {'error': "Assembly not found. Does " + user_name + " have an Assembly named " + assembly_name + "?"}
+        )
+    try:
+        api_function = assembly.api_functions.filter(name=function_name).all()[0]
+    except IndexError:
+        return json_response(
+            {'error': "The assembly " + user_name + "/" + assembly_name + ' exists but has no API function "' +
+                      function_name + '".'}
+        )
+    print(api_function.code)
+    return json_response({'user_name': user_name, 'assembly_name': assembly_name, 'function_name': function_name})
 
 
 def load(request):
