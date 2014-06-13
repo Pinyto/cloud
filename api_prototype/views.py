@@ -10,7 +10,8 @@ from service.response import json_response
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
 from datetime import datetime
-from pinytoCloud.models import User, Assembly, ApiFunction
+from pinytoCloud.models import User
+from sandbox import safely_exec
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
@@ -45,7 +46,9 @@ def api_call(request, user_name, assembly_name, function_name):
                       function_name + '".'}
         )
     print(api_function.code)
-    return json_response({'user_name': user_name, 'assembly_name': assembly_name, 'function_name': function_name})
+    response_data, time = safely_exec(api_function.code, user)
+    print(time)
+    return json_response(response_data)
 
 
 def load(request):
