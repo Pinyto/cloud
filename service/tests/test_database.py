@@ -1,4 +1,7 @@
 # coding=utf-8
+"""
+This File is part of Pinyto
+"""
 from django.test import TestCase
 from service.database import encode_underscore_fields, encode_underscore_fields_list
 
