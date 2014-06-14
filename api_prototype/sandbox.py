@@ -5,6 +5,7 @@ This File is part of Pinyto
 
 import time
 from multiprocessing import Process, Queue
+from multiprocessing.queues import Empty
 from seccomp_process import SecureHost
 
 
@@ -20,15 +21,13 @@ def sandbox(code, user, queue):
     @param queue: Queue
     @return: nothing (the queue is used for returning the results)
     """
-    start_time = time.clock()
     secure_host = SecureHost()
     secure_host.start_child()
     try:
         result = secure_host.execute(code)
     finally:
         secure_host.kill_child()
-    end_time = time.clock()
-    queue.put((result, end_time - start_time))
+    queue.put(result)
 
 
 def safely_exec(code, user):
@@ -40,9 +39,22 @@ def safely_exec(code, user):
     @param user: User
     @return: json
     """
+    start_time = time.clock()
     queue = Queue(1)
     sandbox_process = Process(target=sandbox, args=(code, user, queue))
     sandbox_process.start()
-    result, execution_time = queue.get()
+    result = ""
+    wait_for_data = True
+    termination = False
+    while wait_for_data and not termination:
+        try:
+            result = queue.get(True, 0.01)
+            wait_for_data = False
+        except Empty:
+            wait_for_data = True
+        if not sandbox_process.is_alive():
+            termination = True
+            result = {'error': "The code could not be executed because it tried to do something illegal."}
     sandbox_process.join()
-    return result, execution_time
+    end_time = time.clock()
+    return result, end_time - start_time
