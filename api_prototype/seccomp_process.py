@@ -17,6 +17,8 @@ import sys
 import StringIO
 import contextlib
 
+import gc
+
 _ffi = cffi.FFI()
 _ffi.cdef('void _exit(int);')
 _libc = _ffi.dlopen(None)
@@ -151,6 +153,7 @@ class SecureHost(object):
                     pass
 
         resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
+        self.claim_and_free_memory()
         prctl.set_seccomp(True)
         while True:
             sz, = struct.unpack('>L', read_exact(self.child, 4))
@@ -164,19 +167,59 @@ class SecureHost(object):
             write_exact(self.child, struct.pack('>L', len(json_response)))
             write_exact(self.child, json_response)
 
-    def execute(self, s):
+    def claim_memory(self, iteration=0):
+        """
+        This claims some memory to insure the heap is big enough for most api scripts.
+
+        @param iteration: integer
+        @return: nothing
+        """
+        useless_list = []
+        for i in range(100):
+            useless_list.append(range(100))
+        if iteration < 100:
+            self.claim_memory(iteration + 1)
+
+    def claim_and_free_memory(self):
+        """
+        This function uses claim_memory to claim memory on the heap and starts the garbage
+        collector to free this memory.
+
+        @return: nothing
+        """
+        self.claim_memory()
+        gc.collect()
+
+    def write_message_to_client(self, message_dict):
+        """
+        This constructs the json for the message and sends it to the child process.
+
+        @param message_dict: dict
+        @return: nothing
+        """
+        msg = json.dumps(message_dict)
+        write_exact(self.host, struct.pack('>L', len(msg)))
+        write_exact(self.host, msg)
+
+    def execute(self, code, db):
         """
         This is the host end for executing code in the child process. Code in s will be encoded as
         json and sent to the child through the open file descriptor. The host process waits till the
         result message is written to the pipe by the child process. Then the result is decoded and
         returned.
 
-        @param s: string (which is python code and may contain multiple lines)
+        @param code: string (which is python code and may contain multiple lines)
+        @param db: CollectionWrapper
         @return: string
         """
-        msg = json.dumps({'cmd': 'exec', 'body': s})
-        write_exact(self.host, struct.pack('>L', len(msg)))
-        write_exact(self.host, msg)
-        sz, = struct.unpack('>L', read_exact(self.host, 4))
-        response = json.loads(read_exact(self.host, sz))
-        return response['result']
+        result = ''
+        for line in code.splitlines(True):
+            self.write_message_to_client({'cmd': 'exec', 'body': line})
+            sz, = struct.unpack('>L', read_exact(self.host, 4))
+            response = json.loads(read_exact(self.host, sz))
+            #if 'db.ping' in response:
+            #    return_value = db.ping()
+            #    self.write_message_to_client({'response': return_value})
+            if 'result' in response:
+                result += response['result']
+        return result

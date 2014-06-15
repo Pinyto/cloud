@@ -25,7 +25,7 @@ def sandbox(code, db, queue):
     secure_host = SecureHost()
     secure_host.start_child()
     try:
-        result = secure_host.execute(code)
+        result = secure_host.execute(code, db)
     finally:
         secure_host.kill_child()
     end_time = time.clock()
@@ -51,7 +51,7 @@ def safely_exec(code, db):
     termination = False
     while wait_for_data and not termination:
         try:
-            result, child_time = queue.get(True, 0.01)
+            result, child_time = queue.get(True, 0.001)
             wait_for_data = False
         except Empty:
             wait_for_data = True
