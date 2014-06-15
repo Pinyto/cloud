@@ -10,7 +10,6 @@ import signal
 import socket
 import struct
 
-import cffi
 import prctl
 
 import sys
@@ -19,49 +18,7 @@ import contextlib
 
 import gc
 
-_ffi = cffi.FFI()
-_ffi.cdef('void _exit(int);')
-_libc = _ffi.dlopen(None)
-
-
-def _exit(n=1):
-    """
-    Invoke _exit(2) system call.
-    """
-    _libc._exit(n)
-
-
-def read_exact(fp, n):
-    """
-    Read only the specified number of bytes
-
-    @param fp: file pointer
-    @param n: (int) number of bytes to read
-    @return: byte string
-    """
-    buf = ''
-    while len(buf) < n:
-        buf2 = os.read(fp.fileno(), n)
-        if not buf2:
-            _exit(123)
-        buf += buf2
-    return buf2
-
-
-def write_exact(fp, s):
-    """
-    Write only the specified number of bytes
-
-    @param fp: file pointer
-    @param s: (int) number of bytes to write
-    @return: nothing
-    """
-    done = 0
-    while done < len(s):
-        written = os.write(fp.fileno(), s[done:])
-        if not written:
-            _exit(123)
-        done += written
+from api_prototype.sandbox_helpers import write_exact, read_exact, _exit
 
 
 @contextlib.contextmanager
@@ -201,7 +158,7 @@ class SecureHost(object):
         write_exact(self.host, struct.pack('>L', len(msg)))
         write_exact(self.host, msg)
 
-    def execute(self, code, db):
+    def execute(self, code, real_db):
         """
         This is the host end for executing code in the child process. Code in s will be encoded as
         json and sent to the child through the open file descriptor. The host process waits till the
@@ -209,7 +166,7 @@ class SecureHost(object):
         returned.
 
         @param code: string (which is python code and may contain multiple lines)
-        @param db: CollectionWrapper
+        @param real_db: CollectionWrapper
         @return: string
         """
         result = ''
@@ -217,9 +174,9 @@ class SecureHost(object):
             self.write_message_to_client({'cmd': 'exec', 'body': line})
             sz, = struct.unpack('>L', read_exact(self.host, 4))
             response = json.loads(read_exact(self.host, sz))
-            #if 'db.ping' in response:
-            #    return_value = db.ping()
-            #    self.write_message_to_client({'response': return_value})
+            if 'db.ping' in response:
+                return_value = real_db.ping()
+                self.write_message_to_client({'response': return_value})
             if 'result' in response:
                 result += response['result']
         return result
