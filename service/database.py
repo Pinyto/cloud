@@ -3,6 +3,95 @@
 This File is part of Pinyto
 """
 
+from pymongo.son_manipulator import ObjectId
+from datetime import datetime
+
+
+class CollectionWrapper(object):
+    """
+    This wrapper is user to expose the db to the users assemblies.
+    """
+    def __init__(self, collection):
+        self.db = collection
+
+    def find(self, query, limit=0):
+        """
+        Use this function to read from the database. This method
+        encodes all fields beginning with _ for returning a valid
+        json response.
+
+        @param query: json string
+        @param limit: int
+        @return: dict
+        """
+        return encode_underscore_fields_list(self.db.find(query).limit(limit))
+
+    def count(self, query):
+        """
+        Use this function to get a count from the database.
+
+        @param query: json string
+        @return: dict
+        """
+        return self.db.find(query).count()
+
+    def find_documents(self, query, limit=0):
+        """
+        Use this function to read from the database. This method
+        returns complete documents with _id fields. Do not use this
+        to construct json responses!
+
+        @param query: json string
+        @param limit: integer
+        @return: dict
+        """
+        return self.db.find(query).limit(limit)
+
+    def find_document_for_id(self, document_id):
+        """
+        Find the document with the given ID in the database. On
+        success this returns a single document.
+
+        @param document_id: string
+        @return: dict
+        """
+        return self.db.find_one({'_id': ObjectId(document_id)})
+
+    def save(self, document):
+        """
+        Saves the document. The document must have a valid _id
+
+        @param document:
+        @return:
+        """
+        self.db.save(document)
+
+    def insert(self, document):
+        """
+        Inserts a document. If the given document has a ID the
+        ID is removed and a new ID will be generated. Time will
+        be set to now.
+
+        @param document:
+        @return:
+        """
+        if '_id' in document:
+            del document['_id']
+        document['time'] = datetime.utcnow()
+        self.db.insert(document)
+
+    def remove(self, document):
+        """
+        Deletes the document. The document must have a valid _id
+
+        @param document:
+        @return:
+        """
+        self.db.remove(document['_id'])
+
+    def ping(self):
+        return "pong"
+
 
 def encode_underscore_fields(data):
     """

@@ -5,7 +5,7 @@ This File is part of Pinyto
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
-from service.database import encode_underscore_fields_list
+from service.database import encode_underscore_fields_list, CollectionWrapper
 from service.response import json_response
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
@@ -46,7 +46,9 @@ def api_call(request, user_name, assembly_name, function_name):
                       function_name + '".'}
         )
     print(api_function.code)
-    response_data, time = safely_exec(api_function.code, user)
+    collection = Collection(MongoClient().pinyto, user.name)
+    collection_wrapper = CollectionWrapper(collection)
+    response_data, time = safely_exec(api_function.code, collection_wrapper)
     print(time)
     return json_response(response_data)
 
