@@ -155,6 +155,7 @@ class SecureHost(object):
         while True:
             sz, = struct.unpack('>L', read_exact(self.child, 4))
             doc = json.loads(read_exact(self.child, sz))
+            response = ''
             if doc['cmd'] == 'exec':
                 response = self.do_exec(doc)
             elif doc['cmd'] == 'exit':
