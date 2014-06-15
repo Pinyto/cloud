@@ -156,10 +156,10 @@ class SecureHost(object):
             sz, = struct.unpack('>L', read_exact(self.child, 4))
             doc = json.loads(read_exact(self.child, sz))
             if doc['cmd'] == 'exec':
-                resp = self.do_exec(doc)
+                response = self.do_exec(doc)
             elif doc['cmd'] == 'exit':
                 _exit(0)
-            goobs = json.dumps(resp)
+            goobs = json.dumps(response)
             write_exact(self.child, struct.pack('>L', len(goobs)))
             write_exact(self.child, goobs)
 
