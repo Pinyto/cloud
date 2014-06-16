@@ -43,8 +43,24 @@ class TestSandbox(TestCase):
             }})
         self.assertTrue(time < 1)
 
-    def test_safely_exec_db_access(self):
-        code = "print(db.ping())"
+    def test_safely_exec_variable_assignment(self):
+        code = "string = 'Hallo Welt.'\nprint(string)"
         result, time = safely_exec(code, self.collection_wrapper)
-        self.assertEqual(result, "pong\n")
+        self.assertEqual(result, "Hallo Welt.\n")
+        self.assertTrue(time < 1)
+
+    def test_safely_exec_db_access(self):
+        self.collection_wrapper.insert({'test': 1, 'a': "Hallo"})
+        self.collection_wrapper.insert({'test': 1, 'b': long(34578629385748347)})
+        self.collection_wrapper.insert({'test': 2, 'a': "Bar"})
+        code = """response = '['
+for document in db.find({'test': 1}):
+    response += str(document['test']) + ', '
+response = response[:-2] + ']'
+print(response)
+"""
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertEqual(
+            result,
+            "[1, 1]\n")
         self.assertTrue(time < 1)

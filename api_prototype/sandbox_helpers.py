@@ -78,3 +78,27 @@ def read_from_pipe(pipe):
     """
     sz, = struct.unpack('>L', read_exact(pipe, 4))
     return json.loads(read_exact(pipe, sz))
+
+
+def piped_command(pipe, command_dict):
+    """
+    Writes the command_dict to the pipe end reads the answer.
+
+    @param pipe: one part of socket.socketpair()
+    @param command_dict: dict
+    @return:
+    """
+    write_to_pipe(pipe, command_dict)
+    answer = read_from_pipe(pipe)
+    if 'response' in answer:
+        return answer['response']
+    else:
+        raise NoResponseFromHostException(
+            str(command_dict) + ' returned no valid response. ' +
+            'This means the host process lacks an implementation for this command.')
+
+
+class NoResponseFromHostException(Exception):
+    """
+    This is a custom exception which gets returned if no valid response is returned.
+    """

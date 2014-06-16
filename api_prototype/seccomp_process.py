@@ -163,17 +163,19 @@ class SecureHost(object):
         @return: string
         """
         result = u''
-        for line in code.splitlines(True):
-            write_to_pipe(self.host, {'cmd': 'exec', 'body': line})
-            result_recieved = False
-            while not result_recieved:
-                response = read_from_pipe(self.host)
-                if 'exception' in response:
-                    return {u'error': response, u'result so far': result}
-                elif 'db.ping' in response:
-                    return_value = real_db.ping()
-                    write_to_pipe(self.host, {'response': return_value})
-                elif 'result' in response:
-                    result_recieved = True
-                    result += response['result']
+        write_to_pipe(self.host, {'cmd': 'exec', 'body': code})
+        result_received = False
+        while not result_received:
+            response = read_from_pipe(self.host)
+            print(response)
+            if 'exception' in response:
+                return {u'error': response, u'result so far': result}
+            elif 'db.find' in response:
+                return_value = real_db.find(response['db.find']['query'], response['db.find']['limit'])
+                write_to_pipe(self.host, {'response': return_value})
+            elif 'result' in response:
+                result_received = True
+                result += response['result']
+            else:
+                write_to_pipe(self.host, {'error': "No command and no result."})
         return result
