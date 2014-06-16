@@ -74,7 +74,7 @@ class SecureHost(object):
             pass
 
     @staticmethod
-    def do_exec(msg):
+    def do_exec(msg, db):
         """
         Execute arbitrary code sent to the child process and return the printed results
         of that code. Do not call this method from the host process because the code in
@@ -123,7 +123,7 @@ class SecureHost(object):
             doc = read_from_pipe(self.child)
             response = ''
             if doc['cmd'] == 'exec':
-                response = self.do_exec(doc)
+                response = self.do_exec(doc, db)
             elif doc['cmd'] == 'exit':
                 libc_exit(0)
             write_to_pipe(self.child, response)
@@ -165,13 +165,15 @@ class SecureHost(object):
         result = u''
         for line in code.splitlines(True):
             write_to_pipe(self.host, {'cmd': 'exec', 'body': line})
-            response = read_from_pipe(self.host)
-            print(line + ': ' + str(response))
-            if 'db.ping' in response:
-                return_value = real_db.ping()
-                write_to_pipe(self.host, {'response': return_value})
-            if 'result' in response:
-                result += response['result']
-            if 'exception' in response:
-                return {u'error': response, u'result so far': result}
+            result_recieved = False
+            while not result_recieved:
+                response = read_from_pipe(self.host)
+                if 'exception' in response:
+                    return {u'error': response, u'result so far': result}
+                elif 'db.ping' in response:
+                    return_value = real_db.ping()
+                    write_to_pipe(self.host, {'response': return_value})
+                elif 'result' in response:
+                    result_recieved = True
+                    result += response['result']
         return result
