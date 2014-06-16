@@ -15,6 +15,7 @@ import StringIO
 import contextlib
 
 import gc
+import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
 from api_prototype.models import SandboxCollectionWrapper
@@ -83,7 +84,10 @@ class SecureHost(object):
         @return: json
         """
         with stdout_io() as s:
-            exec msg['body']
+            try:
+                exec msg['body']
+            except Exception as e:
+                return {'exception': str(type(e)), 'message': str(e)}
         return {'result': s.getvalue()}
 
     def _child_main(self):
@@ -111,7 +115,7 @@ class SecureHost(object):
                 except OSError:
                     pass
 
-        #db = SandboxCollectionWrapper(self.child)
+        db = SandboxCollectionWrapper(self.child)
         self.claim_and_free_memory()
         resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
         prctl.set_seccomp(True)
@@ -158,13 +162,16 @@ class SecureHost(object):
         @param real_db: CollectionWrapper
         @return: string
         """
-        result = ''
+        result = u''
         for line in code.splitlines(True):
             write_to_pipe(self.host, {'cmd': 'exec', 'body': line})
             response = read_from_pipe(self.host)
+            print(line + ': ' + str(response))
             if 'db.ping' in response:
                 return_value = real_db.ping()
                 write_to_pipe(self.host, {'response': return_value})
             if 'result' in response:
                 result += response['result']
+            if 'exception' in response:
+                return {u'error': response, u'result so far': result}
         return result

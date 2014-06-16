@@ -29,7 +29,18 @@ class TestSandbox(TestCase):
         result, time = safely_exec(code, self.collection_wrapper)
         self.assertEqual(
             result,
-            {'error': 'The code could not be executed because it tried to do something illegal.'})
+            {u'error': u'The code could not be executed because it tried to do something illegal.'})
+        self.assertTrue(time < 1)
+
+    def test_safely_exec_throw_exception(self):
+        code = "a = 1 / 0"
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertEqual(result, {
+            u'result so far': u'',
+            u'error': {
+                u'exception': u"<type 'exceptions.ZeroDivisionError'>",
+                u'message': u'integer division or modulo by zero'
+            }})
         self.assertTrue(time < 1)
 
     def test_safely_exec_db_access(self):

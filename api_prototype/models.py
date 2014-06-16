@@ -31,7 +31,4 @@ class SandboxCollectionWrapper(object):
         write_to_pipe(self.child, {'db.find': {'query': query, 'limit': limit}})
 
     def ping(self):
-        try:
-            write_to_pipe(self.child, {'db.ping': True})
-        except Exception:
-            print(Exception)
+        write_to_pipe(self.child, {'db.ping': True})
