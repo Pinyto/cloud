@@ -9,7 +9,7 @@ from multiprocessing.queues import Empty
 from seccomp_process import SecureHost
 
 
-def sandbox(code, db, queue):
+def sandbox(code, real_db, queue):
     """
     This function gets executed in a separate subprocess which does not share the memory with the main
     Django process. This is done a) for security reasons to minimize the risk that code inside of the
@@ -17,7 +17,7 @@ def sandbox(code, db, queue):
     because the user will have to pay for this.
 
     @param code: string
-    @param db: CollectionWrapper
+    @param real_db: CollectionWrapper
     @param queue: Queue
     @return: nothing (the queue is used for returning the results)
     """
@@ -25,7 +25,7 @@ def sandbox(code, db, queue):
     secure_host = SecureHost()
     secure_host.start_child()
     try:
-        result = secure_host.execute(code, db)
+        result = secure_host.execute(code, real_db)
     finally:
         secure_host.kill_child()
     end_time = time.clock()

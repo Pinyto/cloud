@@ -3,12 +3,10 @@
 This File is part of Pinyto
 """
 
-import json
 import os
 import resource
 import signal
 import socket
-import struct
 
 import prctl
 
@@ -18,7 +16,8 @@ import contextlib
 
 import gc
 
-from api_prototype.sandbox_helpers import write_exact, read_exact, _exit
+from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
+from api_prototype.models import SandboxCollectionWrapper
 
 
 @contextlib.contextmanager
@@ -67,8 +66,11 @@ class SecureHost(object):
         @return: nothing
         """
         assert self.pid
-        pid, status = os.waitpid(self.pid, os.WNOHANG)
-        os.kill(self.pid, signal.SIGKILL)
+        os.waitpid(self.pid, os.WNOHANG)
+        try:
+            os.kill(self.pid, signal.SIGKILL)
+        except OSError:
+            pass
 
     @staticmethod
     def do_exec(msg):
@@ -109,20 +111,18 @@ class SecureHost(object):
                 except OSError:
                     pass
 
-        resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
+        #db = SandboxCollectionWrapper(self.child)
         self.claim_and_free_memory()
+        resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
         prctl.set_seccomp(True)
         while True:
-            sz, = struct.unpack('>L', read_exact(self.child, 4))
-            doc = json.loads(read_exact(self.child, sz))
+            doc = read_from_pipe(self.child)
             response = ''
             if doc['cmd'] == 'exec':
                 response = self.do_exec(doc)
             elif doc['cmd'] == 'exit':
-                _exit(0)
-            json_response = json.dumps(response)
-            write_exact(self.child, struct.pack('>L', len(json_response)))
-            write_exact(self.child, json_response)
+                libc_exit(0)
+            write_to_pipe(self.child, response)
 
     def claim_memory(self, iteration=0):
         """
@@ -147,17 +147,6 @@ class SecureHost(object):
         self.claim_memory()
         gc.collect()
 
-    def write_message_to_client(self, message_dict):
-        """
-        This constructs the json for the message and sends it to the child process.
-
-        @param message_dict: dict
-        @return: nothing
-        """
-        msg = json.dumps(message_dict)
-        write_exact(self.host, struct.pack('>L', len(msg)))
-        write_exact(self.host, msg)
-
     def execute(self, code, real_db):
         """
         This is the host end for executing code in the child process. Code in s will be encoded as
@@ -171,12 +160,11 @@ class SecureHost(object):
         """
         result = ''
         for line in code.splitlines(True):
-            self.write_message_to_client({'cmd': 'exec', 'body': line})
-            sz, = struct.unpack('>L', read_exact(self.host, 4))
-            response = json.loads(read_exact(self.host, sz))
+            write_to_pipe(self.host, {'cmd': 'exec', 'body': line})
+            response = read_from_pipe(self.host)
             if 'db.ping' in response:
                 return_value = real_db.ping()
-                self.write_message_to_client({'response': return_value})
+                write_to_pipe(self.host, {'response': return_value})
             if 'result' in response:
                 result += response['result']
         return result
