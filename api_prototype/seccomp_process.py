@@ -167,12 +167,34 @@ class SecureHost(object):
         result_received = False
         while not result_received:
             response = read_from_pipe(self.host)
-            print(response)
             if 'exception' in response:
                 return {u'error': response, u'result so far': result}
             elif 'db.find' in response:
-                return_value = real_db.find(response['db.find']['query'], response['db.find']['limit'])
+                return_value = real_db.find(
+                    response['db.find']['query'],
+                    response['db.find']['limit'])
                 write_to_pipe(self.host, {'response': return_value})
+            elif 'db.count' in response:
+                return_value = real_db.count(response['db.count']['query'])
+                write_to_pipe(self.host, {'response': str(return_value)})
+            elif 'db.find_documents' in response:
+                return_value = real_db.find_documents(
+                    response['db.find_documents']['query'],
+                    response['db.find_documents']['limit'])
+                write_to_pipe(self.host, {'response': return_value})
+            elif 'db.find_document_for_id' in response:
+                return_value = real_db.find_document_for_id(
+                    response['db.find_document_for_id']['document_id'])
+                write_to_pipe(self.host, {'response': return_value})
+            elif 'db.save' in response:
+                real_db.save(response['db.save']['document'])
+                write_to_pipe(self.host, {'response': True})
+            elif 'db.insert' in response:
+                real_db.insert(response['db.insert']['document'])
+                write_to_pipe(self.host, {'response': True})
+            elif 'db.remove' in response:
+                real_db.remove(response['db.remove']['document'])
+                write_to_pipe(self.host, {'response': True})
             elif 'result' in response:
                 result_received = True
                 result += response['result']

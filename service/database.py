@@ -89,9 +89,6 @@ class CollectionWrapper(object):
         """
         self.db.remove(document['_id'])
 
-    def ping(self):
-        return "pong"
-
 
 def encode_underscore_fields(data):
     """
