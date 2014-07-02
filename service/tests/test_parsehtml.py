@@ -14,11 +14,13 @@ class TestParseHtml(TestCase):
         <head><title>Just a Test</title></head>
         <body>
             <h1>Heading</h1>
-            <div data-custom="special">Text</div>
+            <div data-custom="special">Te<i>x</i>t</div>
         </body>
         </html>"""
         soup = ParseHtml(html)
+        self.assertTrue(soup.contains([{'tag': "div", 'attrs': {'data-custom': "special"}}]))
         self.assertTrue(soup.contains({'tag': "div", 'attrs': {'data-custom': "special"}}))
+        self.assertTrue(soup.contains([{'tag': "div", 'attrs': {'data-custom': "special"}}, {'tag': "i"}]))
         self.assertFalse(soup.contains({'tag': "div", 'attrs': {'style': "something"}}))
         self.assertFalse(soup.contains({'tag': "span"}))
 

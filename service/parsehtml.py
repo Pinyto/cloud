@@ -13,24 +13,29 @@ class ParseHtml():
     def __init__(self, html):
         self.soup = BeautifulSoup(html)
 
-    def contains(self, description):
+    def contains(self, descriptions):
         """
         Use this function to check if the html contains the described tag.
-        The description must be a python dictionary with
+        The descriptions must be a list of python dictionaries with
         {'tag': 'tagname', 'attrs': dict}
-        @param description: dict
+        @param descriptions: [dict]
         @return: bool
         """
-        if not 'tag' in description or not (type(description['tag']) == str or type(description['tag']) == unicode):
-            return False
-        attrs_dict = {}
-        if 'attrs' in description and type(description['attrs']) == dict:
-            attrs_dict = description['attrs']
-        element = self.soup.find(description['tag'], attrs=attrs_dict)
-        if element:
-            return True
-        else:
-            return False
+        if type(descriptions) == dict:
+            descriptions = [descriptions]
+        if type(descriptions) != list:
+            return ""
+        element = self.soup
+        for description in descriptions:
+            if not 'tag' in description or not (type(description['tag']) == str or type(description['tag']) == unicode):
+                return False
+            attrs_dict = {}
+            if 'attrs' in description and type(description['attrs']) == dict:
+                attrs_dict = description['attrs']
+            element = element.find(description['tag'], attrs=attrs_dict)
+            if not element:
+                return False
+        return True
 
     def find_element_and_get_attribute_value(self, descriptions, attribute):
         """
