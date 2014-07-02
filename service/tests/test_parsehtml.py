@@ -41,7 +41,7 @@ class TestParseHtml(TestCase):
             soup.find_element_and_get_attribute_value(
                 {'tag': "div", 'attrs': {'data-custom': "special"}},
                 'class'),
-            'inline')
+            ['inline'])
         self.assertEqual(
             soup.find_element_and_get_attribute_value(
                 {'tag': "div", 'attrs': {'data-custom': "special"}},

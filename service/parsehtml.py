@@ -41,7 +41,7 @@ class ParseHtml():
         {'tag': 'tagname', 'attrs': dict}
         @param description: dict
         @param attribute: string
-        @return: string
+        @return: string or list if attribute is class
         """
         if not 'tag' in description or not (type(description['tag']) == str or type(description['tag']) == unicode):
             return False
@@ -50,6 +50,6 @@ class ParseHtml():
             attrs_dict = description['attrs']
         element = self.soup.find(description['tag'], attrs=attrs_dict)
         if element:
-            if element[attribute]:
+            if attribute in element.attrs:
                 return element[attribute]
         return ""
