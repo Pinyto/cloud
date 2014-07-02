@@ -28,10 +28,20 @@ class TestParseHtml(TestCase):
         <head><title>Just a Test</title></head>
         <body>
             <h1>Heading</h1>
-            <div data-custom="special" style="width: 20px;" class="inline">Text</div>
+            <div data-custom="special" style="width: 20px;" class="inline">
+                Text
+                <span>Thing</span>
+                <a href="location">Link</a>
+                <a href="somewhere">another Link</a>
+            </div>
         </body>
         </html>"""
         soup = ParseHtml(html)
+        self.assertEqual(
+            soup.find_element_and_get_attribute_value(
+                [{'tag': "div", 'attrs': {'data-custom': "special"}}],
+                'style'),
+            'width: 20px;')
         self.assertEqual(
             soup.find_element_and_get_attribute_value(
                 {'tag': "div", 'attrs': {'data-custom': "special"}},
@@ -39,14 +49,20 @@ class TestParseHtml(TestCase):
             'width: 20px;')
         self.assertEqual(
             soup.find_element_and_get_attribute_value(
-                {'tag': "div", 'attrs': {'data-custom': "special"}},
+                [{'tag': "div", 'attrs': {'data-custom': "special"}}],
                 'class'),
             ['inline'])
         self.assertEqual(
             soup.find_element_and_get_attribute_value(
-                {'tag': "div", 'attrs': {'data-custom': "special"}},
+                [{'tag': "div", 'attrs': {'data-custom': "special"}}],
                 'id'),
             '')
         self.assertEqual(
-            soup.find_element_and_get_attribute_value({'tag': "span"}, 'id'),
+            soup.find_element_and_get_attribute_value([{'tag': "span"}], 'id'),
             '')
+        self.assertEqual(
+            soup.find_element_and_get_attribute_value([
+                    {'tag': "div", 'attrs': {'data-custom': "special"}},
+                    {'tag': "a"}],
+                'href'),
+            'location')
