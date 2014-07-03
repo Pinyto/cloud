@@ -64,3 +64,14 @@ print(response)
             result,
             "[1, 1]\n")
         self.assertTrue(time < 1)
+
+    def test_safely_exec_parsehtml(self):
+        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+soup = factory.create('ParseHtml', html)
+if soup.contains([{'tag': 'div'}]):
+    print(1)
+else:
+    print(0)"""
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertEqual(result, "1\n")
+        self.assertTrue(time < 1)

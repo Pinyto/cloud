@@ -88,14 +88,46 @@ class SandboxCollectionWrapper(object):
         return piped_command(self.child, {'db.remove': {'document': document}})
 
 
+class CanNotBeInstanciatedInTheSandbox(Exception):
+    """
+    This Exception is thrown if a script wants to create an object of a class
+    that can not be created in the sandbox.
+    """
+    def __init__(self, class_name):
+        self.class_name = class_name
+
+    def __str__(self):
+        return "Objects of type " + self.class_name + "can not be instanciated in the sandbox."
+
+
+class Factory():
+    """
+    Use this factory to create objects in the sandboxed process. Just
+    pass the class name to the create method.
+    """
+
+    def __init__(self, pipe_child_end):
+        self.pipe_child_end = pipe_child_end
+
+    def create(self, classname, *args):
+        """
+        This method will create an object of the class of classname
+        with the arguments supplied after that. If the class can not
+        be created in the sandbox it throws an Exception.
+        """
+        if classname == 'ParseHtml':
+            return SandboxParseHtml(self.pipe_child_end, *args)
+        raise CanNotBeInstanciatedInTheSandbox(classname)
+
+
 class SandboxParseHtml():
     """
     This wrapper is user to expose html parsing functionality to the sandbox.
     This is the class with the same methods to be used in the sandbox.
     """
 
-    def __init__(self, child_pipe, html):
-        self.child = child_pipe
+    def __init__(self, pipe_child_end, html):
+        self.child = pipe_child_end
         self.target = piped_command(self.child, {'parsehtml.init': {'html': html}})
 
     def contains(self, descriptions):

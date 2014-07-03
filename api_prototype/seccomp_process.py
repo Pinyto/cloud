@@ -19,7 +19,7 @@ import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
 from api_prototype.models import SandboxCollectionWrapper
-from api_prototype.models import SandboxParseHtml as ParseHtml
+from api_prototype.models import Factory
 from service.parsehtml import ParseHtml as RealParseHtml
 
 
@@ -77,7 +77,7 @@ class SecureHost(object):
             pass
 
     @staticmethod
-    def do_exec(msg, db):
+    def do_exec(msg, db, factory):
         """
         Execute arbitrary code sent to the child process and return the printed results
         of that code. Do not call this method from the host process because the code in
@@ -119,6 +119,7 @@ class SecureHost(object):
                     pass
 
         db = SandboxCollectionWrapper(self.child)
+        factory = Factory(self.child)
         self.claim_and_free_memory()
         resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
         prctl.set_seccomp(True)
@@ -126,7 +127,7 @@ class SecureHost(object):
             doc = read_from_pipe(self.child)
             response = ''
             if doc['cmd'] == 'exec':
-                response = self.do_exec(doc, db)
+                response = self.do_exec(doc, db, factory)
             elif doc['cmd'] == 'exit':
                 libc_exit(0)
             write_to_pipe(self.child, response)
