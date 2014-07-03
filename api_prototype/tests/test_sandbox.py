@@ -65,7 +65,7 @@ print(response)
             "[1, 1]\n")
         self.assertTrue(time < 1)
 
-    def test_safely_exec_parsehtml(self):
+    def test_safely_exec_parsehtml_contains(self):
         code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
 soup = factory.create('ParseHtml', html)
 if soup.contains([{'tag': 'div'}]):
@@ -74,4 +74,12 @@ else:
     print(0)"""
         result, time = safely_exec(code, self.collection_wrapper)
         self.assertEqual(result, "1\n")
+        self.assertTrue(time < 1)
+
+    def test_safely_exec_parsehtml_find_element_and_get_attribute_value(self):
+        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+soup = factory.create('ParseHtml', html)
+print(soup.find_element_and_get_attribute_value([{'tag': 'div'}], 'style'))"""
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertEqual(result, "width: 100px;\n")
         self.assertTrue(time < 1)
