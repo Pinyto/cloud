@@ -83,3 +83,13 @@ print(soup.find_element_and_get_attribute_value([{'tag': 'div'}], 'style'))"""
         result, time = safely_exec(code, self.collection_wrapper)
         self.assertEqual(result, "width: 100px;\n")
         self.assertTrue(time < 1)
+
+    def test_safely_exec_parsehtml_find_element_and_collect_table_like_information(self):
+        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+soup = factory.create('ParseHtml', html)
+print(soup.find_element_and_collect_table_like_information(
+    [{'tag': 'table'}, {'tag': 'tr'}],
+    {'a': {'search tag': 'td', 'captions': ['A'], 'content tag': 'td'}}))"""
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertEqual(result, "{u'a': u'3'}\n")
+        self.assertTrue(time < 1)
