@@ -162,7 +162,6 @@ class TestParseHtml(TestCase):
              'edition': {'search tag': 'td', 'captions': ['Ausgabe'], 'content tag': 'td'},
              'isbn': {'search tag': 'td', 'captions': ['ISBN/Einband/Preis'], 'content tag': 'td'},
              'ean': {'search tag': 'td', 'captions': ['EAN'], 'content tag': 'td'}})
-        print(infos)
         self.assertEqual(infos['author'], u'Fels, Kerstin Fels, Andreas')
         self.assertEqual(infos['title'], u'Fettnäpfchenführer. - Meerbusch : Conbook-Verl. [Mehrteiliges Werk] ' +
                          u'Teil: Japan : die Axt im Chrysanthemenwald / Kerstin und Andreas Fels')
