@@ -18,5 +18,5 @@ def extract_content(tag):
             if not isinstance(c, NavigableString):
                 content += extract_content(c)
             else:
-                content += unicode(c)
+                content += u' ' + unicode(c) + u' '
         return u' '.join(content.split())
