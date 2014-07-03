@@ -19,6 +19,8 @@ import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
 from api_prototype.models import SandboxCollectionWrapper
+from api_prototype.models import SandboxParseHtml as ParseHtml
+from service.parsehtml import ParseHtml as RealParseHtml
 
 
 @contextlib.contextmanager
@@ -46,6 +48,7 @@ class SecureHost(object):
     def __init__(self):
         self.host, self.child = socket.socketpair()
         self.pid = None
+        self.parsehtml_instances = []
 
     def start_child(self):
         """
@@ -195,6 +198,27 @@ class SecureHost(object):
             elif 'db.remove' in response:
                 real_db.remove(response['db.remove']['document'])
                 write_to_pipe(self.host, {'response': True})
+            elif 'parsehtml.init' in response:
+                self.parsehtml_instances.append(RealParseHtml(response['parsehtml.init']['html']))
+                write_to_pipe(self.host, {'response': len(self.parsehtml_instances) - 1})
+            elif 'parsehtml.contains' in response:
+                return_value = self.parsehtml_instances[response['parsehtml.contains']['target']].contains(
+                    response['parsehtml.contains']['descriptions'])
+                write_to_pipe(self.host, {'response': return_value})
+            elif 'parsehtml.find_element_and_get_attribute_value' in response:
+                return_value = self.parsehtml_instances[
+                    response['parsehtml.find_element_and_get_attribute_value']['target']
+                ].find_element_and_get_attribute_value(
+                    response['parsehtml.find_element_and_get_attribute_value']['descriptions'],
+                    response['parsehtml.find_element_and_get_attribute_value']['attribute'])
+                write_to_pipe(self.host, {'response': return_value})
+            elif 'parsehtml.find_element_and_collect_table_like_information' in response:
+                return_value = self.parsehtml_instances[
+                    response['parsehtml.find_element_and_collect_table_like_information']['target']
+                ].find_element_and_collect_table_like_information(
+                    response['parsehtml.find_element_and_collect_table_like_information']['descriptions'],
+                    response['parsehtml.find_element_and_collect_table_like_information']['searched_information'])
+                write_to_pipe(self.host, {'response': return_value})
             elif 'result' in response:
                 result_received = True
                 result += response['result']
