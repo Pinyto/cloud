@@ -66,7 +66,8 @@ print(response)
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_contains(self):
-        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+        code = """html = '<html><body><div style="width: 100px;">DIV</div>'
+html += '<table><tr><td>A</td><td>3</td></tr></table></body></html>'
 soup = factory.create('ParseHtml', html)
 if soup.contains([{'tag': 'div'}]):
     print(1)
@@ -77,7 +78,8 @@ else:
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_find_element_and_get_attribute_value(self):
-        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+        code = """html = '<html><body><div style="width: 100px;">DIV</div>'
+html += '<table><tr><td>A</td><td>3</td></tr></table></body></html>'
 soup = factory.create('ParseHtml', html)
 print(soup.find_element_and_get_attribute_value([{'tag': 'div'}], 'style'))"""
         result, time = safely_exec(code, self.collection_wrapper)
@@ -85,7 +87,8 @@ print(soup.find_element_and_get_attribute_value([{'tag': 'div'}], 'style'))"""
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_find_element_and_collect_table_like_information(self):
-        code = """html = '<html><body><div style="width: 100px;">DIV</div><table><tr><td>A</td><td>3</td></tr></table></body></html>'
+        code = """html = '<html><body><div style="width: 100px;">DIV</div>'
+html += '<table><tr><td>A</td><td>3</td></tr></table></body></html>'
 soup = factory.create('ParseHtml', html)
 print(soup.find_element_and_collect_table_like_information(
     [{'tag': 'table'}, {'tag': 'tr'}],
