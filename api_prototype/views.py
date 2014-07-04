@@ -12,13 +12,15 @@ from pinytoCloud.models import Session
 from datetime import datetime
 from pinytoCloud.models import User
 from sandbox import safely_exec
+from inspect import getmembers, ismethod
+from django.http import HttpResponse
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
 
 def api_call(request, user_name, assembly_name, function_name):
     """
-    This selects a ApiFunction ant executes it if possible.
+    This selects a ApiFunction and executes it if possible.
 
     @param user_name: string
     @param assembly_name: string
@@ -28,6 +30,44 @@ def api_call(request, user_name, assembly_name, function_name):
     """
     try:
         user = User.objects.filter(name=user_name).all()[0]
+    except IndexError:
+        return json_response(
+            {'error': "The user " + user_name + " was not found. There can not be an assembly " +
+                      user_name + "/" + assembly_name + "."}
+        )
+    # Try to load statically defined api functions.
+    try:
+        api_class = getattr(__import__('api.' + user_name, fromlist=[assembly_name]), assembly_name)
+    except ImportError:
+        # There is no statically defined api function for this call. Proceed to
+        # loading the code from the database and executing it in the sandbox.
+        return load_api(user, assembly_name, function_name)
+    for name, function in getmembers(api_class, predicate=ismethod):
+        if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
+            collection = Collection(MongoClient().pinyto, user.name)  # TODO: this is not user_name but the authenticated user from session.user!
+            collection_wrapper = CollectionWrapper(collection)
+            return HttpResponse(
+                function(
+                    request,
+                    collection_wrapper
+                ),
+                content_type='application/json')
+    # If we reach this point the api_class was found but the function was not defined in the class.
+    # So we try to load this code from the database.
+    return load_api(user, assembly_name, function_name)
+
+
+def load_api(user, assembly_name, function_name):
+    """
+    There is no statically defined api function for this call. Proceed to
+    loading the code from the database and executing it in the sandbox.
+
+    @param user: User
+    @param assembly_name: string
+    @param function_name: string
+    @return: Response object
+    """
+    try:
         assemblies = user.assemblies.filter(name=assembly_name).all()
         if len(assemblies) > 1:
             return json_response(
@@ -36,19 +76,19 @@ def api_call(request, user_name, assembly_name, function_name):
         assembly = assemblies[0]
     except IndexError:
         return json_response(
-            {'error': "Assembly not found. Does " + user_name + " have an Assembly named " + assembly_name + "?"}
+            {'error': "Assembly not found. Does " + user.name + " have an Assembly named " + assembly_name + "?"}
         )
     try:
         api_function = assembly.api_functions.filter(name=function_name).all()[0]
     except IndexError:
         return json_response(
-            {'error': "The assembly " + user_name + "/" + assembly_name + ' exists but has no API function "' +
+            {'error': "The assembly " + user.name + "/" + assembly_name + ' exists but has no API function "' +
                       function_name + '".'}
         )
     print(api_function.code)
-    collection = Collection(MongoClient().pinyto, user.name)
+    collection = Collection(MongoClient().pinyto, user.name)  # TODO: this is not user_name but the authenticated user from session.user!
     collection_wrapper = CollectionWrapper(collection)
-    response_data, time = safely_exec(api_function.code, collection_wrapper)
+    response_data, time = safely_exec(api_function.code, collection_wrapper)  # TODO: pass response object
     print(time)
     return json_response(response_data)
 
