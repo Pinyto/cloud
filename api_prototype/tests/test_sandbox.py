@@ -96,3 +96,10 @@ print(soup.find_element_and_collect_table_like_information(
         result, time = safely_exec(code, self.collection_wrapper)
         self.assertEqual(result, "{u'a': u'3'}\n")
         self.assertTrue(time < 1)
+
+    def test_connect_to_google(self):
+        code = """https = factory.create('Https')
+print(len(str(https.get('www.google.de', '/'))))"""
+        result, time = safely_exec(code, self.collection_wrapper)
+        self.assertGreater(int(result), 0)
+        self.assertTrue(time < 1)

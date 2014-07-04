@@ -18,9 +18,11 @@ import gc
 import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
+from base64 import b64encode
 from api_prototype.models import SandboxCollectionWrapper
 from api_prototype.models import Factory
 from service.parsehtml import ParseHtml as RealParseHtml
+from service.http import Https as RealHttps
 
 
 @contextlib.contextmanager
@@ -220,6 +222,16 @@ class SecureHost(object):
                     response['parsehtml.find_element_and_collect_table_like_information']['descriptions'],
                     response['parsehtml.find_element_and_collect_table_like_information']['searched_information'])
                 write_to_pipe(self.host, {'response': return_value})
+            elif 'https.get' in response:
+                return_value = RealHttps.get(
+                    response['https.get']['domain'],
+                    response['https.get']['path'])
+                write_to_pipe(self.host, {'response': b64encode(return_value)})
+            elif 'https.post' in response:
+                return_value = RealHttps.post(
+                    response['https.post']['domain'],
+                    response['https.post']['path'])
+                write_to_pipe(self.host, {'response': b64encode(return_value)})
             elif 'result' in response:
                 result_received = True
                 result += response['result']

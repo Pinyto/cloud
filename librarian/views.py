@@ -5,7 +5,7 @@ This File is part of Pinyto
 
 from api_prototype.views import PinytoAPI
 from service.response import *
-from service.http import secure_request
+from service.http import Https
 from service.xml import extract_content
 from bs4 import BeautifulSoup
 import json
@@ -147,7 +147,7 @@ class Librarian(PinytoAPI):
                 query = book['data']['isbn']
             if 'ean' in book['data']:
                 query = book['data']['ean']
-            content = secure_request('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
+            content = Https.get('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
             if not content:
                 completion_successful = False
                 continue
@@ -157,7 +157,7 @@ class Librarian(PinytoAPI):
                 # we probably found a list of results. lets check for that
                 result_list = soup.find('table', attrs={'summary': "Suchergebnis"})  # They have a typo here too!
                 if result_list:
-                    content = secure_request('portal.dnb.de', result_list.a['href'])
+                    content = Https.get('portal.dnb.de', result_list.a['href'])
                     if not content:
                         completion_successful = False
                         continue

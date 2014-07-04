@@ -3,7 +3,8 @@
 This File is part of Pinyto
 """
 
-from api_prototype.sandbox_helpers import write_to_pipe, read_from_pipe, piped_command
+from api_prototype.sandbox_helpers import piped_command
+from base64 import b64decode
 
 
 class SandboxCollectionWrapper(object):
@@ -88,7 +89,7 @@ class SandboxCollectionWrapper(object):
         return piped_command(self.child, {'db.remove': {'document': document}})
 
 
-class CanNotBeInstanciatedInTheSandbox(Exception):
+class CanNotCreateNewInstanceInTheSandbox(Exception):
     """
     This Exception is thrown if a script wants to create an object of a class
     that can not be created in the sandbox.
@@ -109,21 +110,26 @@ class Factory():
     def __init__(self, pipe_child_end):
         self.pipe_child_end = pipe_child_end
 
-    def create(self, classname, *args):
+    def create(self, class_name, *args):
         """
         This method will create an object of the class of classname
         with the arguments supplied after that. If the class can not
         be created in the sandbox it throws an Exception.
+        @param class_name: string
+        @param args: additional arguments
+        @return: Object
         """
-        if classname == 'ParseHtml':
+        if class_name == 'ParseHtml':
             return SandboxParseHtml(self.pipe_child_end, *args)
-        raise CanNotBeInstanciatedInTheSandbox(classname)
+        elif class_name == 'Https':
+            return SandboxHttps(self.pipe_child_end)
+        raise CanNotCreateNewInstanceInTheSandbox(class_name)
 
 
 class SandboxParseHtml():
     """
     This wrapper is user to expose html parsing functionality to the sandbox.
-    This is the class with the same methods to be used in the sandbox.
+    This is the ParseHtml class with the same methods to be used in the sandbox.
     """
 
     def __init__(self, pipe_child_end, html):
@@ -184,3 +190,45 @@ class SandboxParseHtml():
                 'target': self.target,
                 'descriptions': descriptions,
                 'searched_information': searched_information}})
+
+
+class SandboxHttps():
+    """
+    This wrapper is user to expose https requests to the sandbox.
+    This is the Https class with the same methods to be used in the sandbox.
+    """
+
+    def __init__(self, pipe_child_end):
+        self.child = pipe_child_end
+
+    def get(self, domain, path):
+        """
+        This issues a http request to the supplied url and returns
+        the response as a string. If the request fails an empty
+        string is returned.
+
+        @param domain: string
+        @param path: string
+        @return: string
+        """
+        return b64decode(piped_command(
+            self.child,
+            {'https.get': {
+                'domain': domain,
+                'path': path}}))
+
+    def post(self, domain, path):
+        """
+        This issues a http request to the supplied url and returns
+        the response as a string. If the request fails an empty
+        string is returned.
+
+        @param domain: string
+        @param path: string
+        @return: string
+        """
+        return b64decode(piped_command(
+            self.child,
+            {'https.post': {
+                'domain': domain,
+                'path': path}}))
