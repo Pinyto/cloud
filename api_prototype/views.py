@@ -12,7 +12,7 @@ from pinytoCloud.models import Session
 from datetime import datetime
 from pinytoCloud.models import User
 from sandbox import safely_exec
-from inspect import getmembers, ismethod
+from inspect import getmembers, isfunction
 from django.http import HttpResponse
 
 ApiClasses = [('librarian.views', 'Librarian')]
@@ -42,7 +42,7 @@ def api_call(request, user_name, assembly_name, function_name):
         # There is no statically defined api function for this call. Proceed to
         # loading the code from the database and executing it in the sandbox.
         return load_api(user, assembly_name, function_name)
-    for name, function in getmembers(api_class, predicate=ismethod):
+    for name, function in getmembers(api_class, predicate=isfunction):
         if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
             collection = Collection(MongoClient().pinyto, user.name)  # TODO: this is not user_name but the authenticated user from session.user!
             collection_wrapper = CollectionWrapper(collection)
