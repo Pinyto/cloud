@@ -20,6 +20,9 @@ class User(models.Model):
     """
     name = models.CharField(max_length=30, primary_key=True)
 
+    def __str__(self):
+        return self.name
+
     def start_session(self, key_db_object):
         """
         Creates a session object with a new random token.
@@ -52,6 +55,9 @@ class StoredPublicKey(models.Model):
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
     user = models.ForeignKey(User, related_name='keys')
+
+    def __str__(self):
+        return self.key_hash + ':: N: ' + self.N + ' e: ' + str(self.e) + ' ' + str(self.user)
 
     @classmethod
     def create(cls, user, n, e):
@@ -88,6 +94,9 @@ class Session(models.Model):
     user = models.ForeignKey(User, related_name='sessions')
     key = models.OneToOneField(StoredPublicKey, related_name='related_session', unique=True)
 
+    def __str__(self):
+        return self.token + ' (' + str(self.timestamp) + ') ' + str(self.user) + ' Key: ' + self.key.key_hash
+
     def get_encrypted_token(self):
         """
         This method returns the session token encrypted with the key.
@@ -109,6 +118,9 @@ class Assembly(models.Model):
     name = models.CharField(max_length=42)
     author = models.ForeignKey(User, related_name='assemblies')
     description = models.TextField()
+
+    def __str__(self):
+        return self.author.name + '/' + self.name
 
     def fork(self, new_user):
         """
@@ -135,6 +147,9 @@ class ApiFunction(models.Model):
     code = models.TextField()
     assembly = models.ForeignKey(Assembly, related_name='api_functions')
 
+    def __str__(self):
+        return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name
+
 
 class Job(models.Model):
     """
@@ -147,3 +162,7 @@ class Job(models.Model):
     code = models.TextField()
     assembly = models.ForeignKey(Assembly, related_name='jobs')
     schedule = models.IntegerField(default=0) # each schedule minutes (0 means never)
+
+    def __str__(self):
+        return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
+               ' Scheduled: ' + str(self.schedule)
