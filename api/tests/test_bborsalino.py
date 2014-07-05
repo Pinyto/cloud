@@ -47,7 +47,36 @@ class TestBBorsalino(TestCase):
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
     def test_search(self):
-        pass
+        self.collection.insert({"type": "book",
+                                "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
+                                         "ean": "9783943176247", "languages": "Deutsch (ger)",
+                                         "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
+                                         "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
+        self.collection.insert({"type": "book",
+                                "data": {"category": "S Schulbücher",
+                                         "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
+                                         "isbn": "978-3-8085-3004-7",
+                                         "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
+                                                  " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
+                                                  " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
+                                         "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
+                                                   "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
+                                         "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
+                                         "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
+        self.collection.insert({"type": "book",
+                                "data": {"category": "004 Informatik",
+                                         "publisher": "München : Addison Wesley in Pearson Education Deutschland",
+                                         "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
+                                         "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
+                                                  " Johannes Magenheim ; Thomas Müller",
+                                         "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
+                                         "place": "Arbeitszimmer", "year": 2009}})
+        test_client = Client()
+        response = test_client.post('/bborsalino/Librarian/search', {'searchstring': 'Informatik'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 2)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
+        self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
     def test_update(self):
         pass

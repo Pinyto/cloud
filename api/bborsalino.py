@@ -44,7 +44,7 @@ class Librarian():
         @param db: DatabaseWrapper
         @return: string
         """
-        search_string = request.GET.get('searchstring')
+        search_string = request.POST.get('searchstring')
         books = db.find({'type': 'book',
                          'data': {'$exists': True},
                          '$or': [
