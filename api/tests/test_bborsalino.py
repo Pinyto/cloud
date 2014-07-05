@@ -91,7 +91,16 @@ class TestBBorsalino(TestCase):
         self.assertEqual(book_test['data']['place'], u'B')
 
     def test_update_all(self):
-        pass
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
+        test_client = Client()
+        response = test_client.post('/bborsalino/Librarian/update_all', {'book': json.dumps({
+            "type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "C"}
+        })})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        for book in self.collection.find():
+            self.assertEqual(book['data']['place'], u'C')
 
     def test_duplicate(self):
         pass

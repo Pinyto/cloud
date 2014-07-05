@@ -77,6 +77,8 @@ class Librarian():
             return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
+        if not '_id' in book_data:
+            return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
             return json.dumps({'error': 'There is no book with this ID which could be updated.'})
@@ -94,7 +96,14 @@ class Librarian():
         @param db: DatabaseWrapper
         @return: string
         """
-        book_data = json.loads(request.read().split('book=')[1])
+        try:
+            book_data = json.loads(request.POST['book'])
+        except IndexError:
+            return json.dumps({'error': 'You have to supply a book to update.'})
+        except ValueError:
+            return json.dumps({'error': 'The data you supplied is not valid json.'})
+        if not 'type' in book_data:
+            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
         if 'isbn' in book_data['data']:
