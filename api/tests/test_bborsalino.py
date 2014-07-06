@@ -120,7 +120,15 @@ class TestBBorsalino(TestCase):
             self.assertEqual(book['data']['author'], u'Max Mustermann')
 
     def test_remove(self):
-        pass
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
+        book = self.collection.find_one()
+        book['_id'] = str(book['_id'])
+        test_client = Client()
+        response = test_client.post('/bborsalino/Librarian/remove', {'book': json.dumps(book)})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
         pass
