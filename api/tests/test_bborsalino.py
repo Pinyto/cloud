@@ -103,7 +103,21 @@ class TestBBorsalino(TestCase):
             self.assertEqual(book['data']['place'], u'C')
 
     def test_duplicate(self):
-        pass
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        book = self.collection.find()[0]
+        del book['data']['author']
+        self.assertFalse('author' in book['data'])
+        book['_id'] = str(book['_id'])
+        test_client = Client()
+        response = test_client.post('/bborsalino/Librarian/duplicate', {'book': json.dumps(book)})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        self.assertEqual(self.collection.find(
+            {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}
+        ).count(), 2)
+        for book in self.collection.find({"type": "book", 'data.isbn': "978-3-943176-24-7"}):
+            self.assertEqual(book['data']['isbn'], u'978-3-943176-24-7')
+            self.assertEqual(book['data']['author'], u'Max Mustermann')
 
     def test_remove(self):
         pass
