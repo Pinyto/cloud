@@ -131,7 +131,17 @@ class TestBBorsalino(TestCase):
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
-        pass
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
+        test_client = Client()
+        response = test_client.post('/bborsalino/Librarian/statistics')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertEqual(res['book_count'], 4)
+        self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
+        self.assertEqual(res['lent_count'], 1)
 
     def test_job_complete_data_by_asking_dnb(self):
         pass
