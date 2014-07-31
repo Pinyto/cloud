@@ -75,7 +75,13 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(str(original_document['_id']), str(retrieved_document['_id']))
 
     def test_count(self):
-        pass
+        wrapper = CollectionWrapper(self.collection)
+        wrapper.save({'a': 2, 'b': 'Test'})
+        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.save({'a': 2, 'b': 'Test2'})
+        self.assertEqual(wrapper.count({'a': 1}), 1)
+        self.assertEqual(wrapper.count({'a': 2}), 2)
+        self.assertEqual(wrapper.count({'b': 'Test'}), 2)
 
     def test_insert(self):
         pass
