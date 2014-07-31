@@ -19,9 +19,26 @@ class User(models.Model):
     for authentication.
     """
     name = models.CharField(max_length=30, primary_key=True)
+    time_budget = models.FloatField()
+    storage_budget = models.FloatField()
+    current_storage = models.BigIntegerField()
+    last_calculation_time = models.DateTimeField()
 
     def __str__(self):
         return self.name
+
+    def __init__(self, *args, **kwargs):
+        """
+        Constructor for users. All users are initialized with empty budgets.
+
+        @param args:
+        @param kwargs:
+        """
+        super(User, self).__init__(*args, **kwargs)
+        self.time_budget = 0.0
+        self.storage_budget = 0.0
+        self.current_storage = 0
+        self.last_calculation_time = datetime.now(tzlocal())
 
     def start_session(self, key_db_object):
         """
@@ -29,7 +46,7 @@ class User(models.Model):
         If there is an existing session it will be overwritten
 
         @param key_db_object: StoredPublicKey
-        @return: User object
+        @return: Session object
         """
         try:
             session = self.sessions.filter(key=key_db_object).all()[0]
@@ -44,6 +61,21 @@ class User(models.Model):
                 user=self)
             session.save()
         return session
+
+    def calculate_time_and_storage(self, added_time, new_storage):
+        """
+        This method updates the time- and storage budget of the user. The changed budget
+        and the corresponding variables are saved.
+
+        @param added_time: time
+        @param new_storage: int
+        """
+        now = datetime.now(tzlocal())
+        self.time_budget = self.time_budget + added_time
+        self.storage_budget += self.current_storage * (now - self.last_calculation_time).total_seconds()
+        self.last_calculation_time = now
+        self.current_storage = new_storage
+        self.save()
 
 
 class StoredPublicKey(models.Model):

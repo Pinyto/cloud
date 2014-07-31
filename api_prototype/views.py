@@ -14,6 +14,7 @@ from pinytoCloud.models import User
 from sandbox import safely_exec
 from inspect import getmembers, isfunction
 from django.http import HttpResponse
+import time
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
@@ -53,12 +54,14 @@ def api_call(request, user_name, assembly_name, function_name):
         if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
             collection = Collection(MongoClient().pinyto, session.user.name)
             collection_wrapper = CollectionWrapper(collection)
-            return HttpResponse(
-                function(
-                    request,
-                    collection_wrapper
-                ),
-                content_type='application/json')
+            start_time = time.clock()
+            response = function(request, collection_wrapper)
+            end_time = time.clock()
+            session.user.calculate_time_and_storage(
+                end_time - start_time,
+                MongoClient().pinyto.command('collstats', session.user.name)['size']
+            )
+            return json_response(response)
     # If we reach this point the api_class was found but the function was not defined in the class.
     # So we try to load this code from the database.
     return load_api(session, assembly_user, assembly_name, function_name)
@@ -97,8 +100,11 @@ def load_api(session, assembly_user, assembly_name, function_name):
     print(api_function.code)
     collection = Collection(MongoClient().pinyto, session.user.name)
     collection_wrapper = CollectionWrapper(collection)
-    response_data, time = safely_exec(api_function.code, collection_wrapper)  # TODO: pass response object
-    print(time)
+    response_data, elapsed_time = safely_exec(api_function.code, collection_wrapper)  # TODO: pass response object
+    session.user.calculate_time_and_storage(
+        elapsed_time,
+        MongoClient().pinyto.command('collstats', session.user.name)['size']
+    )
     return json_response(response_data)
 
 
