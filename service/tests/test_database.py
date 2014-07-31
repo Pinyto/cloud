@@ -84,7 +84,17 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
 
     def test_insert(self):
-        pass
+        wrapper = CollectionWrapper(self.collection)
+        wrapper.save({'a': 1, 'b': 'Test'})
+        self.assertEqual(wrapper.count({'a': 1}), 1)
+        document = wrapper.find({'a': 1})[0]
+        wrapper.insert(document)
+        self.assertEqual(wrapper.count({'a': 1}), 2)
+        document = wrapper.find({'a': 1})[0]
+        document2 = wrapper.find({'a': 1})[1]
+        self.assertEqual(document['a'], document2['a'])
+        self.assertEqual(document['b'], document2['b'])
+        self.assertNotEqual(str(document['_id']), str(document2['_id']))
 
     def test_remove(self):
         pass
