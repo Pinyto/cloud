@@ -65,7 +65,14 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(type(doc['_id']), str)
 
     def test_find_document_for_id(self):
-        pass
+        wrapper = CollectionWrapper(self.collection)
+        wrapper.save({'a': 2, 'b': 'Test'})
+        wrapper.save({'a': 1, 'b': 'Test'})
+        original_document = wrapper.find({'a': 1})[0]
+        retrieved_document = wrapper.find_document_for_id(original_document['_id'])
+        self.assertEqual(original_document['a'], retrieved_document['a'])
+        self.assertEqual(original_document['b'], retrieved_document['b'])
+        self.assertEqual(str(original_document['_id']), str(retrieved_document['_id']))
 
     def test_count(self):
         pass
