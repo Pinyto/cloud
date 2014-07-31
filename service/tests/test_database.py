@@ -11,7 +11,7 @@ from service.database import encode_underscore_fields, encode_underscore_fields_
 
 class TestCollectionWrapper(TestCase):
     def setUp(self):
-        self.collection = Collection(MongoClient().pinyto, 'colletion_wrapper_test')
+        self.collection = Collection(MongoClient().pinyto, 'collection_wrapper_test')
 
     def tearDown(self):
         self.collection.drop()
@@ -97,7 +97,13 @@ class TestCollectionWrapper(TestCase):
         self.assertNotEqual(str(document['_id']), str(document2['_id']))
 
     def test_remove(self):
-        pass
+        wrapper = CollectionWrapper(self.collection)
+        wrapper.save({'a': 2, 'b': 'Test'})
+        wrapper.save({'a': 1, 'b': 'Test'})
+        document = wrapper.find({'a': 1})[0]
+        self.assertEqual(wrapper.count({'b': 'Test'}), 2)
+        wrapper.remove(document)
+        self.assertEqual(wrapper.count({'b': 'Test'}), 1)
 
 
 class TestDatabaseHelpers(TestCase):

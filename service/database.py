@@ -99,7 +99,7 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
-        self.db.remove(document['_id'])
+        self.db.remove(spec_or_id={"_id": ObjectId(document['_id'])})
 
 
 def encode_underscore_fields(data):
