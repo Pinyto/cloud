@@ -4,6 +4,7 @@ This File is part of Pinyto
 """
 
 from pymongo.son_manipulator import ObjectId
+from pymongo import ASCENDING, DESCENDING
 from datetime import datetime
 
 
@@ -14,7 +15,7 @@ class CollectionWrapper(object):
     def __init__(self, collection):
         self.db = collection
 
-    def find(self, query, limit=0):
+    def find(self, query, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         encodes all fields beginning with _ for returning a valid
@@ -22,9 +23,11 @@ class CollectionWrapper(object):
 
         @param query: json string
         @param limit: int
+        @param sorting: string identifiying the key
+        @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
-        return encode_underscore_fields_list(self.db.find(query).limit(limit))
+        return encode_underscore_fields_list(self.find_documents(query, limit, sorting, sort_direction))
 
     def count(self, query):
         """
@@ -35,7 +38,7 @@ class CollectionWrapper(object):
         """
         return self.db.find(query).count()
 
-    def find_documents(self, query, limit=0):
+    def find_documents(self, query, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         returns complete documents with _id fields. Do not use this
@@ -43,9 +46,18 @@ class CollectionWrapper(object):
 
         @param query: json string
         @param limit: integer
+        @param sorting: string identifiying the key
+        @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
-        return self.db.find(query).limit(limit)
+        if sort_direction == 'desc':
+            sort_direction = DESCENDING
+        else:
+            sort_direction = ASCENDING
+        if sorting:
+            return self.db.find(query).sort(sorting, sort_direction).limit(limit)
+        else:
+            return self.db.find(query).limit(limit)
 
     def find_document_for_id(self, document_id):
         """
