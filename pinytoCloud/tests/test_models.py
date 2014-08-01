@@ -7,12 +7,18 @@ from pinytoCloud.models import User, StoredPublicKey
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16decode
+from datetime import datetime
+from dateutil.tz import tzlocal
 
 
 class ModelTest(TestCase):
     def test_create_user(self):
         user = User(name='hugo')
+        self.assertAlmostEqual((datetime.now(tzlocal()) - user.last_calculation_time).total_seconds(), 0.0, places=3)
         self.assertEqual(user.name, 'hugo')
+        self.assertAlmostEqual(user.time_budget, 0)
+        self.assertAlmostEqual(user.storage_budget, 0)
+        self.assertAlmostEqual(user.current_storage, 0)
         user.save()
         self.assertEqual(User.objects.filter(name='hugo').count(), 1)
 
