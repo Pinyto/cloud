@@ -61,7 +61,7 @@ def api_call(request, user_name, assembly_name, function_name):
                 end_time - start_time,
                 MongoClient().pinyto.command('collstats', session.user.name)['size']
             )
-            return json_response(response)
+            return HttpResponse(response, content_type='application/json')
     # If we reach this point the api_class was found but the function was not defined in the class.
     # So we try to load this code from the database.
     return load_api(session, assembly_user, assembly_name, function_name)
