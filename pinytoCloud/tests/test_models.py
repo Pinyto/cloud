@@ -3,6 +3,7 @@
 This File is part of Pinyto
 """
 from django.test import TestCase
+from django.db.transaction import non_atomic_requests, commit
 from pinytoCloud.models import User, StoredPublicKey
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
@@ -18,7 +19,7 @@ class ModelTest(TestCase):
         self.assertEqual(user.name, 'hugo')
         self.assertAlmostEqual(user.time_budget, 0)
         self.assertAlmostEqual(user.storage_budget, 0)
-        self.assertAlmostEqual(user.current_storage, 0)
+        self.assertEqual(user.current_storage, 0)
         user.save()
         self.assertEqual(User.objects.filter(name='hugo').count(), 1)
 
@@ -131,3 +132,21 @@ class ModelTest(TestCase):
         )))
         cipher = PKCS1_OAEP.new(private_key)
         self.assertEqual(session.token, cipher.decrypt(b16decode(encrypted_token)))
+
+    def test_budget_update(self):
+        hugo = User(name='hugo')
+        hugo.save()
+        hugo.calculate_time_and_storage(1.0, 30000)
+        time1 = datetime.now(tzlocal())
+        self.assertAlmostEqual((time1 - hugo.last_calculation_time).total_seconds(), 0.0, places=2)
+        self.assertAlmostEqual(hugo.time_budget, 1.0)
+        self.assertAlmostEqual(hugo.storage_budget, 0.0)
+        self.assertEqual(hugo.current_storage, 30000)
+        self.assertEqual(User.objects.filter(name='hugo').count(), 1)
+        self.assertEqual(User.objects.filter(name='hugo').all()[0].current_storage, 30000)
+        hugo.calculate_time_and_storage(1.1, 0)
+        time2 = datetime.now(tzlocal())
+        self.assertAlmostEqual((time2 - hugo.last_calculation_time).total_seconds(), 0.0, places=2)
+        self.assertAlmostEqual(hugo.time_budget, 2.1)
+        self.assertAlmostEqual(hugo.storage_budget, (time2 - time1).total_seconds() * 30000, places=-1)
+        self.assertEqual(hugo.current_storage, 0)

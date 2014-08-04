@@ -4,6 +4,7 @@ In this file is the model definition for Pinyto users and for sessions.
 """
 
 from django.db import models
+from django.dispatch import receiver
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16encode
@@ -26,19 +27,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.name
-
-    def __init__(self, *args, **kwargs):
-        """
-        Constructor for users. All users are initialized with empty budgets.
-
-        @param args:
-        @param kwargs:
-        """
-        super(User, self).__init__(*args, **kwargs)
-        self.time_budget = 0.0
-        self.storage_budget = 0.0
-        self.current_storage = 0
-        self.last_calculation_time = datetime.now(tzlocal())
 
     def start_session(self, key_db_object):
         """
@@ -76,6 +64,25 @@ class User(models.Model):
         self.last_calculation_time = now
         self.current_storage = new_storage
         self.save()
+
+
+@receiver(models.signals.post_init, sender=User)
+def initialize_budgets(sender, instance, **kwargs):
+    """
+    Initialization for users. All users are initialized with empty budgets.
+
+    @param sender: User class
+    @param instance: User
+    @param kwargs: other params of __init__()
+    """
+    if not instance.time_budget:
+        instance.time_budget = 0.0
+    if not instance.storage_budget:
+        instance.storage_budget = 0.0
+    if not instance.current_storage:
+        instance.current_storage = 0
+    if not instance.last_calculation_time:
+        instance.last_calculation_time = datetime.now(tzlocal())
 
 
 class StoredPublicKey(models.Model):
