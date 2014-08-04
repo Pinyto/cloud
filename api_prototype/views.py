@@ -2,18 +2,19 @@
 """
 This File is part of Pinyto
 """
+from django.dispatch import receiver
+from django.core.signals import request_finished
+from django.http import HttpResponse
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
-from service.database import encode_underscore_fields_list, CollectionWrapper
+from service.database import CollectionWrapper
 from service.response import json_response
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
-from datetime import datetime
 from pinytoCloud.models import User
 from sandbox import safely_exec
 from inspect import getmembers, isfunction
-from django.http import HttpResponse
 import time
 
 ApiClasses = [('librarian.views', 'Librarian')]
@@ -108,13 +109,68 @@ def load_api(session, assembly_user, assembly_name, function_name):
     return json_response(response_data)
 
 
-def check_for_jobs(collection_wrapper):
+@receiver(request_finished)
+def check_for_jobs(sender, **kwargs):
     """
-    Check in the collection of the user if there are any scheduled jobs. These get
-    executed in the order of their creation.
+    Check in the collection of all users if there are any scheduled jobs.
 
-    @param collection_wrapper: CollectionWrapper
-    @return:
+    @param sender:
+    @param kwargs:
     """
-
-    pass
+    for user in User.objects.all():
+        collection = Collection(MongoClient().pinyto, user.name)
+        for job in collection.find({'type': 'job'}):
+            if not job['data'] or not job['data']['assembly_user'] or not job['data']['assembly_name'] or \
+               not job['data']['job_name']:
+                continue
+            try:
+                api_class = getattr(
+                    __import__(
+                        'api.' + job['data']['assembly_user'],
+                        fromlist=[job['data']['assembly_name']]),
+                    job['data']['assembly_name'])
+            except ImportError:
+                # There is no statically defined api function for this call. Proceed to
+                # loading the code from the database and executing it in the sandbox.
+                try:
+                    assemblies = User.objects.filter(
+                        name=job['data']['assembly_user']
+                    ).all()[0].assemblies.filter(name=job['data']['assembly_name']).all()
+                    if len(assemblies) > 1:
+                        return json_response(
+                            {'error': "The user has more than one assembly of this name. That does not make any sense."}
+                        )
+                    assembly = assemblies[0]
+                except IndexError:
+                    return json_response(
+                        {'error': "Assembly not found. Does " + job['data']['assembly_user'] + " have an Assembly named " +
+                                  job['data']['assembly_name'] + "?"}
+                    )
+                try:
+                    api_function = assembly.jobs.filter(name=job['data']['job_name']).all()[0]
+                except IndexError:
+                    return json_response(
+                        {'error': "The assembly " + job['data']['assembly_user'] + "/" +
+                                  job['data']['assembly_name'] + ' exists but has no job "' +
+                                  job['data']['job_name'] + '" defined.'}
+                    )
+                print(api_function.code)
+                collection_wrapper = CollectionWrapper(collection)
+                response_data, elapsed_time = safely_exec(api_function.code, collection_wrapper)
+                collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
+                user.calculate_time_and_storage(
+                    elapsed_time,
+                    MongoClient().pinyto.command('collstats', user.name)['size']
+                )
+                continue
+            for name, function in getmembers(api_class, predicate=isfunction):
+                if unicode(name).startswith(u'job_') and unicode(name) == unicode(job['data']['job_name']):
+                    collection_wrapper = CollectionWrapper(collection)
+                    start_time = time.clock()
+                    function(collection_wrapper)
+                    collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
+                    end_time = time.clock()
+                    user.calculate_time_and_storage(
+                        end_time - start_time,
+                        MongoClient().pinyto.command('collstats', user.name)['size']
+                    )
