@@ -200,6 +200,11 @@ class SecureHost(object):
                 return_value = escape_all_objectids(real_db.find_document_for_id(
                     unescape_all_objectids(response['db.find_document_for_id'])['document_id']))
                 write_to_pipe(self.host, {'response': return_value})
+            elif 'db.find_distinct' in response:
+                return_value = real_db.find_distinct(
+                    response['db.find_distinct']['query'],
+                    response['db.find_distinct']['attribute'])
+                write_to_pipe(self.host, {'response': return_value})
             elif 'db.save' in response:
                 real_db.save(unescape_all_objectids(response['db.save']['document']))
                 write_to_pipe(self.host, {'response': True})

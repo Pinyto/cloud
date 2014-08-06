@@ -67,6 +67,17 @@ class SandboxCollectionWrapper(object):
             )
         )
 
+    def find_distinct(self, query, attribute):
+        """
+        Return a list representing the diversity of a given attribute in
+        the documents matched by the query.
+
+        @param query: json string
+        @param attribute:
+        @return:
+        """
+        return piped_command(self.child, {'db.find_distinct': {'query': query, 'attribute': attribute}})
+
     def save(self, document):
         """
         Saves the document. The document must have a valid _id

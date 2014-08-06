@@ -74,6 +74,12 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(original_document['b'], retrieved_document['b'])
         self.assertEqual(str(original_document['_id']), str(retrieved_document['_id']))
 
+    def test_find_distinct(self):
+        wrapper = CollectionWrapper(self.collection)
+        wrapper.save({'a': 2, 'b': 'Test'})
+        wrapper.save({'a': 1, 'b': 'Test'})
+        self.assertEqual(wrapper.find_distinct({'b': 'Test'}, 'a'), [2, 1])
+
     def test_count(self):
         wrapper = CollectionWrapper(self.collection)
         wrapper.save({'a': 2, 'b': 'Test'})

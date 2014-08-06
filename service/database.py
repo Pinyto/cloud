@@ -69,6 +69,17 @@ class CollectionWrapper(object):
         """
         return self.db.find_one({'_id': ObjectId(document_id)})
 
+    def find_distinct(self, query, attribute):
+        """
+        Return a list representing the diversity of a given attribute in
+        the documents matched by the query.
+
+        @param query: json string
+        @param attribute: string
+        @return:
+        """
+        return self.db.find(query).distinct(attribute)
+
     def save(self, document):
         """
         Saves the document. The document must have a valid _id

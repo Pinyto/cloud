@@ -279,8 +279,8 @@ return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_remove.save()
         self.librarian_statistics = ApiFunction(name='statistics', code="""return json.dumps({
     'book_count': db.count({'type': 'book'}),
-    'places_used': db.find_documents(
-        {'type': 'book', 'data': {'$exists': True}}).distinct('data.place'),
+    'places_used': db.find_distinct(
+        {'type': 'book', 'data': {'$exists': True}}, 'data.place'),
     'lent_count': db.count({'type': 'book',
                             'data': {'$exists': True},
                             'data.lent': {'$exists': True, '$ne': ""}})
