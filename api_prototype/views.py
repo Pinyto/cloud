@@ -50,7 +50,7 @@ def api_call(request, user_name, assembly_name, function_name):
     except ImportError:
         # There is no statically defined api function for this call. Proceed to
         # loading the code from the database and executing it in the sandbox.
-        return load_api(session, assembly_user, assembly_name, function_name)
+        return load_api(request, session, assembly_user, assembly_name, function_name)
     for name, function in getmembers(api_class, predicate=isfunction):
         if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
             collection = Collection(MongoClient().pinyto, session.user.name)
@@ -68,11 +68,12 @@ def api_call(request, user_name, assembly_name, function_name):
     return load_api(session, assembly_user, assembly_name, function_name)
 
 
-def load_api(session, assembly_user, assembly_name, function_name):
+def load_api(request, session, assembly_user, assembly_name, function_name):
     """
     There is no statically defined api function for this call. Proceed to
     loading the code from the database and executing it in the sandbox.
 
+    @param request: Django's request object
     @param session: Session
     @param assembly_user: User
     @param assembly_name: string
@@ -98,15 +99,14 @@ def load_api(session, assembly_user, assembly_name, function_name):
             {'error': "The assembly " + assembly_user.name + "/" + assembly_name + ' exists but has no API function "' +
                       function_name + '".'}
         )
-    print(api_function.code)
     collection = Collection(MongoClient().pinyto, session.user.name)
     collection_wrapper = CollectionWrapper(collection)
-    response_data, elapsed_time = safely_exec(api_function.code, collection_wrapper)  # TODO: pass response object
+    response_data, elapsed_time = safely_exec(api_function.code, request, collection_wrapper)
     session.user.calculate_time_and_storage(
         elapsed_time,
         MongoClient().pinyto.command('collstats', session.user.name)['size']
     )
-    return json_response(response_data)
+    return HttpResponse(response_data, content_type='application/json')
 
 
 @receiver(request_finished)
@@ -156,7 +156,7 @@ def check_for_jobs(sender, **kwargs):
                     )
                 print(api_function.code)
                 collection_wrapper = CollectionWrapper(collection)
-                response_data, elapsed_time = safely_exec(api_function.code, collection_wrapper)
+                response_data, elapsed_time = safely_exec(api_function.code, None, collection_wrapper)
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
                     elapsed_time,

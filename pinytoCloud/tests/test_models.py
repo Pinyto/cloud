@@ -148,5 +148,5 @@ class ModelTest(TestCase):
         time2 = datetime.now(tzlocal())
         self.assertAlmostEqual((time2 - hugo.last_calculation_time).total_seconds(), 0.0, places=2)
         self.assertAlmostEqual(hugo.time_budget, 2.1)
-        self.assertAlmostEqual(hugo.storage_budget, (time2 - time1).total_seconds() * 30000, places=-1)
+        self.assertAlmostEqual(hugo.storage_budget, (time2 - time1).total_seconds() * 30000, places=-2)
         self.assertEqual(hugo.current_storage, 0)

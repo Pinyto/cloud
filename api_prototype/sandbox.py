@@ -9,7 +9,7 @@ from multiprocessing.queues import Empty
 from seccomp_process import SecureHost
 
 
-def sandbox(code, real_db, queue):
+def sandbox(code, request, real_db, queue):
     """
     This function gets executed in a separate subprocess which does not share the memory with the main
     Django process. This is done a) for security reasons to minimize the risk that code inside of the
@@ -17,6 +17,7 @@ def sandbox(code, real_db, queue):
     because the user will have to pay for this.
 
     @param code: string
+    @param request: Django's request object
     @param real_db: CollectionWrapper
     @param queue: Queue
     @return: nothing (the queue is used for returning the results)
@@ -25,25 +26,26 @@ def sandbox(code, real_db, queue):
     secure_host = SecureHost()
     secure_host.start_child()
     try:
-        result = secure_host.execute(code, real_db)
+        result = secure_host.execute(code, request, real_db)
     finally:
         secure_host.kill_child()
     end_time = time.clock()
     queue.put((result, end_time - start_time))
 
 
-def safely_exec(code, db):
+def safely_exec(code, request, db):
     """
     If you want to use this module call this method. It will setup a process and execute the code there
     with seccomp. Database connections will be opened for the users collection.
 
     @param code: string
+    @param request: Django's request object
     @param db: CollectionWrapper
     @return: json
     """
     start_time = time.clock()
     queue = Queue(1)
-    sandbox_process = Process(target=sandbox, args=(code, db, queue))
+    sandbox_process = Process(target=sandbox, args=(code, request, db, queue))
     sandbox_process.start()
     result = ""
     child_time = 0

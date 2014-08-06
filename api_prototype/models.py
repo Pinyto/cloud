@@ -89,6 +89,35 @@ class SandboxCollectionWrapper(object):
         return piped_command(self.child, {'db.remove': {'document': document}})
 
 
+class SandboxRequestPost(object):
+    """
+    This wrapper is user to expose Django's request object to the users assemblies.
+    This class implements the most used methods of the request object.
+
+    This class is used to emulate request.POST
+    """
+
+    def __init__(self, child_pipe):
+        self.child = child_pipe
+
+    def get(self, param):
+        """
+        Returns the specified param
+        """
+        return piped_command(self.child, {'request.post.get': {'param': param}})
+
+
+class SandboxRequest(object):
+    """
+    This wrapper is user to expose Django's request object to the users assemblies.
+    This class implements the most used methods of the request object.
+    """
+
+    def __init__(self, child_pipe):
+        self.child = child_pipe
+        self.POST = SandboxRequestPost(child_pipe)
+
+
 class CanNotCreateNewInstanceInTheSandbox(Exception):
     """
     This Exception is thrown if a script wants to create an object of a class

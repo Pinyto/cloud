@@ -19,7 +19,7 @@ import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
 from base64 import b64encode
-from api_prototype.models import SandboxCollectionWrapper
+from api_prototype.models import SandboxCollectionWrapper, SandboxRequest
 from api_prototype.models import Factory
 from service.parsehtml import ParseHtml as RealParseHtml
 from service.http import Https as RealHttps
@@ -79,18 +79,23 @@ class SecureHost(object):
             pass
 
     @staticmethod
-    def do_exec(msg, db, factory):
+    def do_exec(msg, request, db, factory):
         """
         Execute arbitrary code sent to the child process and return the printed results
         of that code. Do not call this method from the host process because the code in
         the message gets executed with the permissions of the process!
 
         @param msg:
+        @param request: SandboxedRequest
+        @param db: SandboxedCollectionWrapper
+        @param factory: Factory
         @return: json
         """
         with stdout_io() as s:
             try:
-                exec msg['body']
+                exec "def f(request, db, factory):\n" + \
+                     "".join(['  '+line for line in msg['body'].splitlines(True)]) + \
+                     "\nprint(f(request, db, factory))"
             except Exception as e:
                 return {'exception': str(type(e)), 'message': str(e)}
         return {'result': s.getvalue()}
@@ -121,6 +126,7 @@ class SecureHost(object):
                     pass
 
         db = SandboxCollectionWrapper(self.child)
+        request = SandboxRequest(self.child)
         factory = Factory(self.child)
         self.claim_and_free_memory()
         resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
@@ -129,7 +135,7 @@ class SecureHost(object):
             doc = read_from_pipe(self.child)
             response = ''
             if doc['cmd'] == 'exec':
-                response = self.do_exec(doc, db, factory)
+                response = self.do_exec(doc, request, db, factory)
             elif doc['cmd'] == 'exit':
                 libc_exit(0)
             write_to_pipe(self.child, response)
@@ -157,7 +163,7 @@ class SecureHost(object):
         self.claim_memory()
         gc.collect()
 
-    def execute(self, code, real_db):
+    def execute(self, code, request, real_db):
         """
         This is the host end for executing code in the child process. Code in s will be encoded as
         json and sent to the child through the open file descriptor. The host process waits till the
@@ -165,6 +171,7 @@ class SecureHost(object):
         returned.
 
         @param code: string (which is python code and may contain multiple lines)
+        @param request: Django's real request object
         @param real_db: CollectionWrapper
         @return: string
         """
@@ -232,6 +239,10 @@ class SecureHost(object):
                     response['https.post']['domain'],
                     response['https.post']['path'])
                 write_to_pipe(self.host, {'response': b64encode(return_value)})
+            elif 'request.post.get' in response:
+                return_value = request.POST.get(
+                    response['request.post.get']['param'])
+                write_to_pipe(self.host, {'response': return_value})
             elif 'result' in response:
                 result_received = True
                 result += response['result']

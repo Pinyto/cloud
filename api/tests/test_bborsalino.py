@@ -9,7 +9,7 @@ from django.test.client import Client
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
-from pinytoCloud.models import User, StoredPublicKey
+from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
 import json
 
 
@@ -163,3 +163,62 @@ class TestBBorsalino(TestCase):
 
     def test_job_complete_data_by_asking_dnb(self):
         pass
+
+
+class TestBBorsalinoSandbox(TestCase):
+    def setUp(self):
+        self.bborsalino = User(name='bborsalinosandbox')
+        self.bborsalino.save()
+        self.assembly = Assembly(name='Librarian', author=self.bborsalino, description="Manage your books.")
+        self.assembly.save()
+        self.librarian_index = ApiFunction(name='index', code="""ean = request.POST.get('ean')
+isbn = request.POST.get('isbn')
+if ean:
+    books = db.find({'type': 'book', 'data.ean': ean}, 42)
+elif isbn:
+    books = db.find({'type': 'book', 'data.isbn': isbn}, 42)
+else:
+    books = db.find({'type': 'book'}, 42)
+return json.dumps({'index': books})""", assembly=self.assembly)
+        self.librarian_index.save()
+
+        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
+        for doc in self.collection.find():
+            backup_collection.insert(doc)
+        self.collection.drop()
+        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection_wrapper = CollectionWrapper(self.collection)
+
+    def tearDown(self):
+        self.collection.drop()
+        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
+        for doc in backup_collection.find():
+            self.collection.insert(doc)
+
+    def mock_check_token(self):
+        """
+        Mocks the token check.
+        @return: Session
+        """
+        hugo = User(name='Hugo')
+        hugo.save()
+        key = StoredPublicKey.create(hugo, '13', 5)
+        return hugo.start_session(key)
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_index(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'ean': '1234567890123'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['index'], [])
+        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'isbn': '978-3-943176-24-7'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 1)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 1)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
