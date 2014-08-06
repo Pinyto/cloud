@@ -14,6 +14,8 @@ def extract_content(tag):
         @return: string
         """
         content = u''
+        if not tag:
+            return content
         for c in tag.contents:
             if not isinstance(c, NavigableString):
                 content += extract_content(c)

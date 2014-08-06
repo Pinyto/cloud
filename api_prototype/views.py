@@ -10,6 +10,8 @@ from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
 from service.response import json_response
+from models import Factory as SandboxFactory
+from service.models import Factory as DirectFactory
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
 from pinytoCloud.models import User
@@ -56,7 +58,7 @@ def api_call(request, user_name, assembly_name, function_name):
             collection = Collection(MongoClient().pinyto, session.user.name)
             collection_wrapper = CollectionWrapper(collection)
             start_time = time.clock()
-            response = function(request, collection_wrapper)
+            response = function(request, collection_wrapper, DirectFactory())
             end_time = time.clock()
             session.user.calculate_time_and_storage(
                 end_time - start_time,
@@ -167,7 +169,7 @@ def check_for_jobs(sender, **kwargs):
                 if unicode(name).startswith(u'job_') and unicode(name) == unicode(job['data']['job_name']):
                     collection_wrapper = CollectionWrapper(collection)
                     start_time = time.clock()
-                    function(collection_wrapper)
+                    function(collection_wrapper, DirectFactory())
                     collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                     end_time = time.clock()
                     user.calculate_time_and_storage(

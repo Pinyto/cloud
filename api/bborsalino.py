@@ -14,13 +14,14 @@ class Librarian():
         pass
 
     @staticmethod
-    def index(request, db):
+    def index(request, db, factory):
         """
         index returns the specified book if a ean or isbn is given and all books if not.
         It never returns more than 42 books.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         ean = request.POST.get('ean')
@@ -34,7 +35,7 @@ class Librarian():
         return json.dumps({'index': books})
 
     @staticmethod
-    def search(request, db):
+    def search(request, db, factory):
         """
         search returns all books which have the searchstring in the title, the uniform_title,
         the publisher name, the year, the category or the author. It never returns more than
@@ -42,6 +43,7 @@ class Librarian():
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         search_string = request.POST.get('searchstring')
@@ -58,13 +60,14 @@ class Librarian():
         return json.dumps({'index': books})
 
     @staticmethod
-    def update(request, db):
+    def update(request, db, factory):
         """
         update gets data with an _id and searches the document with this _id. If found
         it updates the document and saves the changes.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         try:
@@ -88,12 +91,13 @@ class Librarian():
         return json.dumps({'success': True})
 
     @staticmethod
-    def update_all(request, db):
+    def update_all(request, db, factory):
         """
         update_all updates all books which have the given isbn or ean.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         try:
@@ -126,12 +130,13 @@ class Librarian():
         return json.dumps({'success': True})
 
     @staticmethod
-    def duplicate(request, db):
+    def duplicate(request, db, factory):
         """
         duplicate duplicates the book specified by the _id.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         try:
@@ -153,12 +158,13 @@ class Librarian():
         return json.dumps({'success': True})
 
     @staticmethod
-    def remove(request, db):
+    def remove(request, db, factory):
         """
         remove removes the book specified by the _id.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         try:
@@ -178,13 +184,14 @@ class Librarian():
         return json.dumps({'success': True})
 
     @staticmethod
-    def statistics(request, db):
+    def statistics(request, db, factory):
         """
         statistics returns the total count of books, the places where they are and how many are lent
         to somebody.
 
         @param request: Django Request
         @param db: DatabaseWrapper
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
         return json.dumps({
@@ -206,7 +213,7 @@ class Librarian():
         book and let this job do the rest for you.
 
         @param db: DatabaseWrapper
-        @param factory: Factory
+        @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: nothing
         """
         incomplete_books = db.find_documents({'type': 'book',
@@ -263,7 +270,9 @@ class Librarian():
                     'edition': {'search tag': 'td', 'captions': ['Ausgabe'], 'content tag': 'td'},
                     'isbn': {'search tag': 'td', 'captions': ['ISBN/Einband/Preis'], 'content tag': 'td'},
                     'ean': {'search tag': 'td', 'captions': ['EAN'], 'content tag': 'td'}
-                })
+                }
+            )
             for key in parsed:
-                book['data'][key] = parsed[key]
+                if not key in book['data']:
+                    book['data'][key] = parsed[key]
             db.save(book)

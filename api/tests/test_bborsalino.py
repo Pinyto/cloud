@@ -11,6 +11,7 @@ from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
 import json
+import time
 
 
 class TestBBorsalino(TestCase):
@@ -161,8 +162,54 @@ class TestBBorsalino(TestCase):
         self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
         self.assertEqual(res['lent_count'], 1)
 
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_job_complete_data_by_asking_dnb(self):
-        pass
+        test_client = Client()
+        response = test_client.post(
+            '/store',
+            {'token': 'fake', 'type': 'book', 'data': "{\"isbn\": \"978-3-943176-24-7\", \"place\": \"\"}"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        response = test_client.post(
+            '/store',
+            {'token': 'fake', 'type': 'job',
+             'data': "{\"assembly_user\": \"bborsalino\", " +
+                     "\"assembly_name\": \"Librarian\", " +
+                     "\"job_name\": \"job_complete_data_by_asking_dnb\"}"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        response = test_client.post(
+            '/bborsalino/Librarian/index',
+            {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 1)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        # Wait for job to complete
+        iterations = 0
+        completed = False
+        while not completed:
+            iterations += 1
+            if iterations > 100:
+                self.fail("Maximum iterations reached. The data was not completed.")
+            response = test_client.post(
+                '/bborsalino/Librarian/index',
+                {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+            )
+            print(json.loads(response.content)['index'])
+            if len(json.loads(response.content)['index']) >= 1 and \
+               'data' in json.loads(response.content)['index'][0] and \
+               'title' in json.loads(response.content)['index'][0]['data']:
+                completed = True
+            else:
+                time.sleep(0.1)
+        self.assertEqual(
+            json.loads(response.content)['index'][0]['data']['title'],
+            u"Fettnäpfchenführer. - Meerbusch : Conbook-Verl. [Mehrteiliges Werk] " +
+            u"Teil: Japan : die Axt im Chrysanthemenwald / Kerstin und Andreas Fels"
+        )
 
 
 class TestBBorsalinoSandbox(TestCase):
