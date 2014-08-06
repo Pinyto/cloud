@@ -45,7 +45,7 @@ def write_exact(fp, s):
     Write only the specified number of bytes
 
     @param fp: file pointer
-    @param s: (int) number of bytes to write
+    @param s: string to write and not a byte more than that
     @return: nothing
     """
     done = 0

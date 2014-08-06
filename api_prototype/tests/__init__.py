@@ -4,7 +4,7 @@ This File is part of Pinyto
 """
 import unittest
 
-from api_prototype.tests import test_sandbox
+from api_prototype.tests import test_sandbox, test_sandbox_helpers
 
 
 def suite():
@@ -15,6 +15,7 @@ def suite():
     """
     tests_loader = unittest.TestLoader().loadTestsFromModule
     test_suites = [
-        tests_loader(test_sandbox)
+        tests_loader(test_sandbox),
+        tests_loader(test_sandbox_helpers)
     ]
     return unittest.TestSuite(test_suites)
