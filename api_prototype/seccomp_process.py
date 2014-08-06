@@ -18,6 +18,7 @@ import gc
 import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
+from api_prototype.sandbox_helpers import escape_all_objectids, unescape_all_objectids
 from base64 import b64encode
 from api_prototype.models import SandboxCollectionWrapper, SandboxRequest
 from api_prototype.models import Factory
@@ -191,22 +192,22 @@ class SecureHost(object):
                 return_value = real_db.count(response['db.count']['query'])
                 write_to_pipe(self.host, {'response': str(return_value)})
             elif 'db.find_documents' in response:
-                return_value = real_db.find_documents(
+                return_value = [escape_all_objectids(item) for item in list(real_db.find_documents(
                     response['db.find_documents']['query'],
-                    response['db.find_documents']['limit'])
+                    response['db.find_documents']['limit']))]
                 write_to_pipe(self.host, {'response': return_value})
             elif 'db.find_document_for_id' in response:
-                return_value = real_db.find_document_for_id(
-                    response['db.find_document_for_id']['document_id'])
+                return_value = escape_all_objectids(real_db.find_document_for_id(
+                    unescape_all_objectids(response['db.find_document_for_id'])['document_id']))
                 write_to_pipe(self.host, {'response': return_value})
             elif 'db.save' in response:
-                real_db.save(response['db.save']['document'])
+                real_db.save(unescape_all_objectids(response['db.save']['document']))
                 write_to_pipe(self.host, {'response': True})
             elif 'db.insert' in response:
-                real_db.insert(response['db.insert']['document'])
+                real_db.insert(unescape_all_objectids(response['db.insert']['document']))
                 write_to_pipe(self.host, {'response': True})
             elif 'db.remove' in response:
-                real_db.remove(response['db.remove']['document'])
+                real_db.remove(unescape_all_objectids(response['db.remove']['document']))
                 write_to_pipe(self.host, {'response': True})
             elif 'parsehtml.init' in response:
                 self.parsehtml_instances.append(RealParseHtml(response['parsehtml.init']['html']))

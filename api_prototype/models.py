@@ -3,7 +3,7 @@
 This File is part of Pinyto
 """
 
-from api_prototype.sandbox_helpers import piped_command
+from api_prototype.sandbox_helpers import piped_command, escape_all_objectids, unescape_all_objectids
 from base64 import b64decode
 
 
@@ -47,7 +47,10 @@ class SandboxCollectionWrapper(object):
         @param limit: integer
         @return: dict
         """
-        return piped_command(self.child, {'db.find_documents': {'query': query, 'limit': limit}})
+        return [unescape_all_objectids(item) for item in piped_command(
+            self.child,
+            {'db.find_documents': {'query': query, 'limit': limit}}
+        )]
 
     def find_document_for_id(self, document_id):
         """
@@ -57,7 +60,12 @@ class SandboxCollectionWrapper(object):
         @param document_id: string
         @return: dict
         """
-        return piped_command(self.child, {'db.find_document_for_id': {'document_id': document_id}})
+        return unescape_all_objectids(
+            piped_command(
+                self.child,
+                {'db.find_document_for_id': escape_all_objectids({'document_id': document_id})}
+            )
+        )
 
     def save(self, document):
         """
@@ -66,6 +74,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
+        document = escape_all_objectids(document)
         return piped_command(self.child, {'db.save': {'document': document}})
 
     def insert(self, document):
@@ -77,6 +86,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
+        document = escape_all_objectids(document)
         return piped_command(self.child, {'db.insert': {'document': document}})
 
     def remove(self, document):
@@ -86,6 +96,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
+        document = escape_all_objectids(document)
         return piped_command(self.child, {'db.remove': {'document': document}})
 
 
@@ -99,6 +110,12 @@ class SandboxRequestPost(object):
 
     def __init__(self, child_pipe):
         self.child = child_pipe
+
+    def __getitem__(self, item):
+        """
+        This enables array-like access
+        """
+        return piped_command(self.child, {'request.post.get': {'param': item}})
 
     def get(self, param):
         """

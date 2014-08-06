@@ -181,6 +181,111 @@ else:
     books = db.find({'type': 'book'}, 42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_index.save()
+        self.librarian_search = ApiFunction(name='search', code="""search_string = request.POST.get('searchstring')
+books = db.find({'type': 'book',
+                 'data': {'$exists': True},
+                 '$or': [
+                     {'data.title': {'$regex': search_string, '$options': 'i'}},
+                     {'data.uniform_title': {'$regex': search_string, '$options': 'i'}},
+                     {'data.publisher': {'$regex': search_string, '$options': 'i'}},
+                     {'data.year': {'$regex': search_string, '$options': 'i'}},
+                     {'data.category': {'$regex': search_string, '$options': 'i'}},
+                     {'data.author': {'$regex': search_string, '$options': 'i'}}
+                 ]}, 42)
+return json.dumps({'index': books})""", assembly=self.assembly)
+        self.librarian_search.save()
+        self.librarian_update = ApiFunction(name='update', code="""try:
+    book_data = json.loads(request.POST['book'])
+except IndexError:
+    return json.dumps({'error': 'You have to supply a book to update.'})
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+if not 'type' in book_data:
+    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+if book_data['type'] != 'book':
+    return json.dumps({'error': 'This is not a book.'})
+if not '_id' in book_data:
+    return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})
+book = db.find_document_for_id(book_data['_id'])
+if not book:  # there was an error
+    return json.dumps({'error': 'There is no book with this ID which could be updated.'})
+for key in book_data['data']:
+    book['data'][key] = book_data['data'][key]
+db.save(book)
+return json.dumps({'success': True})""", assembly=self.assembly)
+        self.librarian_update.save()
+        self.librarian_update_all = ApiFunction(name='update_all', code="""try:
+    book_data = json.loads(request.POST['book'])
+except IndexError:
+    return json.dumps({'error': 'You have to supply a book to update.'})
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+if not 'type' in book_data:
+    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+if book_data['type'] != 'book':
+    return json.dumps({'error': 'This is not a book.'})
+if 'isbn' in book_data['data']:
+    books = list(db.find_documents({'type': 'book',
+                                    'data': {'$exists': True},
+                                    'data.isbn': book_data['data']['isbn']}))
+elif 'ean' in book_data['data']:
+    books = list(db.find_documents({'type': 'book',
+                                    'data': {'$exists': True},
+                                    'data.ean': book_data['data']['ean']}))
+else:
+    books = []
+if not books:  # there was an error
+    return json.dumps({'error': 'There are no books with this ISBN or EAN which could be updated.'})
+for key in book_data['data']:
+    for book in books:
+        book['data'][key] = book_data['data'][key]
+for book in books:
+    db.save(book)
+return json.dumps({'success': True})""", assembly=self.assembly)
+        self.librarian_update_all.save()
+        self.librarian_duplicate = ApiFunction(name='duplicate', code="""try:
+    book_data = json.loads(request.POST['book'])
+except IndexError:
+    return json.dumps({'error': 'You have to supply a book to duplicate.'})
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+if book_data['type'] != 'book':
+    return json.dumps({'error': 'This is not a book.'})
+if not '_id' in book_data:
+    return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
+book = db.find_document_for_id(book_data['_id'])
+if not book:  # there was an error
+    return json.dumps({'error': 'There is no book with this ID which could be updated.'})
+for key in book_data['data']:
+    book['data'][key] = book_data['data'][key]
+db.insert(book)
+return json.dumps({'success': True})""", assembly=self.assembly)
+        self.librarian_duplicate.save()
+        self.librarian_remove = ApiFunction(name='remove', code="""try:
+    book_data = json.loads(request.POST['book'])
+except IndexError:
+    return json.dumps({'error': 'You have to supply a book to remove.'})
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+if book_data['type'] != 'book':
+    return json.dumps({'error': 'This is not a book.'})
+if not '_id' in book_data:
+    return json.dumps({'error': 'You have to specify an _id to identify the book you want to remove.'})
+book = db.find_document_for_id(book_data['_id'])
+if not book:  # there was an error
+    return json.dumps({'error': 'There is no book with this ID which could be deleted.'})
+db.remove(book)
+return json.dumps({'success': True})""", assembly=self.assembly)
+        self.librarian_remove.save()
+        self.librarian_statistics = ApiFunction(name='statistics', code="""return json.dumps({
+    'book_count': db.count({'type': 'book'}),
+    'places_used': db.find_documents(
+        {'type': 'book', 'data': {'$exists': True}}).distinct('data.place'),
+    'lent_count': db.count({'type': 'book',
+                            'data': {'$exists': True},
+                            'data.lent': {'$exists': True, '$ne': ""}})
+})""", assembly=self.assembly)
+        self.librarian_statistics.save()
 
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
@@ -222,3 +327,109 @@ return json.dumps({'index': books})""", assembly=self.assembly)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_search(self):
+        self.collection.insert({"type": "book",
+                                "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
+                                         "ean": "9783943176247", "languages": "Deutsch (ger)",
+                                         "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
+                                         "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
+        self.collection.insert({"type": "book",
+                                "data": {"category": "S Schulbücher",
+                                         "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
+                                         "isbn": "978-3-8085-3004-7",
+                                         "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
+                                                  " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
+                                                  " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
+                                         "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
+                                                   "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
+                                         "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
+                                         "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
+        self.collection.insert({"type": "book",
+                                "data": {"category": "004 Informatik",
+                                         "publisher": "München : Addison Wesley in Pearson Education Deutschland",
+                                         "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
+                                         "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
+                                                  " Johannes Magenheim ; Thomas Müller",
+                                         "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
+                                         "place": "Arbeitszimmer", "year": 2009}})
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/search', {'token': 'fake', 'searchstring': 'Informatik'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 2)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
+        self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_update(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        book = self.collection.find_one()
+        book['data']['place'] = "B"
+        book['_id'] = str(book['_id'])
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/update', {'token': 'fake', 'book': json.dumps(book)})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        book_test = self.collection.find()[0]
+        self.assertEqual(book_test['data']['place'], u'B')
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_update_all(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/update_all', {'token': 'fake', 'book': json.dumps({
+            "type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "C"}
+        })})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        for book in self.collection.find():
+            self.assertEqual(book['data']['place'], u'C')
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_duplicate(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        book = self.collection.find_one()
+        del book['data']['author']
+        self.assertFalse('author' in book['data'])
+        book['_id'] = str(book['_id'])
+        test_client = Client()
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/duplicate',
+            {'token': 'fake', 'book': json.dumps(book)}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        self.assertEqual(self.collection.find(
+            {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}
+        ).count(), 2)
+        for book in self.collection.find({"type": "book", 'data.isbn': "978-3-943176-24-7"}):
+            self.assertEqual(book['data']['isbn'], u'978-3-943176-24-7')
+            self.assertEqual(book['data']['author'], u'Max Mustermann')
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_remove(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
+        book = self.collection.find_one()
+        book['_id'] = str(book['_id'])
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/remove', {'token': 'fake', 'book': json.dumps(book)})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_statistics(self):
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
+        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
+        test_client = Client()
+        response = test_client.post('/bborsalinosandbox/Librarian/statistics', {'token': 'fake'})
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertEqual(res['book_count'], 4)
+        self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
+        self.assertEqual(res['lent_count'], 1)
