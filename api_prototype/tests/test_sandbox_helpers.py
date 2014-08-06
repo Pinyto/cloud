@@ -5,9 +5,11 @@ This File is part of Pinyto
 
 from django.test import TestCase
 from socket import socketpair
+from pymongo.son_manipulator import ObjectId
 from multiprocessing import Process
 from api_prototype.sandbox_helpers import write_exact, read_exact
 from api_prototype.sandbox_helpers import write_to_pipe, read_from_pipe
+from api_prototype.sandbox_helpers import escape_all_objectids, unescape_all_objectids
 from api_prototype.sandbox_helpers import piped_command, NoResponseFromHostException
 
 
@@ -45,6 +47,30 @@ class TestSandboxHelpers(TestCase):
         data = {'a': 1}
         write_to_pipe(pipe_in, data)
         self.assertEqual(read_from_pipe(pipe_out), {u'a': 1})
+
+    def test_escape_all_objectids(self):
+        id = ObjectId()
+        conv_dict = {
+            'a': 3,
+            '_ID': id,
+            'b': {'x': 3, 'y': 'blubb'}
+        }
+        conv_dict = escape_all_objectids(conv_dict)
+        self.assertEqual(conv_dict['a'], conv_dict['a'])
+        self.assertEqual(conv_dict['_ID'], {'ObjectId': str(id)})
+        self.assertEqual(conv_dict['b'], conv_dict['b'])
+
+    def test_unescape_all_objectids(self):
+        conv_dict = {
+            'a': 3,
+            '_ID': {'ObjectId': '53e1d0df390b9c411387f81f'},
+            'b': {'x': 3, 'y': 'blubb'}
+        }
+        conv_dict = unescape_all_objectids(conv_dict)
+        self.assertEqual(conv_dict['a'], conv_dict['a'])
+        self.assertIsInstance(conv_dict['_ID'], ObjectId)
+        self.assertEqual(str(conv_dict['_ID']), '53e1d0df390b9c411387f81f')
+        self.assertEqual(conv_dict['b'], conv_dict['b'])
 
     def test_piped_command(self):
         pipe_child, pipe_host = socketpair()
