@@ -9,7 +9,7 @@ from pymongo.son_manipulator import ObjectId
 from multiprocessing import Process
 from api_prototype.sandbox_helpers import write_exact, read_exact
 from api_prototype.sandbox_helpers import write_to_pipe, read_from_pipe
-from api_prototype.sandbox_helpers import escape_all_objectids, unescape_all_objectids
+from api_prototype.sandbox_helpers import escape_all_objectids_and_datetime, unescape_all_objectids_and_datetime
 from api_prototype.sandbox_helpers import piped_command, NoResponseFromHostException
 
 
@@ -55,7 +55,7 @@ class TestSandboxHelpers(TestCase):
             '_ID': id,
             'b': {'x': 3, 'y': 'blubb'}
         }
-        conv_dict = escape_all_objectids(conv_dict)
+        conv_dict = escape_all_objectids_and_datetime(conv_dict)
         self.assertEqual(conv_dict['a'], conv_dict['a'])
         self.assertEqual(conv_dict['_ID'], {'ObjectId': str(id)})
         self.assertEqual(conv_dict['b'], conv_dict['b'])
@@ -66,7 +66,7 @@ class TestSandboxHelpers(TestCase):
             '_ID': {'ObjectId': '53e1d0df390b9c411387f81f'},
             'b': {'x': 3, 'y': 'blubb'}
         }
-        conv_dict = unescape_all_objectids(conv_dict)
+        conv_dict = unescape_all_objectids_and_datetime(conv_dict)
         self.assertEqual(conv_dict['a'], conv_dict['a'])
         self.assertIsInstance(conv_dict['_ID'], ObjectId)
         self.assertEqual(str(conv_dict['_ID']), '53e1d0df390b9c411387f81f')

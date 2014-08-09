@@ -3,7 +3,7 @@
 This File is part of Pinyto
 """
 
-from api_prototype.sandbox_helpers import piped_command, escape_all_objectids, unescape_all_objectids
+from api_prototype.sandbox_helpers import piped_command, escape_all_objectids_and_datetime, unescape_all_objectids_and_datetime
 from base64 import b64decode
 
 
@@ -47,7 +47,7 @@ class SandboxCollectionWrapper(object):
         @param limit: integer
         @return: dict
         """
-        return [unescape_all_objectids(item) for item in piped_command(
+        return [unescape_all_objectids_and_datetime(item) for item in piped_command(
             self.child,
             {'db.find_documents': {'query': query, 'limit': limit}}
         )]
@@ -60,10 +60,10 @@ class SandboxCollectionWrapper(object):
         @param document_id: string
         @return: dict
         """
-        return unescape_all_objectids(
+        return unescape_all_objectids_and_datetime(
             piped_command(
                 self.child,
-                {'db.find_document_for_id': escape_all_objectids({'document_id': document_id})}
+                {'db.find_document_for_id': escape_all_objectids_and_datetime({'document_id': document_id})}
             )
         )
 
@@ -85,7 +85,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
-        document = escape_all_objectids(document)
+        document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.save': {'document': document}})
 
     def insert(self, document):
@@ -97,7 +97,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
-        document = escape_all_objectids(document)
+        document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.insert': {'document': document}})
 
     def remove(self, document):
@@ -107,7 +107,7 @@ class SandboxCollectionWrapper(object):
         @param document:
         @return:
         """
-        document = escape_all_objectids(document)
+        document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.remove': {'document': document}})
 
 

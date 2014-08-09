@@ -333,6 +333,67 @@ return json.dumps({'success': True})""", assembly=self.assembly)
                             'data.lent': {'$exists': True, '$ne': ""}})
 })""", assembly=self.assembly)
         self.librarian_statistics.save()
+        self.librarian_complete = Job(name='job_complete_data_by_asking_dnb', code="""incomplete_books = db.find_documents({'type': 'book',
+                                      'data': {'$exists': True},
+                                      '$or': [
+                                          {'data.author': {'$exists': False}},
+                                          {'data.title': {'$exists': False}},
+                                          {'data.uniform_title': {'$exists': False}},
+                                          {'data.isbn': {'$exists': False}},
+                                          {'data.ean': {'$exists': False}}
+                                      ]})
+https = factory.create('Https')
+for book in incomplete_books:
+    query = ''
+    if 'isbn' in book['data']:
+        query = book['data']['isbn']
+    if 'ean' in book['data']:
+        query = book['data']['ean']
+    content = https.get('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
+    if not content:
+        continue
+    soup = factory.create('ParseHtml', content)
+    if not soup.contains([
+        {'tag': 'table',
+         'attrs': {'summary': "Vollanzeige des Suchergebnises"}}  # They have a typo here!
+    ]):
+        # we probably found a list of results. lets check for that
+        link = soup.find_element_and_get_attribute_value(
+            [{'tag': 'table', 'attrs': {'summary': "Suchergebnis"}},  # They have a typo here too!
+             {'tag': 'a'}],
+            'href')
+        if link:
+            content = https.get('portal.dnb.de', link)
+            soup = factory.create('ParseHtml', content)
+    parsed = soup.find_element_and_collect_table_like_information(
+        [
+            {'tag': 'table',
+             'attrs': {
+                 'summary': "Vollanzeige des Suchergebnises"}},
+            # They have a typo here!
+            {'tag': 'tr'}
+        ], {'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},
+            'title': {'search tag': 'td',
+                      'captions': [
+                          'Mehrteiliges Werk',
+                          'Titel',
+                          'Titel/Bezeichnung'],
+                      'content tag': 'td'},
+            'uniform title': {'search tag': 'td', 'captions': ['Einheitssachtitel'], 'content tag': 'td'},
+            'year': {'search tag': 'td', 'captions': ['Erscheinungsjahr'], 'content tag': 'td'},
+            'languages': {'search tag': 'td', 'captions': ['Sprache(n)'], 'content tag': 'td'},
+            'category': {'search tag': 'td', 'captions': ['Sachgruppe(n)'], 'content tag': 'td'},
+            'publisher': {'search tag': 'td', 'captions': ['Verleger'], 'content tag': 'td'},
+            'edition': {'search tag': 'td', 'captions': ['Ausgabe'], 'content tag': 'td'},
+            'isbn': {'search tag': 'td', 'captions': ['ISBN/Einband/Preis'], 'content tag': 'td'},
+            'ean': {'search tag': 'td', 'captions': ['EAN'], 'content tag': 'td'}
+        }
+    )
+    for key in parsed:
+        if not key in book['data']:
+            book['data'][key] = parsed[key]
+    db.save(book)""", assembly=self.assembly, schedule=0)
+        self.librarian_complete.save()
 
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
@@ -480,3 +541,53 @@ return json.dumps({'success': True})""", assembly=self.assembly)
         self.assertEqual(res['book_count'], 4)
         self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
         self.assertEqual(res['lent_count'], 1)
+
+    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
+    def test_job_complete_data_by_asking_dnb(self):
+        test_client = Client()
+        response = test_client.post(
+            '/store',
+            {'token': 'fake', 'type': 'book', 'data': "{\"isbn\": \"978-3-943176-24-7\", \"place\": \"\"}"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        response = test_client.post(
+            '/store',
+            {'token': 'fake', 'type': 'job',
+             'data': "{\"assembly_user\": \"bborsalinosandbox\", " +
+                     "\"assembly_name\": \"Librarian\", " +
+                     "\"job_name\": \"job_complete_data_by_asking_dnb\"}"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['success'])
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/index',
+            {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json.loads(response.content)['index']), 1)
+        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        # Wait for job to complete
+        iterations = 0
+        completed = False
+        while not completed:
+            iterations += 1
+            if iterations > 2:  # 100:
+                self.fail("Maximum iterations reached. The data was not completed.")
+            response = test_client.post(
+                '/bborsalinosandbox/Librarian/index',
+                {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+            )
+            print(response.content)
+            print(json.loads(response.content)['index'])
+            if len(json.loads(response.content)['index']) >= 1 and \
+               'data' in json.loads(response.content)['index'][0] and \
+               'title' in json.loads(response.content)['index'][0]['data']:
+                completed = True
+            else:
+                time.sleep(0.1)
+        self.assertEqual(
+            json.loads(response.content)['index'][0]['data']['title'],
+            u"Fettnäpfchenführer. - Meerbusch : Conbook-Verl. [Mehrteiliges Werk] " +
+            u"Teil: Japan : die Axt im Chrysanthemenwald / Kerstin und Andreas Fels"
+        )

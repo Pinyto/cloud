@@ -81,7 +81,7 @@ def read_from_pipe(pipe):
     return json.loads(read_exact(pipe, sz))
 
 
-def escape_all_objectids(conv_dict):
+def escape_all_objectids_and_datetime(conv_dict):
     """
     This function escapes all ObjectId objects to make the dict json serializable.
 
@@ -90,15 +90,15 @@ def escape_all_objectids(conv_dict):
     """
     for key in conv_dict.keys():
         if type(conv_dict[key]) == dict:
-            conv_dict[key] = escape_all_objectids(conv_dict[key])
+            conv_dict[key] = escape_all_objectids_and_datetime(conv_dict[key])
         elif type(conv_dict[key]) == ObjectId:
             conv_dict[key] = {'ObjectId': str(conv_dict[key])}
     return conv_dict
 
 
-def unescape_all_objectids(conv_dict):
+def unescape_all_objectids_and_datetime(conv_dict):
     """
-    This function reverses the escape of all ObjectId objects done by escape_all_objectids.
+    This function reverses the escape of all ObjectId objects done by escape_all_objectids_and_datetime.
 
     @param conv_dict:
     @return:
@@ -108,7 +108,7 @@ def unescape_all_objectids(conv_dict):
             if 'ObjectId' in conv_dict[key]:
                 conv_dict[key] = ObjectId(conv_dict[key]['ObjectId'])
             else:
-                conv_dict[key] = unescape_all_objectids(conv_dict[key])
+                conv_dict[key] = unescape_all_objectids_and_datetime(conv_dict[key])
     return conv_dict
 
 

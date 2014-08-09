@@ -200,7 +200,7 @@ class Job(models.Model):
     name = models.CharField(max_length=42, primary_key=True)
     code = models.TextField()
     assembly = models.ForeignKey(Assembly, related_name='jobs')
-    schedule = models.IntegerField(default=0) # each schedule minutes (0 means never)
+    schedule = models.IntegerField(default=0)  # each schedule minutes (0 means never)
 
     def __str__(self):
         return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
