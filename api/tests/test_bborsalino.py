@@ -198,7 +198,6 @@ class TestBBorsalino(TestCase):
                 '/bborsalino/Librarian/index',
                 {'token': 'fake', 'isbn': '978-3-943176-24-7'}
             )
-            print(json.loads(response.content)['index'])
             if len(json.loads(response.content)['index']) >= 1 and \
                'data' in json.loads(response.content)['index'][0] and \
                'title' in json.loads(response.content)['index'][0]['data']:
@@ -578,8 +577,6 @@ for book in incomplete_books:
                 '/bborsalinosandbox/Librarian/index',
                 {'token': 'fake', 'isbn': '978-3-943176-24-7'}
             )
-            print(response.content)
-            print(json.loads(response.content)['index'])
             if len(json.loads(response.content)['index']) >= 1 and \
                'data' in json.loads(response.content)['index'][0] and \
                'title' in json.loads(response.content)['index'][0]['data']:

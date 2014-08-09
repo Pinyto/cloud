@@ -8,6 +8,8 @@ import os
 import json
 import struct
 from pymongo.son_manipulator import ObjectId
+from datetime import datetime
+from time import mktime
 
 
 _ffi = cffi.FFI()
@@ -93,6 +95,8 @@ def escape_all_objectids_and_datetime(conv_dict):
             conv_dict[key] = escape_all_objectids_and_datetime(conv_dict[key])
         elif type(conv_dict[key]) == ObjectId:
             conv_dict[key] = {'ObjectId': str(conv_dict[key])}
+        elif type(conv_dict[key]) == datetime:
+            conv_dict[key] = {'Datetime': mktime(conv_dict[key].timetuple())}
     return conv_dict
 
 
@@ -107,6 +111,8 @@ def unescape_all_objectids_and_datetime(conv_dict):
         if type(conv_dict[key]) == dict:
             if 'ObjectId' in conv_dict[key]:
                 conv_dict[key] = ObjectId(conv_dict[key]['ObjectId'])
+            elif 'Datetime' in conv_dict[key]:
+                conv_dict[key] = datetime.fromtimestamp(conv_dict[key]['Datetime'])
             else:
                 conv_dict[key] = unescape_all_objectids_and_datetime(conv_dict[key])
     return conv_dict

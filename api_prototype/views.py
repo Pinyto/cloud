@@ -156,7 +156,6 @@ def check_for_jobs(sender, **kwargs):
                                   job['data']['assembly_name'] + ' exists but has no job "' +
                                   job['data']['job_name'] + '" defined.'}
                     )
-                print(api_function.code)
                 collection_wrapper = CollectionWrapper(collection)
                 response_data, elapsed_time = safely_exec(api_function.code, None, collection_wrapper)
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
