@@ -1,11 +1,23 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en" ng-app="pinytoWeb">
 <head>
-    <title>Pinyto</title>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" href="/static/css/layout.css"/>
+    <link rel="stylesheet" href="/static/css/typography.css"/>
+
+    <script type="text/javascript" src="/static/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="/static/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="/static/lib/localize.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+    <script type="text/javascript" src="/static/js/service.js"></script>
+    <script type="text/javascript" src="/static/js/authenticate.js"></script>
+    <script type="text/javascript" src="/static/js/loginCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/welcomeCtrl.js"></script>
+
+    <title data-i18n="_pageTitle_"></title>
 </head>
 <body>
-<h1>Pinyto!</h1>
-<p>This is the index.html</p>
+    <div ng-view></div>
 </body>
 </html>
