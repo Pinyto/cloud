@@ -21,4 +21,4 @@ class Command(BaseCommand):
         @param options:
         @return: bool
         """
-        check_for_jobs()
+        check_for_jobs(None)
