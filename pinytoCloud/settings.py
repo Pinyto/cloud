@@ -138,8 +138,7 @@ INSTALLED_APPS = (
     'pinytoCloud',
     'database',
     'api_prototype',
-    'service',
-    'librarian'
+    'service'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
