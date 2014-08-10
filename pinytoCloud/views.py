@@ -2,7 +2,7 @@
 """
 This File is part of Pinyto
 """
-
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from hashlib import sha256
 from Crypto.Random import get_random_bytes
@@ -11,6 +11,19 @@ import json
 from service.response import json_response
 from pinytoCloud.models import User, StoredPublicKey
 from pinytoCloud.settings import PINYTO_KEY
+from pinytoCloud.project_path import project_path
+
+
+def home(request):
+    """
+    This view serves static content. Namely index.html which may bootstrap an
+    Angular application at the client.
+
+    @param request:
+    @return:
+    """
+    with open(project_path("static/index.html"), 'r') as index_html_file:
+        return HttpResponse(index_html_file.read(), content_type='text/html')
 
 @csrf_exempt
 def authenticate(request):

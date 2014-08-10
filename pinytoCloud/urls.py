@@ -27,3 +27,9 @@ urlpatterns += patterns(
     url(r'^(?P<user_name>\w+)/(?P<assembly_name>\w+)/(?P<function_name>\w+)$', 'api_call', name='api_call'),
     #url(r'^$', 'load', name='load'),
 )
+
+urlpatterns += patterns(
+    'pinytoCloud.views',
+
+    url(r'^.*', 'home', name='home'),
+)
