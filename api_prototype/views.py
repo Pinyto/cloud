@@ -62,7 +62,7 @@ def api_call(request, user_name, assembly_name, function_name):
             end_time = time.clock()
             session.user.calculate_time_and_storage(
                 end_time - start_time,
-                MongoClient().pinyto.command('collstats', session.user.name)['size']
+                12  # MongoClient().pinyto.command('collstats', session.user.name)['size']
             )
             return HttpResponse(response, content_type='application/json')
     # If we reach this point the api_class was found but the function was not defined in the class.
@@ -106,7 +106,7 @@ def load_api(request, session, assembly_user, assembly_name, function_name):
     response_data, elapsed_time = safely_exec(api_function.code, request, collection_wrapper)
     session.user.calculate_time_and_storage(
         elapsed_time,
-        MongoClient().pinyto.command('collstats', session.user.name)['size']
+        12  # MongoClient().pinyto.command('collstats', session.user.name)['size']
     )
     return HttpResponse(response_data, content_type='application/json')
 
@@ -161,7 +161,7 @@ def check_for_jobs(sender, **kwargs):
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
                     elapsed_time,
-                    MongoClient().pinyto.command('collstats', user.name)['size']
+                    12  #MongoClient().pinyto.command('collstats', user.name)['size']
                 )
                 continue
             for name, function in getmembers(api_class, predicate=isfunction):
@@ -173,5 +173,5 @@ def check_for_jobs(sender, **kwargs):
                     end_time = time.clock()
                     user.calculate_time_and_storage(
                         end_time - start_time,
-                        MongoClient().pinyto.command('collstats', user.name)['size']
+                        12  # MongoClient().pinyto.command('collstats', user.name)['size']
                     )
