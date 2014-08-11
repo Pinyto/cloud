@@ -13,7 +13,7 @@ angular.module('localization', [])
     // managing the translation dictionary
     .factory('localize', ['$http', '$rootScope', '$window', '$filter', function ($http, $rootScope, $window, $filter) {
         var localize = {
-            language: $rootScope.language,
+            language: $rootScope.language || 'default',
             
             // array to hold the localized resource string entries
             dictionary:[],
@@ -40,11 +40,11 @@ angular.module('localization', [])
             // loads the language resource file from the server
             initLocalizedResources:function () {
                 // build the url to retrieve the localized resource file
-                var url = '/i18n/resources-locale_' + localize.language + '.js';
+                var url = '/static/i18n/resources-locale_' + localize.language + '.js';
                 // request the resource file
                 $http({ method:"GET", url:url, cache:false }).success(localize.successCallback).error(function () {
                     // the request failed set the url to the default resource file
-                    var url = '/i18n/resources-locale_default.js';
+                    var url = '/static/i18n/resources-locale_default.js';
                     // request the default resource file
                     $http({ method:"GET", url:url, cache:false }).success(localize.successCallback);
                 });
@@ -65,7 +65,7 @@ angular.module('localization', [])
                     )[0];
 
                     // check for localized string found
-                    if (entry == undefined){
+                    if (typeof entry == 'undefined'){
                     	console.log("Nicht lokalisierter String:" + value)
                     	return value;
                     }
@@ -114,7 +114,7 @@ angular.module('localization', [])
                         }
                         // insert the text into the element
                         elm.text(tag);
-                    };
+                    }
                 }
             },
 
@@ -139,8 +139,8 @@ angular.module('localization', [])
     .directive('i18nAttr', ['localize', function (localize) {
         var i18NAttrDirective = {
             restrict: "EAC",
-            updateText:function(scope, elm, token){
-                if(token != undefined)
+            updateText: function (scope, elm, token) {
+                if(typeof token != 'undefined')
                 {
                     var values = token.split('|');
                     var attrName = values[1];

@@ -6,22 +6,22 @@
     },
     {
         "key"        : "_username_",
-        "value"      : "Username:",
+        "value"      : "Benutzername:",
         "description": "Label for the input field"
     },
     {
         "key"        : "_password_",
-        "value"      : "Password:",
+        "value"      : "Passwort:",
         "description": "Label for the input field"
     },
     {
         "key"        : "_loginBtn_",
-        "value"      : "Login",
+        "value"      : "Einloggen",
         "description": "Value on the submit button when logging in"
     },
     {
         "key"        : "_errors_",
-        "value"      : "Errors",
+        "value"      : "Fehler",
         "description": "Heading for a list of errors"
     },
     {
@@ -31,22 +31,22 @@
     },
     {
         "key"        : "_explanation_menu_",
-        "value"      : "Tutorials & Manuals",
+        "value"      : "Tutorials & Anleitungen",
         "description": "Menu entry for the Explanation category"
     },
     {
         "key"        : "_hardware_menu_",
-        "value"      : "Hardware for Pinyto",
+        "value"      : "Hardware für Pinyto",
         "description": "Menu entry for the Hardware category"
     },
     {
         "key"        : "_development_menu_",
-        "value"      : "Developing Pinyto",
+        "value"      : "Pinyto Entwickeln",
         "description": "Menu entry for the Development category"
     },
     {
         "key"        : "_language_",
-        "value"      : "Language:",
+        "value"      : "Sprache:",
         "description": "Label for the language selector"
     }
 ]

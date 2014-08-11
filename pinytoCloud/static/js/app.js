@@ -23,16 +23,13 @@ pinytoWebApp.run(function ($rootScope, $window, $document, localize) {
     $rootScope.getLanguages = function () {
         return ['en', 'de'];
     };
-    $rootScope.setLanguage = function (lang) {
-        $rootScope.language = lang;
-        localize.setLanguage(lang);
-    };
+    $rootScope.$watch('language', function (newLang) {
+        localize.setLanguage(newLang);
+    });
     // initialization
     if (!$rootScope.language) {
-        $rootScope.setLanguage(
-                $window.navigator.userLanguage ||
-                $window.navigator.language ||
-                $document.getElementsByTagName('html')[0].lang
-        );
+        $rootScope.language = $window.navigator.userLanguage ||
+                              $window.navigator.language ||
+                              $document.getElementsByTagName('html')[0].lang;
     }
 });

@@ -45,6 +45,6 @@
     text-align: center;
 }
 
-.language-switcher a {
-    cursor: pointer;
+.header-bar {
+    font-size: 8pt;
 }

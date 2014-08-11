@@ -21,11 +21,14 @@
 </head>
 <body>
     <div id="page-container">
-        <ul class="language-switcher">
-            <li ng-repeat="lang in getLanguages()">
-                <a ng-click="setLanguage(lang)">{{lang}}</a>
-            </li>
-        </ul>
+        <div class="header-bar">
+            <form style="float: right;">
+                <label for="languages" data-i18n="_language_">Language:</label>
+                <select id="languages" name="languages" ng-model="language">
+                    <option ng-repeat="lang in getLanguages()">{{lang}}</option>
+                </select>
+            </form>
+        </div>
         <div ng-include src="'/static/partials/menu.html'"></div>
         <div ng-view></div>
     </div>
