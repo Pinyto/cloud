@@ -1,6 +1,6 @@
 'use strict';
 
-pinytoWebApp.controller('loginCtrl',
+pinytoWebApp.controller('PinytoLoginCtrl',
     function ($scope, $location, Backend, Authenticate) {
     // Function Definitions
     $scope.login = function () {

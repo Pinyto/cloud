@@ -60,8 +60,6 @@ pinytoWebApp.factory('SessionService', function () {
 
 pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
     $rootScope.$on('$routeChangeStart', function (event, next, current) {
-        console.log(next);
-
         if(!Authenticate.isAuthenticated() && !($location.path() in {'/login/':'', '/':''})) {
             $location.path('/login/');
         }

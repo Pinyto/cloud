@@ -13,10 +13,7 @@ angular.module('localization', [])
     // managing the translation dictionary
     .factory('localize', ['$http', '$rootScope', '$window', '$filter', function ($http, $rootScope, $window, $filter) {
         var localize = {
-            // TODO: Make the language config work in a non insane way.
-            // use the $window service to get the language of the user's browser
-            //language:'de-DE',// $window.navigator.userLanguage || $window.navigator.language,
-            language: document.getElementsByTagName('html')[0].lang,
+            language: $rootScope.language,
             
             // array to hold the localized resource string entries
             dictionary:[],

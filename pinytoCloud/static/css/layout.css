@@ -1,3 +1,50 @@
-.box {
-    border: 1px solid black;
+#page-container {
+    margin: auto;
+    max-width: 63em;
+    background-color: rgb(220, 220, 220);
+}
+
+.main-menu {
+    float: left;
+    padding: 0;
+    margin: 1em;
+}
+
+.main-menu li {
+    list-style-type: none;
+    margin: 0.5em;
+    padding: 0.5em;
+    background-color: rgb(191, 191, 191);
+}
+
+.main-menu li:hover {
+    background-color: rgb(206, 206, 206);
+}
+
+.main-menu li.active {
+    background-color: rgb(57, 57, 57);
+    color: #d7d7d7;
+}
+
+.content {
+    margin-left: 16em;
+    max-width: 47em;
+    padding: 2.5em 2.5em 2.5em 0;
+}
+
+.logo {
+    background: url('../images/Logo.svg') no-repeat 0 0;
+    background-size: 17px;
+    width: 17px;
+    height: 28px;
+    vertical-align: bottom;
+    display: inline-block;
+}
+
+.center {
+    text-align: center;
+}
+
+.language-switcher a {
+    cursor: pointer;
 }

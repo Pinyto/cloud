@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
 
+    <link rel="stylesheet" href="/static/css/reset.css"/>
     <link rel="stylesheet" href="/static/css/layout.css"/>
     <link rel="stylesheet" href="/static/css/typography.css"/>
 
@@ -12,12 +13,21 @@
     <script type="text/javascript" src="/static/js/app.js"></script>
     <script type="text/javascript" src="/static/js/service.js"></script>
     <script type="text/javascript" src="/static/js/authenticate.js"></script>
+    <script type="text/javascript" src="/static/js/menuCtrl.js"></script>
     <script type="text/javascript" src="/static/js/loginCtrl.js"></script>
     <script type="text/javascript" src="/static/js/welcomeCtrl.js"></script>
 
     <title data-i18n="_pageTitle_"></title>
 </head>
 <body>
-    <div ng-view></div>
+    <div id="page-container">
+        <ul class="language-switcher">
+            <li ng-repeat="lang in getLanguages()">
+                <a ng-click="setLanguage(lang)">{{lang}}</a>
+            </li>
+        </ul>
+        <div ng-include src="'/static/partials/menu.html'"></div>
+        <div ng-view></div>
+    </div>
 </body>
 </html>
