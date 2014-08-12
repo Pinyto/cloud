@@ -48,3 +48,9 @@
 .header-bar {
     font-size: 8pt;
 }
+
+.header-bar select {
+    background-color: rgb(57, 57, 57);
+    color: #d7d7d7;
+    border: 0 solid rgb(57, 57, 57);
+}

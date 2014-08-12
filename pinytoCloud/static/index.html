@@ -28,6 +28,10 @@
                     <option ng-repeat="lang in getLanguages()">{{lang}}</option>
                 </select>
             </form>
+            <div style="float: right;">&nbsp;|&nbsp;</div>
+            <div style="float: right;">
+                <a ng-href="/impressum" data-i18n="_impressum_">Impressum</a>
+            </div>
         </div>
         <div ng-include src="'/static/partials/menu.html'"></div>
         <div ng-view></div>

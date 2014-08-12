@@ -48,5 +48,10 @@
         "key"        : "_language_",
         "value"      : "Sprache:",
         "description": "Label for the language selector"
+    },
+    {
+        "key"        : "_impressum_",
+        "value"      : "Impressum",
+        "description": "Label for the in Germany legally needed contact site"
     }
 ]
