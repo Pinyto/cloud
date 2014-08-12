@@ -12,6 +12,7 @@ var pinytoWebApp = angular.module(
         $routeProvider.
             when('/', {templateUrl: '/static/partials/welcome.html', controller: 'PinytoWelcomeCtrl'}).
             when('/login/', {templateUrl: '/static/partials/login.html', controller: 'PinytoLoginCtrl'}).
+            when('/development/', {templateUrl: '/static/partials/development.html', controller: 'PinytoDevelopmentCtrl'}).
             otherwise({templateUrl: '/static/partials/welcome.html', controller: 'PinytoWelcomeCtrl'});
         // use the HTML5 History API
         $locationProvider.html5Mode(true).hashPrefix('!');
@@ -25,6 +26,7 @@ pinytoWebApp.run(function ($rootScope, $window, $document, localize) {
     };
     $rootScope.$watch('language', function (newLang) {
         localize.setLanguage(newLang);
+        $rootScope.$broadcast('langChange', newLang);
     });
     // initialization
     if (!$rootScope.language) {
