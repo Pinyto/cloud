@@ -20,6 +20,11 @@
         "description": "Value on the submit button when logging in"
     },
     {
+        "key"        : "_loginHeading_",
+        "value"      : "Login",
+        "description": "Heading of the login page"
+    },
+    {
         "key"        : "_errors_",
         "value"      : "Errors",
         "description": "Heading for a list of errors"
