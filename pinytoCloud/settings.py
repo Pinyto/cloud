@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'corsheaders',
     'pinytoCloud',
+    'keyserver',
     'database',
     'api_prototype',
     'service'
