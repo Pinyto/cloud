@@ -9,10 +9,8 @@ pinytoWebApp.controller('PinytoRegisterCtrl',
                 Backend.register($scope.username, $scope.password).success(function (data) {
                     var response = angular.fromJson(data);
                     if (('success' in response) && (response['success'])) {
-                        console.log("Successfully registered.");
                         $scope.success = true;
                     } else {
-                        console.log("Error while registering.");
                         $scope.error = response['error'];
                     }
                 });
