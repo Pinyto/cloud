@@ -12,6 +12,8 @@ from django.http import HttpResponse
 import json
 from settings import PINYTO_PUBLICKEY
 from helper import secure_request
+from pinytoCloud.views import authenticate as cloud_authenticate
+from pinytoCloud.views import register as cloud_register
 
 
 def authenticate(request):
@@ -43,17 +45,7 @@ def authenticate(request):
     # Make a request to Pinyto-Cloud asking for a encrypted token
     hasher = sha256()
     hasher.update(account.N + str(account.e))
-    try:
-        string_response = secure_request(
-            'cloud.pinyto.de', '/authenticate', 'POST',
-            {'username': name, 'keyhash': hasher.hexdigest()[:10]}
-        )
-        response = json.loads(string_response)
-    except ValueError:
-        return HttpResponse(
-            json.dumps({'error': "Could not connect to Pinyto-Cloud. Authentication failed." + string_response}),
-            content_type='application/json'
-        )
+    response = cloud_authenticate(name, hasher.hexdigest()[:10])
     if 'error' in response:
         return HttpResponse(
             json.dumps({'error': "Cloud Error: " + response['error'] + " Authentication failed."}),
@@ -96,23 +88,12 @@ def register(request):
     new_account = Account.create(name, password)
     # Register at the PinytoCloud
     key_data = {'N': unicode(new_account.N), 'e': unicode(new_account.e)}
-    try:
-        response = json.loads(
-            secure_request(
-                'cloud.pinyto.de',
-                '/register',
-                'POST',
-                {'username': name, 'public_key': json.dumps(key_data)}
-            )
-        )
-    except ValueError:
-        new_account.delete()
-        return HttpResponse(json.dumps(
-            {'error': "Could not connect to Pinyto-Cloud. Registration failed."}), content_type='application/json')
+    response = cloud_register(name, key_data)
     if not 'success' in response or not response['success']:
         new_account.delete()
         return HttpResponse(
-            json.dumps({'error': "The Pinyto-Cloud responded with a failure. Registration failed."}),
-            content_type='application/json')
+            json.dumps(
+                {'error': "Registration failed. The Pinyto-Cloud responded with a failure: " + response['error']}
+            ), content_type='application/json')
     else:
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')

@@ -7,8 +7,8 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns(
     'pinytoCloud.views',
 
-    url(r'^authenticate$', 'authenticate', name='authenticate'),
-    url(r'^register$', 'register', name='register'),
+    url(r'^authenticate$', 'authenticate_request', name='authenticate'),
+    url(r'^register$', 'register_request', name='register'),
 )
 
 urlpatterns += patterns(

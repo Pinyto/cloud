@@ -1,0 +1,35 @@
+<div class="content login">
+    <h1 data-i18n="_registerHeading_">Register</h1>
+    <form ng-show="!success" ng-submit="register(username, password)" class="center">
+        <div style="display: table; margin: auto;">
+            <div style="display: table-row;">
+                <label for="username" data-i18n="_registerUsername_" style="display: table-cell; text-align: right;"></label>
+                <input type="text" name="username" id="username" ng-model="username" style="display: table-cell;"/>
+            </div>
+            <div style="display: table-row;">
+                <label for="password1" data-i18n="_registerPassword1_" style="display: table-cell; text-align: right;"></label>
+                <input type="password" name="password1" id="password1" ng-model="password" style="display: table-cell;"/>
+            </div>
+            <div style="display: table-row;">
+                <label for="password2" data-i18n="_registerPassword2_" style="display: table-cell; text-align: right;"></label>
+                <input type="password" name="password2" id="password2" ng-model="passwordRepeat" style="display: table-cell;"/>
+            </div>
+        </div>
+        <div>
+            <p data-i18n="_choosePasswordHint_"></p>
+        </div>
+        <div>
+            <input type="submit" value="{{ '_registerBtn_'|i18n }}"/>
+        </div>
+        <div>
+            <p ng-show="error">{{error}}</p>
+        </div>
+    </form>
+    <div ng-show="success">
+        <p>
+            <span data-i18n="_registerSuccessBeforeLoginLink_">You successfully created a new account. Please go ahead and </span>
+            <a ng-href="/login/" data-i18n="_registerSuccessLoginLink_">login</a>
+            <span data-i18n="_registerSuccessAfterLoginLink_"> with your new username and password.</span>
+        </p>
+    </div>
+</div>

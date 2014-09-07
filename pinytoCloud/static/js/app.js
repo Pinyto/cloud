@@ -12,6 +12,7 @@ var pinytoWebApp = angular.module(
         $routeProvider.
             when('/', {templateUrl: '/static/partials/welcome.html', controller: 'PinytoWelcomeCtrl'}).
             when('/login/', {templateUrl: '/static/partials/login.html', controller: 'PinytoLoginCtrl'}).
+            when('/register/', {templateUrl: '/static/partials/register.html', controller: 'PinytoRegisterCtrl'}).
             when('/backoffice/', {templateUrl: '/static/partials/backoffice.html', controller: 'PinytoBackofficeCtrl'}).
             when('/explanation/', {templateUrl: '/static/partials/explanation.html', controller: 'PinytoExplanationCtrl'}).
             when('/hardware/', {templateUrl: '/static/partials/hardware.html', controller: 'PinytoHardwareCtrl'}).

@@ -7,7 +7,6 @@ pinytoWebApp.factory('Authenticate', function (Backend, SessionService) {
     authService.login = function (username, password) {
         return Backend.login(username, password).success(function (data) {
             var response = angular.fromJson(data);
-            console.log(response);
             if ('token' in response) {
                 SessionService.set('authenticated', true);
                 SessionService.set('token', response['token']);
@@ -62,6 +61,7 @@ pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
     $rootScope.$on('$routeChangeStart', function (event, next, current) {
         if(!Authenticate.isAuthenticated() && !($location.path() in {
             '/login/':'',
+            '/register/':'',
             '/':'',
             '/explanation/':'',
             '/hardware/':'',

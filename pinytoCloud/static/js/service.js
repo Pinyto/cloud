@@ -24,7 +24,17 @@ angular.module('PinytoWebServices', [])
         return {
             login: function (username, password) {
                 return $http({
-                    url: pinytoKeyserver+'authenticate',
+                    url: '/keyserver/authenticate',
+                    method: "POST",
+                    data: 'name='+username+'&password='+password,
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+            },
+            register: function (username, password) {
+                return $http({
+                    url: '/keyserver/register',
                     method: "POST",
                     data: 'name='+username+'&password='+password,
                     headers: {
