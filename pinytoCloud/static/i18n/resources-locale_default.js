@@ -128,5 +128,20 @@
         "key"        : "_backofficeAccountSettings_",
         "value"      : "Account Settings",
         "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsHeading_",
+        "value"      : "Account Settings",
+        "description": "Heading for the Account Settings"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsIntroductionBeforeName_",
+        "value"      : "Your username is ",
+        "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the first part of this text before the username"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsIntroductionAfterName_",
+        "value"      : ". Since your username is a part of your assemblies and other users may use your public assemblies with the name as part of the API you are not free to change your name. However you can change your password.",
+        "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the second part of this text after the username"
     }
 ]

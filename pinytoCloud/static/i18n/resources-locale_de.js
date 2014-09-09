@@ -128,5 +128,20 @@
         "key"        : "_backofficeAccountSettings_",
         "value"      : "Account Einstellungen",
         "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsHeading_",
+        "value"      : "Account Einstellungen",
+        "description": "Heading for the Account Settings"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsIntroductionBeforeName_",
+        "value"      : "Dein Benutzername ist ",
+        "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the first part of this text before the username"
+    },
+    {
+        "key"        : "_backofficeAccountSettingsIntroductionAfterName_",
+        "value"      : ". Da der Benutzername Teil des Namens deiner Assemblies ist, und deine öffentlichen Assemblies von anderen Nutzern genutzt werden können, kannst du deinen Benutzernamen nicht ändern.",
+        "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the second part of this text after the username"
     }
 ]
