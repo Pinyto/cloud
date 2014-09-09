@@ -121,7 +121,7 @@
     },
     {
         "key"        : "_backofficeMyData_",
-        "value"      : "Meine Data",
+        "value"      : "Meine Daten",
         "description": "Caption of a backoffice tab"
     },
     {
