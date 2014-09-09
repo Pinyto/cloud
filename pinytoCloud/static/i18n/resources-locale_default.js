@@ -103,5 +103,30 @@
         "key"        : "_impressum_",
         "value"      : "Contact",
         "description": "Label for the in Germany legally needed contact site"
+    },
+    {
+        "key"        : "_backofficeDashboard_",
+        "value"      : "Dashboard",
+        "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeAllAssemblies_",
+        "value"      : "Assemblies",
+        "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeMyAssemblies_",
+        "value"      : "My Assemblies",
+        "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeMyData_",
+        "value"      : "My Data",
+        "description": "Caption of a backoffice tab"
+    },
+    {
+        "key"        : "_backofficeAccountSettings_",
+        "value"      : "Account Settings",
+        "description": "Caption of a backoffice tab"
     }
 ]

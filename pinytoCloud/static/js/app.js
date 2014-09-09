@@ -14,6 +14,10 @@ var pinytoWebApp = angular.module(
             when('/login/', {templateUrl: '/static/partials/login.html', controller: 'PinytoLoginCtrl'}).
             when('/register/', {templateUrl: '/static/partials/register.html', controller: 'PinytoRegisterCtrl'}).
             when('/backoffice/', {templateUrl: '/static/partials/backoffice.html', controller: 'PinytoBackofficeCtrl'}).
+            when('/backoffice/assemblies/', {templateUrl: '/static/partials/all_assemblies.html', controller: 'PinytoBackofficeCtrl'}).
+            when('/backoffice/assemblies/mine/', {templateUrl: '/static/partials/my_assemblies.html', controller: 'PinytoBackofficeCtrl'}).
+            when('/backoffice/data/', {templateUrl: '/static/partials/view_data.html', controller: 'PinytoBackofficeCtrl'}).
+            when('/backoffice/account/settings/', {templateUrl: '/static/partials/account_settings.html', controller: 'PinytoBackofficeCtrl'}).
             when('/explanation/', {templateUrl: '/static/partials/explanation.html', controller: 'PinytoExplanationCtrl'}).
             when('/hardware/', {templateUrl: '/static/partials/hardware.html', controller: 'PinytoHardwareCtrl'}).
             when('/development/', {templateUrl: '/static/partials/development.html', controller: 'PinytoDevelopmentCtrl'}).

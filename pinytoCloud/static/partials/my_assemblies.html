@@ -1,0 +1,49 @@
+<div class="content">
+    <ul>
+        <li>
+            <a ng-href="/backoffice/" data-i18n="_backofficeDashboard_">Dashboard</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">Assemblies</a>
+        </li>
+        <li class="active">
+            <a ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">My Assemblies</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">My Data</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">Account Settings</a>
+        </li>
+    </ul>
+    <h1 data-i18n="_backofficeMyAssembliesHeading_">My Assemblies</h1>
+    <div ng-repeat="assembly in assemblies">
+        <h2>{{ assembly.name }}</h2>
+        <p>
+            <label for="Assembly{{ $index }}NameInput" data-i18n="_assemblyNameLabel_">Assembly Name:</label>
+            <input id="Assembly{{ $index }}NameInput" type="text" ng-model="assembly.name" />
+        </p>
+        <h3 data-i18n="_assemblyDescriptionHeading_">Description</h3>
+        <textarea ng-model="assembly.description"></textarea>
+        <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
+        <ul>
+            <li ng-repeat="function in assembly.apiFunctions">
+                /{{ user.name }}/<input type="text" ng-model="assembly.name" /><br />
+                <textarea ng-model="function.code"></textarea>
+            </li>
+        </ul>
+        <h3 data-i18n="_jobsHeading_">Jobs</h3>
+        <ul>
+            <li ng-repeat="job in assembly.jobs">
+                <input type="text" ng-model="job.name" /><br />
+                <textarea ng-model="job.code"></textarea>
+                Execute regularly:<input type="checkbox" ng-model="job.scheduleActivated" />
+                <div ng-show="job.scheduleActivated">
+                    Execute every
+                    <input type="number" ng-model="job.schedule" />
+                    Minutes.
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="content">
+    <ul>
+        <li>
+            <a ng-href="/backoffice/" data-i18n="_backofficeDashboard_">Dashboard</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">Assemblies</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">My Assemblies</a>
+        </li>
+        <li>
+            <a ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">My Data</a>
+        </li>
+        <li class="active">
+            <a ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">Account Settings</a>
+        </li>
+    </ul>
+    <h1 data-i18n="_backofficeAccountSettingsHeading_">Account Settings</h1>
+    <p><span data-i18n="_backofficeAccountSettingsIntroductionBeforeName_">Your username is </span>
+        {{ username }}
+        <span data-i18n="_backofficeAccountSettingsIntroductionAfterName_">. Since your username is a part of your
+            assemblies and other users may use your public assemblies with the name as part of the API you are not
+            free to change your name. However you can change your password.</span>
+    </p>
+    <h2 data-i18n="_backofficeChangePasswordHeading_">Change Password</h2>
+
+    <h2 data-i18n="_backofficeManageKeysHeading_">Manage Keys</h2>
+    <p data-i18n="_backofficeManageKeysExplanation_"></p>
+    <ul>
+        <li ng-repeat="key in keys">
+            {{ key.hash }}
+            <a ng-click="deleteKey(key)"><img src="" alt="Delete Key" /></a>
+        </li>
+    </ul>
+</div>
