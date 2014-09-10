@@ -123,4 +123,5 @@
     background-color: rgb(57, 57, 57);
     color: rgb(215, 215, 215);
     padding: 1em;
+    min-height: 230px;
 }

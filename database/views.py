@@ -48,3 +48,12 @@ def store(request):
     else:
         # session is not a session so it has to be response object with an error message
         return session
+
+
+@csrf_exempt
+def statistics(request):
+    """
+    Retrieve statistics about storage and
+
+    :param request:
+    """
