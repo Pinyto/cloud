@@ -173,5 +173,10 @@
         "key"        : "_changePassword2_",
         "value"      : "Re-Enter the new password:",
         "description": "Label for the input field"
+    },
+    {
+        "key"        : "_changePasswordButton_",
+        "value"      : "change password",
+        "description": "Value of the change password button"
     }
 ]

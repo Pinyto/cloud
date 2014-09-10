@@ -173,5 +173,10 @@
         "key"        : "_changePassword2_",
         "value"      : "Bestätigung des neuen Passworts:",
         "description": "Label for the input field"
+    },
+    {
+        "key"        : "_changePasswordButton_",
+        "value"      : "Passwort ändern",
+        "description": "Value of the change password button"
     }
 ]
