@@ -56,13 +56,16 @@
             </div>
         </div>
         <div>
-            <button value="{{ '_changePasswordButton_' | i18n }}" ng-click="changePassword()"></button>
+            <button type="submit" ng-click="changePassword()" style="float: right;">
+                {{ '_changePasswordButton_' | i18n }}
+            </button>
         </div>
-        <div ng-show="requestState">
+        <div ng-show="requestState" style="clear: both;">
             <span ng-show="requestState == 'pending'" data-i18n="_changingPassword_"></span>
             <span ng-show="requestState == 'success'" data-i18n="_changePasswordSuccess_"></span>
             <span ng-show="requestState == 'failure'" data-i18n="_changePasswordFailure_"></span>
             <span ng-show="requestState == 'mismatch'" data-i18n="_passwordMismatch_"></span>
+            <span ng-show="requestState == 'tooshort'" data-i18n="_passwordTooShort_"></span>
         </div>
         <h2 data-i18n="_backofficeManageKeysHeading_">Manage Keys</h2>
         <p data-i18n="_backofficeManageKeysExplanation_"></p>

@@ -178,5 +178,30 @@
         "key"        : "_changePasswordButton_",
         "value"      : "change password",
         "description": "Value of the change password button"
+    },
+    {
+        "key"        : "_changingPassword_",
+        "value"      : "Changing password ...",
+        "description": "Notice that the password change is currently in progress"
+    },
+    {
+        "key"        : "_changePasswordSuccess_",
+        "value"      : "Your password was successfully changed.",
+        "description": "Notice that the password change was successful"
+    },
+    {
+        "key"        : "_changePasswordFailure_",
+        "value"      : "There was an error while changing your password.",
+        "description": "Notice that the password could not be changed"
+    },
+    {
+        "key"        : "_passwordMismatch_",
+        "value"      : "The supplied passwords did not match.",
+        "description": "Notice that the inserted passwords did not match"
+    },
+    {
+        "key"        : "_passwordTooShort_",
+        "value"      : "The supplied password is too short. It must consist of at least 6 characters.",
+        "description": "Notice that the inserted password was too short"
     }
 ]
