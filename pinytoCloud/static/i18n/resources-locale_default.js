@@ -163,5 +163,15 @@
         "key"        : "_backofficeManageKeysExplanation_",
         "value"      : "When you register a new account you will have only one public key. This is the key used by the keyserver to authenticate you with username and password. If you register additional devices one key for each device will be added to this list. You can forbid access for certain devices by deactivating the appropriate key. If you are planning to use web services which can not save private keys you will need the first key to access them. This includes this backoffice. However keeping this key activated means that you might be vulnerable to somebody guessing your password. So it might be more secure to only use public keys from the connect app at your devices and deactivate the first key. However you will need this key again if you want to register a new device to your account. You may deactivate the key for some time and then re-activate it with a backoffice app at one of your devices to regain the possibility to register new devices. If in doubt leave the first key activated and use a long, secure password.",
         "description": "Explanation for what to consider when managing keys"
+    },
+    {
+        "key"        : "_changePassword1_",
+        "value"      : "Enter your new password:",
+        "description": "Label for the input field"
+    },
+    {
+        "key"        : "_changePassword2_",
+        "value"      : "Re-Enter the new password:",
+        "description": "Label for the input field"
     }
 ]

@@ -163,5 +163,15 @@
         "key"        : "_backofficeManageKeysExplanation_",
         "value"      : "Wenn du einen Pinyto-Account anlegst, hast du zunächst nur einen öffentlichen Schlüssel in dieser Liste. Dieser Schlüssel wird vom Keyserver benutzt, der dir die Möglichkeit gibt dich mit deinem Benutzernamen und password einzuloggen. Wenn du zusätzliche Geräte registrierst, wird diese Liste um je einen öffentlichen Schlüssel für jedes Gerät verlängert. Löschst du einen dieser Schlüssel, kann von diesem Gerät nicht mehr auf deinen Account zugegriffen werden. Wenn du vorhast Webdienste mit deinem Pinyto-Account zu nutzen, die keinen privaten Schlüssel speichern können, solltest du den ersten Schlüssel nicht deaktivieren. Zu diesen Webdiensten gehört übrigens auch dieses Backoffice. Der erste Schlüssel ist aber auch die einzige Möglichkeit deinen Account mit Benutzername und Passwort zu nutzen. Wenn du also fürchtest, dass jemand dein Passwort erraten könnte, solltest du diesen Schlüssel deaktivieren. Bedenke dabei, dass diese Form der Authentifizierung gebraucht wird, um zusätzliche Geräte zu registrieren. Du kannst also den ersten Schlüssel für mehr Sicherheit deaktivieren und ihn dann mit einer Backoffice-App (die du haben solltest, wenn du das machst) wieder reaktivieren, wenn du ein neues Gerät registrieren möchtest. Falls du nicht sicher bist, solltest du den ersten Schlüssel nicht deaktivieren und ein sicheres, besonders langes Passwort vergeben.",
         "description": "Explanation for what to consider when managing keys"
+    },
+    {
+        "key"        : "_changePassword1_",
+        "value"      : "Neues Passwort:",
+        "description": "Label for the input field"
+    },
+    {
+        "key"        : "_changePassword2_",
+        "value"      : "Bestätigung des neuen Passworts:",
+        "description": "Label for the input field"
     }
 ]
