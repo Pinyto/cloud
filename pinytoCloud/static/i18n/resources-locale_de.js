@@ -143,5 +143,20 @@
         "key"        : "_backofficeAccountSettingsIntroductionAfterName_",
         "value"      : ". Da der Benutzername Teil des Namens deiner Assemblies ist, und deine öffentlichen Assemblies von anderen Nutzern genutzt werden können, kannst du deinen Benutzernamen nicht ändern.",
         "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the second part of this text after the username"
+    },
+    {
+        "key"        : "_backofficeChangePasswordHeading_",
+        "value"      : "Passwort ändern",
+        "description": "Heading for the account settings change password subsection"
+    },
+    {
+        "key"        : "_backofficeManageKeysHeading_",
+        "value"      : "Öffentliche Schlüssel verwalten",
+        "description": "Heading for the account settings manage keys subsection"
+    },
+    {
+        "key"        : "_backofficeManageKeysExplanation_",
+        "value"      : "Wenn du einen Pinyto-Account anlegst, hast du zunächst nur einen öffentlichen Schlüssel in dieser Liste. Dieser Schlüssel wird vom Keyserver benutzt, der dir die Möglichkeit gibt dich mit deinem Benutzernamen und password einzuloggen. Wenn du zusätzliche Geräte registrierst, wird diese Liste um je einen öffentlichen Schlüssel für jedes Gerät verlängert. Löschst du einen dieser Schlüssel, kann von diesem Gerät nicht mehr auf deinen Account zugegriffen werden. Wenn du vorhast Webdienste mit deinem Pinyto-Account zu nutzen, die keinen privaten Schlüssel speichern können, solltest du den ersten Schlüssel nicht deaktivieren. Zu diesen Webdiensten gehört übrigens auch dieses Backoffice. Der erste Schlüssel ist aber auch die einzige Möglichkeit deinen Account mit Benutzername und Passwort zu nutzen. Wenn du also fürchtest, dass jemand dein Passwort erraten könnte, solltest du diesen Schlüssel deaktivieren. Bedenke dabei, dass diese Form der Authentifizierung gebraucht wird, um zusätzliche Geräte zu registrieren. Du kannst also den ersten Schlüssel für mehr Sicherheit deaktivieren und ihn dann mit einer Backoffice-App (die du haben solltest, wenn du das machst) wieder reaktivieren, wenn du ein neues Gerät registrieren möchtest. Falls du nicht sicher bist, solltest du den ersten Schlüssel nicht deaktivieren und ein sicheres, besonders langes Passwort vergeben.",
+        "description": "Explanation for what to consider when managing keys"
     }
 ]

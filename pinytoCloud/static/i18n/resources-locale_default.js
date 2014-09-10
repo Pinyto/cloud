@@ -143,5 +143,20 @@
         "key"        : "_backofficeAccountSettingsIntroductionAfterName_",
         "value"      : ". Since your username is a part of your assemblies and other users may use your public assemblies with the name as part of the API you are not free to change your name. However you can change your password.",
         "description": "Account settings have an introductory text which explains why changing the username is not permitted. This is the second part of this text after the username"
+    },
+    {
+        "key"        : "_backofficeChangePasswordHeading_",
+        "value"      : "Change Password",
+        "description": "Heading for the account settings change password subsection"
+    },
+    {
+        "key"        : "_backofficeManageKeysHeading_",
+        "value"      : "Manage Keys",
+        "description": "Heading for the account settings manage keys subsection"
+    },
+    {
+        "key"        : "_backofficeManageKeysExplanation_",
+        "value"      : "When you register a new account you will have only one public key. This is the key used by the keyserver to authenticate you with username and password. If you register additional devices one key for each device will be added to this list. You can forbid access for certain devices by deactivating the appropriate key. If you are planning to use web services which can not save private keys you will need the first key to access them. This includes this backoffice. However keeping this key activated means that you might be vulnerable to somebody guessing your password. So it might be more secure to only use public keys from the connect app at your devices and deactivate the first key. However you will need this key again if you want to register a new device to your account. You may deactivate the key for some time and then re-activate it with a backoffice app at one of your devices to regain the possibility to register new devices. If in doubt leave the first key activated and use a long, secure password.",
+        "description": "Explanation for what to consider when managing keys"
     }
 ]
