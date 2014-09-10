@@ -66,7 +66,8 @@ def statistics(request):
             'time_budget': session.user.time_budget,
             'storage_budget': session.user.storage_budget,
             'curent_storage': session.user.current_storage,
-            'last_calculation': session.user.last_calculation_time
+            'last_calculation': str(session.user.last_calculation_time),
+            'assembly_count': session.user.assemblies.count()
         })
     else:
         # session is not a session so it has to be response object with an error message

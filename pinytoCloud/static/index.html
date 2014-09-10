@@ -38,6 +38,10 @@
             <div style="float: right;">
                 <a ng-href="/impressum" data-i18n="_impressum_">Impressum</a>
             </div>
+            <div style="float: right;" ng-show="isAuthenticated()">&nbsp;|&nbsp;</div>
+            <div style="float: right;" ng-show="isAuthenticated()">
+                <a ng-click="logout()" data-i18n="_logout_" style="cursor: pointer;">Logout</a>
+            </div>
         </div>
         <div ng-include src="'/static/partials/menu.html'"></div>
         <div ng-view></div>

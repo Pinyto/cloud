@@ -27,9 +27,15 @@ angular.module('PinytoWebServices', [])
                     url: '/keyserver/authenticate',
                     method: "POST",
                     data: 'name='+username+'&password='+password,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            logout: function (token) {
+                return $http({
+                    url: '/keyserver/logout',
+                    method: "POST",
+                    data: 'token=' + token,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
             },
             register: function (username, password) {
@@ -37,15 +43,13 @@ angular.module('PinytoWebServices', [])
                     url: '/keyserver/register',
                     method: "POST",
                     data: 'name='+username+'&password='+password,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
             },
             statistics: function (token) {
                 return $http({
                     method: "POST",
-                    url: 'statistics',
+                    url: '/statistics',
                     data: 'token=' + token,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });

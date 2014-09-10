@@ -21,7 +21,7 @@ pinytoWebApp.factory('Authenticate', function (Backend, SessionService) {
             Backend.logout();
         }
         SessionService.unset('token');
-        SessionService.set('authenticated', false);
+        SessionService.unset('authenticated');
     };
 
     authService.isAuthenticated = function () {
@@ -58,8 +58,14 @@ pinytoWebApp.factory('SessionService', function () {
 });
 
 pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
+    $rootScope.isAuthenticated = function () {
+        return Authenticate.isAuthenticated();
+    };
+    $rootScope.logout = function () {
+        Authenticate.logout();
+    };
     $rootScope.$on('$routeChangeStart', function (event, next, current) {
-        if(!Authenticate.isAuthenticated() && !($location.path() in {
+        if (!Authenticate.isAuthenticated() && !($location.path() in {
             '/login/':'',
             '/register/':'',
             '/':'',

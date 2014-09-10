@@ -25,6 +25,11 @@
         "description": "Heading of the login page"
     },
     {
+        "key"        : "_logout_",
+        "value"      : "Logout",
+        "description": "Logout link"
+    },
+    {
         "key"        : "_registerBtn_",
         "value"      : "Register",
         "description": "Value on the submit button when registering"

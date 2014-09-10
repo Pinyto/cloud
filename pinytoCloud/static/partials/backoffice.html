@@ -37,12 +37,13 @@
         </li>
     </ul>
     <div class="backofficePane">
-        <h1 data-i18n="_backofficeHeading_">Backoffice</h1>
-        <div style="text-align: justify; text-align-last: justify; width: 100%;">
-            <div style="width: 0; height: 0; display: inline-block;"></div>
-            <div style="display: inline-block;">Centered</div>
-            <div style="width: 0; height: 0; display: inline-block;"></div>
-            <div style="display: inline-block; width: 100%; height: 0;"></div>
+        <div ng-show="statistics">
+            <p>Currently you have {{ statistics.curent_storage }} bytes of data stored in the cloud.</p>
+            <p>With the data you had stored before this makes {{ statistics.storage_budget }} bytes/s.</p>
+            <p>You consumed {{ statistics.time_budget }}s of computation time.</p>
+            <p>You have <a ng-href="/backoffice/assemblies/mine/">{{ statistics.assembly_count }} assemblies</a>.</p>
+            <p>We have no idea how many assemblies are installed and this is a problem.</p>
+            Last change {{ statistics.last_calculation }}
         </div>
     </div>
 </div>

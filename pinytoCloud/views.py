@@ -9,9 +9,10 @@ from Crypto.Random import get_random_bytes
 import json
 
 from service.response import json_response
-from pinytoCloud.models import User, StoredPublicKey
+from pinytoCloud.models import User, StoredPublicKey, Session
 from pinytoCloud.settings import PINYTO_KEY
 from pinytoCloud.project_path import project_path
+from pinytoCloud.checktoken import check_token
 
 
 def home(request):
@@ -66,6 +67,23 @@ def authenticate(username, key_hash):
     hasher.update(encrypted_token)
     signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
     return {'encrypted_token': encrypted_token, 'signature': unicode(signature[0])}
+
+
+@csrf_exempt
+def logout(request):
+    """
+    Ends the session with the given token.
+
+    @param request:
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        session.delete()
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
 
 
 @csrf_exempt
