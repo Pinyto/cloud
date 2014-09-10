@@ -45,7 +45,16 @@
                 free to change your name. However you can change your password.</span>
         </p>
         <h2 data-i18n="_backofficeChangePasswordHeading_">Change Password</h2>
-
+        <div style="display: table; margin: auto;">
+            <div style="display: table-row;">
+                <label for="password1" data-i18n="_changePassword1_" style="display: table-cell; text-align: right;"></label>
+                <input type="password" name="password1" id="password1" ng-model="password" style="display: table-cell;"/>
+            </div>
+            <div style="display: table-row;">
+                <label for="password2" data-i18n="_changePassword2_" style="display: table-cell; text-align: right;"></label>
+                <input type="password" name="password2" id="password2" ng-model="passwordRepeat" style="display: table-cell;"/>
+            </div>
+        </div>
         <h2 data-i18n="_backofficeManageKeysHeading_">Manage Keys</h2>
         <p data-i18n="_backofficeManageKeysExplanation_"></p>
         <ul>
