@@ -1,12 +1,10 @@
 'use strict';
 
 pinytoWebApp.controller('PinytoBackofficeCtrl',
-    function ($scope, $rootScope, Backend, Authenticate, $routeParams) {
+    function ($scope, $rootScope, Backend, Authenticate) {
     // Function Definitions
     $scope.loadStatistics = function () {
-        console.log(Authenticate.getToken());
         Backend.statistics(Authenticate.getToken()).success(function (data) {
-            console.log(data);
             $scope.statistics = angular.fromJson(data);
         });
     };
