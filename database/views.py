@@ -20,7 +20,8 @@ def store(request):
     Store document in any format. The date of creation and request.user will be
     added automatically to the document
 
-    :param request:
+    @param request: Django request
+    @return JSON
     """
     session = check_token(request.POST.get('token'))
     # check_token will return an error response if the token is not found or can not be verified.
@@ -53,7 +54,20 @@ def store(request):
 @csrf_exempt
 def statistics(request):
     """
-    Retrieve statistics about storage and
+    Retrieve statistics about storage and computation time usage.
 
-    :param request:
+    @param request: Django request
+    @return JSON
     """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        return json_response({
+            'time_budget': session.user.time_budget,
+            'storage_budget': session.user.storage_budget,
+            'curent_storage': session.user.current_storage,
+            'last_calculation': session.user.last_calculation_time
+        })
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session

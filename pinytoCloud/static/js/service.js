@@ -45,7 +45,7 @@ angular.module('PinytoWebServices', [])
             statistics: function (token) {
                 return $http({
                     method: "POST",
-                    url: pinytoCloud + 'bborsalino/Librarian/statistics',
+                    url: 'statistics',
                     data: 'token=' + token,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });

@@ -21,6 +21,7 @@ urlpatterns += patterns(
     'database.views',
 
     url(r'^store$', 'store', name='store'),
+    url(r'^statistics$', 'statistics', name='statistics'),
 )
 
 urlpatterns += patterns(
