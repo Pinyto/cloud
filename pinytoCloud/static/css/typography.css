@@ -103,6 +103,6 @@ a:hover {
     list-style-type: disc;
 }
 
-.main-menu li {
+.main-menu li, .tabs li {
     font-family: 'Merriweather Sans', Verdana, sans-serif;
 }

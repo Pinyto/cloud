@@ -1,23 +1,45 @@
-<div class="content">
-    <ul>
+<div class="content" style="padding-right: 0; padding-bottom: 0;">
+    <ul class="tabs">
         <li>
-            <a ng-href="/backoffice/" data-i18n="_backofficeDashboard_">Dashboard</a>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/" data-i18n="_backofficeDashboard_">
+                Dashboard
+            </a>
+            <span class="end"></span>
         </li>
         <li class="active">
-            <a ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">Assemblies</a>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">
+                Assemblies
+            </a>
+            <span class="end"></span>
         </li>
         <li>
-            <a ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">My Assemblies</a>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">
+                My Assemblies
+            </a>
+            <span class="end"></span>
         </li>
         <li>
-            <a ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">My Data</a>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">
+                My Data
+            </a>
+            <span class="end"></span>
         </li>
         <li>
-            <a ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">Account Settings</a>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">
+                Account Settings
+            </a>
+            <span class="end"></span>
         </li>
     </ul>
-    <h1 data-i18n="_backofficeAllAssembliesHeading_">Assemblies</h1>
-    <p data-i18n="_assemblyExplanation_"></p>
-    <h2 data-i18n="_backofficeInstalledAssemblies_">Installed Assemblies</h2>
-    <h2 data-i18n="_backofficeAvailableAssemblies_">Available Assemblies</h2>
+    <div class="backofficePane">
+        <h1 data-i18n="_backofficeAllAssembliesHeading_">Assemblies</h1>
+        <p data-i18n="_assemblyExplanation_"></p>
+        <h2 data-i18n="_backofficeInstalledAssemblies_">Installed Assemblies</h2>
+        <h2 data-i18n="_backofficeAvailableAssemblies_">Available Assemblies</h2>
+    </div>
 </div>
