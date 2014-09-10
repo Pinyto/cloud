@@ -38,8 +38,8 @@
     </ul>
     <div class="backofficePane">
         <div ng-show="statistics">
-            <p>Currently you have {{ statistics.curent_storage }} bytes of data stored in the cloud.</p>
-            <p>With the data you had stored before this makes {{ statistics.storage_budget }} bytes/s.</p>
+            <p>Currently you have {{ statistics.current_storage }} bytes of data stored in the cloud.</p>
+            <p>With the data you had stored before this makes {{ statistics.calculated_storage_budget }} bytes*s.</p>
             <p>You consumed {{ statistics.time_budget }}s of computation time.</p>
             <p>You have <a ng-href="/backoffice/assemblies/mine/">{{ statistics.assembly_count }} assemblies</a>.</p>
             <p>We have no idea how many assemblies are installed and this is a problem.</p>
