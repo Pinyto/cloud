@@ -63,12 +63,14 @@ pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
     };
     $rootScope.logout = function () {
         Authenticate.logout();
+        $location.path('/');
     };
     $rootScope.$on('$routeChangeStart', function (event, next, current) {
         if (!Authenticate.isAuthenticated() && !($location.path() in {
             '/login/':'',
             '/register/':'',
             '/':'',
+            '/impressum/':'',
             '/explanation/':'',
             '/hardware/':'',
             '/development/':''})) {

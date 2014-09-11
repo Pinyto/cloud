@@ -21,6 +21,7 @@ var pinytoWebApp = angular.module(
             when('/explanation/', {templateUrl: '/static/partials/explanation.html', controller: 'PinytoExplanationCtrl'}).
             when('/hardware/', {templateUrl: '/static/partials/hardware.html', controller: 'PinytoHardwareCtrl'}).
             when('/development/', {templateUrl: '/static/partials/development.html', controller: 'PinytoDevelopmentCtrl'}).
+            when('/impressum/', {templateUrl: '/static/partials/impressum.html', controller: 'PinytoImpressumCtrl'}).
             otherwise({templateUrl: '/static/partials/welcome.html', controller: 'PinytoWelcomeCtrl'});
         // use the HTML5 History API
         $locationProvider.html5Mode(true).hashPrefix('!');
