@@ -1,0 +1,5 @@
+management.sqlite
+.idea/
+*.pyc
+database/static
+static/pinyto-bibliothek
