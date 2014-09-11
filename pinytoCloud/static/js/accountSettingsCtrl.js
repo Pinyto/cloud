@@ -5,7 +5,7 @@ pinytoWebApp.controller('PinytoAccountSettingsCtrl',
     // Function Definitions
     $scope.changePassword = function () {
         if ($scope.password && $scope.password.length >= 6) {
-            if ($scope.password == $scope.passwodRepeat) {
+            if ($scope.password == $scope.passwordRepeat) {
                 $scope.requestState = 'pending';
                 Backend.changePassword($scope.password).success(function (data) {
                     if (angular.fromJson(data)['success']) {
