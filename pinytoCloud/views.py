@@ -87,6 +87,29 @@ def logout(request):
 
 
 @csrf_exempt
+def list_keys(request):
+    """
+    Returns a list of keys for the active account.
+
+    @param request:
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        key_list = []
+        for key in session.user.keys.all():
+            key_list.append({
+                'key_hash': key.key_hash,
+                'active': key.active
+            })
+        json_response(key_list)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
 def register_request(request):
     """
     Creates an account if possible and saves the public key.

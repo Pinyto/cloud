@@ -94,6 +94,7 @@ class StoredPublicKey(models.Model):
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
     user = models.ForeignKey(User, related_name='keys')
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.key_hash + ':: N: ' + self.N + ' e: ' + str(self.e) + ' ' + str(self.user)

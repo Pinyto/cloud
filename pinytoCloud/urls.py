@@ -9,6 +9,7 @@ urlpatterns = patterns(
 
     url(r'^authenticate$', 'authenticate_request', name='authenticate'),
     url(r'^logout$', 'logout', name='logout'),
+    url(r'^list_keys$', 'list_keys', name='list_keys'),
     url(r'^register$', 'register_request', name='register'),
 )
 
