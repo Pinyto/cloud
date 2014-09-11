@@ -11,9 +11,10 @@ from base64 import b16decode, b16encode
 from django.http import HttpResponse
 import json
 from settings import PINYTO_PUBLICKEY
-from helper import secure_request
 from pinytoCloud.views import authenticate as cloud_authenticate
 from pinytoCloud.views import register as cloud_register
+from pinytoCloud.checktoken import check_token
+from pinytoCloud.models import Session
 
 
 def authenticate(request):
@@ -97,3 +98,25 @@ def register(request):
             ), content_type='application/json')
     else:
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+
+
+def change_password(request):
+    """
+    Change the password of the account specified by the token.
+
+    @param request: Django request
+    @return: json response
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if not 'password' in request.POST:
+            return HttpResponse(
+                json.dumps(
+                    {'error': "You have to supply a password if you want to set one."}
+                ), content_type='application/json')
+        Account.objects.get(name=session.user.name).change_password(request.POST['password'])
+        return HttpResponse(json.dumps({'success': True}), content_type='application/json')
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session

@@ -53,6 +53,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            changePassword: function (token, password) {
+                return $http({
+                    method: "POST",
+                    url: '/keyserver/change_password',
+                    data: 'token=' + token + '&password=' + password,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

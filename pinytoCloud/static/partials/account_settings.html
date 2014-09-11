@@ -60,12 +60,12 @@
                 {{ '_changePasswordButton_' | i18n }}
             </button>
         </div>
-        <div ng-show="requestState" style="clear: both;">
-            <span ng-show="requestState == 'pending'" data-i18n="_changingPassword_"></span>
-            <span ng-show="requestState == 'success'" data-i18n="_changePasswordSuccess_"></span>
-            <span ng-show="requestState == 'failure'" data-i18n="_changePasswordFailure_"></span>
-            <span ng-show="requestState == 'mismatch'" data-i18n="_passwordMismatch_"></span>
-            <span ng-show="requestState == 'tooshort'" data-i18n="_passwordTooShort_"></span>
+        <div ng-show="requestState" ng-switch="requestState" style="clear: both;">
+            <span ng-switch-when="pending" data-i18n="_changingPassword_"></span>
+            <span ng-switch-when="success" data-i18n="_changePasswordSuccess_"></span>
+            <span ng-switch-when="failure" data-i18n="_changePasswordFailure_"></span>
+            <span ng-switch-when="mismatch" data-i18n="_passwordMismatch_"></span>
+            <span ng-switch-when="tooshort" data-i18n="_passwordTooShort_"></span>
         </div>
         <h2 data-i18n="_backofficeManageKeysHeading_">Manage Keys</h2>
         <p data-i18n="_backofficeManageKeysExplanation_"></p>

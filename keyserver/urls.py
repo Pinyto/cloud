@@ -10,4 +10,5 @@ urlpatterns = patterns(
 
     url(r'^authenticate$', 'authenticate', name='authenticate'),
     url(r'^register$', 'register', name='register'),
+    url(r'^change_password$', 'change_password', name='change_password'),
 )

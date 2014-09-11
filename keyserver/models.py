@@ -13,7 +13,7 @@ from helper import create_salt
 class Account(models.Model):
     """
     A Pinyto account consists of a username, a password and
-    a pair of assymmetric keys. The keys are used for the
+    a pair of asymmetric keys. The keys are used for the
     authentication with a pinyto server which stores the
     data. Username and password are the credentials memorized
     by the user which he can use to access his keys.
@@ -35,6 +35,14 @@ class Account(models.Model):
 
     @classmethod
     def create(cls, name, password=u'', hash_iterations=420):
+        """
+        Creates an account with hashed password, new random salt and 3072 bit RSA key pair.
+
+        @param name: string
+        @param password: string
+        @param hash_iterations: int
+        @return: Account (already saved to the database)
+        """
         salt = create_salt(10)
         hash_string = password + salt
         for i in range(hash_iterations):
@@ -53,9 +61,34 @@ class Account(models.Model):
         return account
 
     def check_password(self, password):
+        """
+        This method checks if the given password is valid by comparing it to the stored hash.
+
+        @param password: string
+        @return: boolean
+        """
         hash_string = unicode(password) + self.salt
         for i in range(self.hash_iterations):
             hasher = sha256()
             hasher.update(hash_string)
             hash_string = hasher.hexdigest()
         return unicode(hash_string) == self.hash
+
+    def change_password(self, password, hash_iterations=420):
+        """
+        Changes the password to the supplied one.
+        hash_iterations are optional but can be used to upgrade the passwords to faster servers.
+
+        @param password: string
+        @param hash_iterations: int
+        @return: nothing
+        """
+        self.salt = create_salt(10)
+        hash_string = password + self.salt
+        for i in range(hash_iterations):
+            hasher = sha256()
+            hasher.update(hash_string)
+            hash_string = hasher.hexdigest()
+        self.hash_iterations = hash_iterations
+        self.hash = unicode(hash_string)
+        self.save()
