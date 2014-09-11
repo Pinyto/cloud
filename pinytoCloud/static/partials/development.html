@@ -1,0 +1,78 @@
+<div class="content" lang="de" ng-show="lang == 'de'">
+    <h1>Pinyto entwickeln</h1>
+    <p>Pinyto ist freie Software, lizensiert unter der <a href="http://www.gnu.org/copyleft/gpl.html">GPL v.3</a>.
+        Du kannst Pinyto beliebig kopieren, weiter geben und modifizieren, solange deine geänderte Version auch
+        unter der GPL steht.</p>
+    <p>Pinyto ist in <a href="https://www.python.org/">Python</a> geschrieben und nutzt das
+        <a href="https://www.djangoproject.com/">Django</a> Framework.
+        Für die Speicherung der in Pinyto gespeicherten Daten wird <a href="http://www.mongodb.org/">Mongodb</a>
+        verwendet. Du brauchst zusätzlich eine SQL-Datenbank, in der Benutzerdaten und Quelltexte gespeichert
+        werden. Diese Webseite ist mit <a href="https://angularjs.org/">Angular</a> geschrieben, was auch für
+        Webapps, die Pinyto benutzen ein empfehlenswertes Framework ist.</p>
+    <h2>Installation</h2>
+    <p>Um Pinyto zu installieren brauchst du einen Server mit Python- und Django-Unterstützung. Auch wenn es
+        gelegentlich Anbieter gibt, die Webspace anbieten, der Django Support bietet, wirst du in den meisten
+        Fällen einen eigenen virtuellen oder Root-Server brauchen auf dem Django installiert werden kann.</p>
+    <p>Wir empfehlen ein Debian-basiertes System wie <a href="http://www.ubuntu.com/">Ubuntu</a>, da die
+        Installation und Wartung auf diesen Systemen getestet wurde und gut läuft. Natürlich kannst du Pinyto
+        aber auf jedem System installieren, das die Anforderungen erfüllt:</p>
+    <ul>
+        <li>Du brauchst ein Betriebssystem mit
+            <a href="https://en.wikipedia.org/wiki/Seccomp">seccomp</a>-support im Kernel. Linux bietet diesen
+            Support mindestens seit 2009, bei BSD oder Windows-Kerneln kann es aber gut sein, dass seccomp
+            nicht verfügbar ist. Pinyto wird auf diesen Systemen nicht laufen, da seccomp genutzt wird um die
+            Pinyto-Sandbox auszuführen.</li>
+        <li><a href="http://nginx.org/">Nginx</a> oder <a href="http://httpd.apache.org/">Apache</a> wird als
+            Webserver gebraucht um eingehende Requests zu handeln und statische Dateien auszuliefern. Die
+            Voraussetzungen dafür erfüllen die meisten Webserver seit langer Zeit, was bedeutet, dass die
+            stabile Version deines Betriebssystems ausrechen wird. Wenn du jedoch vor hast SPDY oder gar
+            HTTP 2.0 einzusetzen wirst du vermutlich neuere Versionen brauchen.</li>
+        <li>Du brauchst eine SQL-Datenbank für Pinyto. Für eine einfache Installation kannst du
+            <a href="http://www.sqlite.org/">SQLite</a> verwenden. Für Installationen mit vielen Usern empfehlen
+            wir <a href="http://www.postgresql.org/">PostgreSQL</a>. Prinzipiell arbeitet Pinyto mit allen
+            SQL-Datenbanken, die von Django unterstützt werden. Eine genauere Beschreibung findest du in der
+            <a href="https://docs.djangoproject.com/en/1.6/ref/databases/">Django Dokumentation</a>.</li>
+        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.6 oder neuer. Du brauchst einen
+            wsgi-wrapper, um Requests vom Webserver an Django weiter zu reichen. Wir empfehlen
+            <a href="http://projects.unbit.it/uwsgi/">uWSGI</a> für diesen Zweck. Eine Installationsanleitung
+            dafür findest du
+            <a href="https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/uwsgi/">hier</a>.</li>
+        <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 oder neuer</li>
+        <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
+    </ul>
+</div>
+<div class="content" lang="en" ng-show="lang == 'en'">
+    <h1>Developing Pinyto</h1>
+    <p>Pinyto is free Software licensed under the <a href="http://www.gnu.org/copyleft/gpl.html">GPL v.3</a>.
+        You are free to distribute and modify Pinyto to match your needs. Pinyto is written in
+        <a href="https://www.python.org/">Python</a> using the famous
+        <a href="https://www.djangoproject.com/">Django</a> framework.
+        <a href="http://www.mongodb.org/">Mongodb</a> is used to store the user's data but for administrative
+        purposes there is also a SQL Database needed. This Interface is created with
+        <a href="https://angularjs.org/">Angular</a> which proved itself very handy for developing webapps
+        using Pinyto.</p>
+    <h2>Installation</h2>
+    <p>For installing Pinyto you need a server which runs Python and Django. There are some hosters which offer
+    webspace where this is possible but mostly you will need your own virtual- or root-server. We recommend
+    using a debian-based system for this server like <a href="http://www.ubuntu.com/">Ubuntu</a> but it can
+    run on any systems which meets the requirements:</p>
+    <ul>
+        <li>You will need <a href="https://en.wikipedia.org/wiki/Seccomp">seccomp</a>-support in your kernel.
+            Linux has that since 2009 but BSD and Windows-Kernel probably do not have this feature and will not
+            be able to run the Pinyto sandbox.</li>
+        <li><a href="http://nginx.org/">Nginx</a> or <a href="http://httpd.apache.org/">Apache</a> for serving
+            static files. There are no complicated requirements so the stable version of your system is fine.
+            However if you plan to use SPDY or HTTP 2.0 you may need a more recent version.</li>
+        <li>You need a SQL database for Pinyto. You may use <a href="http://www.sqlite.org/">SQLite</a> which
+            is file based and very easy to install. For installations with a lot of users
+            <a href="http://www.postgresql.org/">PostgreSQL</a> is recommended. For a full description of which
+            database can be used see the <a href="https://docs.djangoproject.com/en/1.6/ref/databases/">Django
+            documentation</a>.</li>
+        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.6 or newer. You need a wsgi-wrapper
+            to pass requests to Django. We recommend using <a href="http://projects.unbit.it/uwsgi/">uWSGI</a>.
+            Installation instructions for this setup are
+            <a href="https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/uwsgi/">here</a>.</li>
+        <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 or newer</li>
+        <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
+    </ul>
+</div>

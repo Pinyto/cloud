@@ -136,10 +136,10 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'corsheaders',
     'pinytoCloud',
+    'keyserver',
     'database',
     'api_prototype',
-    'service',
-    'librarian'
+    'service'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

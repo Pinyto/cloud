@@ -1,0 +1,21 @@
+<ul class="main-menu" ng-controller="PinytoMenuCtrl">
+    <a ng-href="/">
+        <li style="background-color: rgba(255, 255, 255, 0); font-family: 'Merriweather', sans-serif; font-size: 210%; padding-left: 0;">
+            <div class="logo"></div>
+            Pinyto
+            <div style="font-size: 7pt; position: relative; top: 11px; line-height: 2px;">your personal cloud-database</div>
+        </li>
+    </a>
+    <a ng-href="/backoffice/">
+        <li data-i18n="_backoffice_menu_" ng-class="{'active': isActive('backoffice')}">Backoffice</li>
+    </a>
+    <a ng-href="/explanation/">
+        <li data-i18n="_explanation_menu_" ng-class="{'active': isActive('explanation')}">Tutorials &amp; Manuals</li>
+    </a>
+    <a ng-href="/hardware/">
+        <li data-i18n="_hardware_menu_" ng-class="{'active': isActive('hardware')}">Hardware for Pinyto</li>
+    </a>
+    <a ng-href="/development/">
+        <li data-i18n="_development_menu_" ng-class="{'active': isActive('development')}">Developing Pinyto</li>
+    </a>
+</ul>

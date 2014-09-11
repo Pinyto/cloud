@@ -26,11 +26,11 @@ def check_token(encrypted_token):
     """
     cipher = PKCS1_OAEP.new(PINYTO_KEY)
     try:
-        encoded_token = b16decode(encrypted_token)
+        decoded_token = b16decode(encrypted_token)
     except TypeError:
         return json_response({'error': "The token is not in valid base16-format."})
     try:
-        token = cipher.decrypt(encoded_token)
+        token = cipher.decrypt(decoded_token)
     except ValueError:
         return json_response({'error': "The token has an invalid length."})
     try:

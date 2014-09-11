@@ -1,0 +1,127 @@
+#page-container {
+    margin: auto;
+    max-width: 63em;
+    background-color: rgb(220, 220, 220);
+}
+
+.main-menu {
+    float: left;
+    padding: 0;
+    margin: 1em;
+}
+
+.main-menu li {
+    list-style-type: none;
+    margin: 0.5em;
+    padding: 0.5em;
+    background-color: rgb(191, 191, 191);
+}
+
+.main-menu li:hover {
+    background-color: rgb(206, 206, 206);
+}
+
+.main-menu li.active {
+    background-color: rgb(57, 57, 57);
+    color: #d7d7d7;
+}
+
+.content {
+    margin-left: 16em;
+    max-width: 47em;
+    padding: 2.5em 2.5em 2.5em 0;
+}
+
+.logo {
+    background: url('../images/Logo.svg') no-repeat 0 0;
+    background-size: 17px;
+    width: 17px;
+    height: 28px;
+    vertical-align: bottom;
+    display: inline-block;
+}
+
+.center {
+    text-align: center;
+}
+
+.header-bar {
+    font-size: 8pt;
+}
+
+.header-bar select {
+    background-color: rgb(57, 57, 57);
+    color: rgb(215, 215, 215);
+    border: 0 solid rgb(57, 57, 57);
+}
+
+.tabs {
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+}
+
+.tabs li {
+    list-style-type: none;
+    display: inline-block;
+    height: 27px;
+    margin: 0;
+}
+
+.tabs li .start {
+    width: 20px;
+    height: 27px;
+    background-image: url("../images/tabStart.svg");
+    vertical-align: middle;
+    display: inline-block;
+    margin-left: -1em;
+    position: relative;
+    z-index: 1;
+}
+
+.tabs li .content {
+    background-color: rgb(204, 204, 204);
+    font-weight: 300;
+    height: calc(26px - 0.2em);
+    margin: 0 -0.33em;
+    border-top: 1px solid rgb(170, 170, 170);
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0.2em 0 0 0;
+    position: relative;
+    z-index: 3;
+}
+
+.tabs li .end {
+    width: 20px;
+    height: 27px;
+    background-image: url("../images/tabEnd.svg");
+    vertical-align: middle;
+    display: inline-block;
+    position: relative;
+    z-index: 2;
+}
+
+.tabs li.active .start {
+    background-image: url("../images/tabStartActive.svg");
+    z-index: 4;
+}
+
+.tabs li.active .content {
+    background-color: rgb(57, 57, 57);
+    border-top: 1px solid rgb(57, 57, 57);
+    color: rgb(215, 215, 215);
+    z-index: 6;
+}
+
+.tabs li.active .end {
+    background-image: url("../images/tabEndActive.svg");
+    z-index: 5;
+}
+
+.backofficePane {
+    background-color: rgb(57, 57, 57);
+    color: rgb(215, 215, 215);
+    padding: 1em;
+    min-height: 230px;
+}

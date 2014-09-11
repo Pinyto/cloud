@@ -105,9 +105,9 @@ return soup.find_element_and_collect_table_like_information(
         self.assertEqual(result, "{u'a': u'3'}\n")
         self.assertTrue(time < 1)
 
-    def test_connect_to_google(self):
+    def test_connect_to_twitter(self):
         code = """https = factory.create('Https')
-return len(str(https.get('www.google.de', '/')))"""
+return len(str(https.get('twitter.com', '/')))"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
         self.assertGreater(int(result), 0)
         self.assertTrue(time < 1)

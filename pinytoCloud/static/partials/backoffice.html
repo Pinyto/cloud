@@ -1,0 +1,49 @@
+<div class="content" style="padding-right: 0; padding-bottom: 0;">
+    <ul class="tabs">
+        <li class="active">
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/" data-i18n="_backofficeDashboard_">
+                Dashboard
+            </a>
+            <span class="end"></span>
+        </li>
+        <li>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">
+                Assemblies
+            </a>
+            <span class="end"></span>
+        </li>
+        <li>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">
+                My Assemblies
+            </a>
+            <span class="end"></span>
+        </li>
+        <li>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">
+                My Data
+            </a>
+            <span class="end"></span>
+        </li>
+        <li>
+            <span class="start"></span>
+            <a class="content" ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">
+                Account Settings
+            </a>
+            <span class="end"></span>
+        </li>
+    </ul>
+    <div class="backofficePane">
+        <div ng-show="statistics">
+            <p>Currently you have {{ statistics.current_storage }} bytes of data stored in the cloud.</p>
+            <p>With the data you had stored before this makes {{ statistics.calculated_storage_budget }} bytes*s.</p>
+            <p>You consumed {{ statistics.time_budget }}s of computation time.</p>
+            <p>You have <a ng-href="/backoffice/assemblies/mine/">{{ statistics.assembly_count }} assemblies</a>.</p>
+            <p>We have no idea how many assemblies are installed and this is a problem.</p>
+            Last change {{ statistics.last_calculation }}
+        </div>
+    </div>
+</div>

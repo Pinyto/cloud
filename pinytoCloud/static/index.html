@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="pinytoWeb">
+<head>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" href="/static/css/reset.css"/>
+    <link rel="stylesheet" href="/static/css/layout.css"/>
+    <link rel="stylesheet" href="/static/css/typography.css"/>
+
+    <script type="text/javascript" src="/static/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="/static/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="/static/lib/localize.js"></script>
+    <script type="text/javascript" src="/static/js/app.js"></script>
+    <script type="text/javascript" src="/static/js/service.js"></script>
+    <script type="text/javascript" src="/static/js/authenticate.js"></script>
+    <script type="text/javascript" src="/static/js/menuCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/loginCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/registerCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/welcomeCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/backofficeCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/allAssembliesCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/myAssembliesCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/viewDataCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/accountSettingsCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/explanationCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/hardwareCtrl.js"></script>
+    <script type="text/javascript" src="/static/js/developmentCtrl.js"></script>
+
+    <title data-i18n="_pageTitle_"></title>
+</head>
+<body>
+    <div id="page-container">
+        <div class="header-bar">
+            <form style="float: right;">
+                <label for="languages" data-i18n="_language_">Language:</label>
+                <select id="languages" name="languages" ng-model="language">
+                    <option ng-repeat="lang in getLanguages()">{{lang}}</option>
+                </select>
+            </form>
+            <div style="float: right;">&nbsp;|&nbsp;</div>
+            <div style="float: right;">
+                <a ng-href="/impressum" data-i18n="_impressum_">Impressum</a>
+            </div>
+            <div style="float: right;" ng-show="isAuthenticated()">&nbsp;|&nbsp;</div>
+            <div style="float: right;" ng-show="isAuthenticated()">
+                <a ng-click="logout()" data-i18n="_logout_" style="cursor: pointer;">Logout</a>
+            </div>
+        </div>
+        <div ng-include src="'/static/partials/menu.html'"></div>
+        <div ng-view></div>
+    </div>
+</body>
+</html>

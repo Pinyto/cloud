@@ -12,6 +12,7 @@ from pinytoCloud.models import Session
 from datetime import datetime
 from database.helpers import get_tags, get_str_or_discard
 import json
+import pytz
 
 
 @csrf_exempt
@@ -20,7 +21,8 @@ def store(request):
     Store document in any format. The date of creation and request.user will be
     added automatically to the document
 
-    :param request:
+    @param request: Django request
+    @return JSON
     """
     session = check_token(request.POST.get('token'))
     # check_token will return an error response if the token is not found or can not be verified.
@@ -45,6 +47,31 @@ def store(request):
                                            "You also have to supply a type string for the data. " +
                                            "Supplying tags in the parameter 'tags' is optional " +
                                            "but strongly recommended."})
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def statistics(request):
+    """
+    Retrieve statistics about storage and computation time usage.
+
+    @param request: Django request
+    @return JSON
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        return json_response({
+            'time_budget': session.user.time_budget,
+            'storage_budget': session.user.storage_budget,
+            'current_storage': session.user.current_storage,
+            'last_calculation': (
+                session.user.last_calculation_time - datetime.fromtimestamp(0, pytz.utc)
+            ).total_seconds() * 1000,
+            'assembly_count': session.user.assemblies.count()
+        })
     else:
         # session is not a session so it has to be response object with an error message
         return session
