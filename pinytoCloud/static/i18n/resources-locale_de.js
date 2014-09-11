@@ -203,5 +203,30 @@
         "key"        : "_passwordTooShort_",
         "value"      : "Das Passwort ist zu kurz. Dein Passwort muss mindestens 6 Zeichen lang sein.",
         "description": "Notice that the inserted password was too short"
+    },
+    {
+        "key"        : "_keysTableNumberHeading_",
+        "value"      : "Nummer",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableHashHeading_",
+        "value"      : "Hash des Schlüssels",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableIsActiveHeading_",
+        "value"      : "Aktiviert?",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableDeleteHeading_",
+        "value"      : "Schlüssel löschen?",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keyActivationRequestFailureNotice_",
+        "value"      : "Irgendetwas hat beim Ändern des Aktivierungsstatus dieses Schlüssels nicht funktioniert.",
+        "description": "Notice which is displayed if the key active state could not be changed"
     }
 ]

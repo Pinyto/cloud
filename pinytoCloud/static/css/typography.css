@@ -95,6 +95,16 @@ a:hover {
     color: rgba(9, 179, 0, 1);
 }
 
+table tr td, table tr th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+th {
+    font-family: 'Merriweather Sans', Verdana, sans-serif;
+    font-weight: bold;
+}
+
 .content ul {
     padding-left: 1.6em;
 }

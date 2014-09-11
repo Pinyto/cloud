@@ -38,11 +38,10 @@
     </ul>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeAccountSettingsHeading_">Account Settings</h1>
-        <p><span data-i18n="_backofficeAccountSettingsIntroductionBeforeName_">Your username is </span>
-            {{ username }}
-            <span data-i18n="_backofficeAccountSettingsIntroductionAfterName_">. Since your username is a part of your
-                assemblies and other users may use your public assemblies with the name as part of the API you are not
-                free to change your name. However you can change your password.</span>
+        <p><span data-i18n="_backofficeAccountSettingsIntroductionBeforeName_">Your username is</span>
+            {{ username }}<span data-i18n="_backofficeAccountSettingsIntroductionAfterName_">. Since your username is
+                a part of your assemblies and other users may use your public assemblies with the name as part of the
+                API you are not free to change your name. However you can change your password.</span>
         </p>
         <h2 data-i18n="_backofficeChangePasswordHeading_">Change Password</h2>
         <div style="display: table; margin: auto;">
@@ -69,10 +68,23 @@
         </div>
         <h2 data-i18n="_backofficeManageKeysHeading_">Manage Keys</h2>
         <p data-i18n="_backofficeManageKeysExplanation_"></p>
-        <ul>
-            <li ng-repeat="key in keys">
-                {{ key.hash }}
-            </li>
-        </ul>
+        <table style="width: 100%;">
+            <tr>
+                <th data-i18n="_keysTableNumberHeading_"></th>
+                <th data-i18n="_keysTableHashHeading_"></th>
+                <th data-i18n="_keysTableIsActiveHeading_"></th>
+                <th data-i18n="_keysTableDeleteHeading_"></th>
+            </tr>
+            <tr ng-repeat="key in keys" ng-style="{'background-color': $even ? 'rgb(66, 66, 66)' : 'inherit'}">
+                <td style="text-align: center;">{{ $index }}</td>
+                <td style="text-align: center;">{{ key.key_hash }}</td>
+                <td style="text-align: center;"><input type="checkbox" ng-model="key.active"
+                       ng-change="setActive(key)" ng-disabled="key.requestState == 'pending'" />
+                    <span ng-show="key.requestState == 'failure'"
+                          data-i18n="_keyActivationRequestFailureNotice_"></span>
+                </td>
+                <td style="text-align: center;">V</td>
+            </tr>
+        </table>
     </div>
 </div>

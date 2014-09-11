@@ -61,6 +61,22 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&password=' + password,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            listKeys: function (token) {
+                return $http({
+                    method: "POST",
+                    url: '/list_keys',
+                    data: 'token=' + token,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            setKeyActive: function (token, keyHash, activeState) {
+                return $http({
+                    method: "POST",
+                    url: '/set_key_active',
+                    data: 'token=' + token + '&key_hash=' + keyHash + '&active_state=' + activeState,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

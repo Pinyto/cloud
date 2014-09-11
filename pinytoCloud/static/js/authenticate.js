@@ -5,6 +5,7 @@ pinytoWebApp.factory('Authenticate', function (Backend, SessionService) {
     var authService = {};
 
     authService.login = function (username, password) {
+        SessionService.set('username', username);
         return Backend.login(username, password).success(function (data) {
             var response = angular.fromJson(data);
             if ('token' in response) {
@@ -22,6 +23,7 @@ pinytoWebApp.factory('Authenticate', function (Backend, SessionService) {
         }
         SessionService.unset('token');
         SessionService.unset('authenticated');
+        SessionService.unset('username');
     };
 
     authService.isAuthenticated = function () {
@@ -34,6 +36,10 @@ pinytoWebApp.factory('Authenticate', function (Backend, SessionService) {
         } else {
             return '';
         }
+    };
+
+    authService.getUsername = function () {
+        return SessionService.get('username');
     };
 
     authService.getLastError = function () {

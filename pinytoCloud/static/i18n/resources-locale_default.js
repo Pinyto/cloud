@@ -203,5 +203,30 @@
         "key"        : "_passwordTooShort_",
         "value"      : "The supplied password is too short. It must consist of at least 6 characters.",
         "description": "Notice that the inserted password was too short"
+    },
+    {
+        "key"        : "_keysTableNumberHeading_",
+        "value"      : "Key Number",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableHashHeading_",
+        "value"      : "Key Hash",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableIsActiveHeading_",
+        "value"      : "Key is Active?",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keysTableDeleteHeading_",
+        "value"      : "Delete Key?",
+        "description": "Heading in the key list table"
+    },
+    {
+        "key"        : "_keyActivationRequestFailureNotice_",
+        "value"      : "Something went wrong while changing the active status of this key.",
+        "description": "Notice which is displayed if the key active state could not be changed"
     }
 ]
