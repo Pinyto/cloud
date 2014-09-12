@@ -40,6 +40,26 @@ pinytoWebApp.controller(
             });
         };
 
+        $scope.isLastActiveKey = function (key) {
+            var activeKeyCount = 0;
+            if ($scope.keys) {
+                for (var i = 0; i < $scope.keys.length; i++) {
+                    if ($scope.keys[i].active) {
+                        activeKeyCount++;
+                    }
+                }
+            }
+            return (activeKeyCount <= 1) && key.active;
+        };
+
+        $scope.deleteKey = function (key) {
+            Backend.deleteKey(Authenticate.getToken(), key.key_hash).success(function (data) {
+                if (angular.fromJson(data)['success']) {
+                    $scope.getKeys();
+                }
+            });
+        };
+
         // Initialization
         $scope.lang = $rootScope.language;
         $scope.keys = [];

@@ -11,6 +11,7 @@ urlpatterns = patterns(
     url(r'^logout$', 'logout', name='logout'),
     url(r'^list_keys$', 'list_keys', name='list_keys'),
     url(r'^set_key_active$', 'set_key_active', name='set_key_active'),
+    url(r'^delete_key$', 'delete_key', name='delete_key'),
     url(r'^register$', 'register_request', name='register'),
 )
 

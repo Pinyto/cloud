@@ -125,3 +125,11 @@
     padding: 1em;
     min-height: 230px;
 }
+
+.trash-icon {
+    cursor: pointer;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("../images/Trash-Icon.svg") no-repeat;
+}

@@ -77,6 +77,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&key_hash=' + keyHash + '&active_state=' + activeState,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            deleteKey: function (token, keyHash) {
+                return $http({
+                    method: "POST",
+                    url: '/delete_key',
+                    data: 'token=' + token + '&key_hash=' + keyHash,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

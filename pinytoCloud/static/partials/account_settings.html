@@ -79,11 +79,15 @@
                 <td style="text-align: center;">{{ $index }}</td>
                 <td style="text-align: center;">{{ key.key_hash }}</td>
                 <td style="text-align: center;"><input type="checkbox" ng-model="key.active"
-                       ng-change="setActive(key)" ng-disabled="key.requestState == 'pending'" />
+                       ng-change="setActive(key)"
+                       ng-disabled="(key.requestState == 'pending') || isLastActiveKey(key)" />
                     <span ng-show="key.requestState == 'failure'"
                           data-i18n="_keyActivationRequestFailureNotice_"></span>
                 </td>
-                <td style="text-align: center;">V</td>
+                <td style="text-align: center;">
+                    <a ng-hide="isLastActiveKey(key) || ($index <= 0)"
+                       ng-click="deleteKey(key)" class="trash-icon" style="position: relative; top: 4px;"></a>
+                </td>
             </tr>
         </table>
     </div>

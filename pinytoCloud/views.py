@@ -122,12 +122,43 @@ def set_key_active(request):
     if isinstance(session, Session):
         if not 'key_hash' in request.POST or not 'active_state' in request.POST:
             return json_response({'error': "You have to supply a key_hash and an active_state."})
+        if session.user.keys.filter(active=True).exclude(key_hash=request.POST['key_hash']).count() < 1:
+            return json_response(
+                {'error': "You are deactivating your last active key. " +
+                          "That is in all possible scenarios a bad idea so it will not be done."}
+            )
         key = session.user.keys.get(key_hash=request.POST['key_hash'])
         if request.POST['active_state']:
             key.active = True
         else:
             key.active = False
         key.save()
+        return json_response({'success': True})
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def delete_key(request):
+    """
+    Deletes the specified key. This will raise an error if you try to delete your last key.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if not 'key_hash' in request.POST:
+            return json_response({'error': "You have to supply a key_hash."})
+        if session.user.keys.filter(active=True).exclude(key_hash=request.POST['key_hash']).count() < 1:
+            return json_response(
+                {'error': "You are deleting your last active key. " +
+                          "That is in all possible scenarios a bad idea so it will not be done."}
+            )
+        key = session.user.keys.get(key_hash=request.POST['key_hash'])
+        key.delete()
         return json_response({'success': True})
     else:
         # session is not a session so it has to be response object with an error message
