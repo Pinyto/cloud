@@ -273,5 +273,30 @@
         "key"        : "_jobsHeading_",
         "value"      : "Jobs",
         "description": "Heading for the list of jobs"
+    },
+    {
+        "key"        : "_code_",
+        "value"      : "Quelltext:",
+        "description": "Heading code inputs"
+    },
+    {
+        "key"        : "_name_",
+        "value"      : "Name:",
+        "description": "Label for name fields"
+    },
+    {
+        "key"        : "_path_",
+        "value"      : "Pfad:",
+        "description": "Label for path fields"
+    },
+    {
+        "key"        : "_addNewApiFunction_",
+        "value"      : "Neue API-Funktion hinzufügen",
+        "description": "Label for the add new api function plus"
+    },
+    {
+        "key"        : "_addNewJob_",
+        "value"      : "Neuen Job hinzufügen",
+        "description": "Label for the add new job plus"
     }
 ]
