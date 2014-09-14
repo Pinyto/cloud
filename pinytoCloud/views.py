@@ -60,7 +60,7 @@ def authenticate(username, key_hash):
     try:
         key = user.keys.filter(key_hash=key_hash).exclude(active=False).all()[0]
     except IndexError:
-        return {'error': "This is not a registered public key of this user."}
+        return {'error': "This is not a registered and active public key of this user."}
     session = user.start_session(key)
     encrypted_token = session.get_encrypted_token()
     hasher = sha256()
