@@ -51,19 +51,19 @@
                 Description:
             </label><br />
             <textarea ng-model="assembly.description" id="Assembly{{ $index }}DescriptionTextarea"
-                      rows="10" style="width: 100%;"></textarea>
+                      rows="10" style="width: 100%; resize:vertical;"></textarea>
             <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
             <ul>
                 <li ng-repeat="function in assembly.api_functions">
                     /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name" /><br />
-                    <textarea ng-model="function.code" rows="10" style="width: 100%;"></textarea>
+                    <textarea ng-model="function.code" rows="10" style="width: 100%; resize:vertical;"></textarea>
                 </li>
             </ul>
             <h3 data-i18n="_jobsHeading_">Jobs</h3>
             <ul>
                 <li ng-repeat="job in assembly.jobs">
                     <input type="text" ng-model="job.name" /><br />
-                    <textarea ng-model="job.code" rows="10" style="width: 100%;"></textarea>
+                    <textarea ng-model="job.code" rows="10" style="width: 100%; resize:vertical;"></textarea>
                     Execute regularly:<input type="checkbox" ng-model="job.scheduleActivated" />
                     <div ng-show="job.scheduleActivated">
                         Execute every

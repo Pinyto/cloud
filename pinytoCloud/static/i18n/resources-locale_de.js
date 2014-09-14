@@ -263,5 +263,15 @@
         "key"        : "_assemblyDescriptionLabel_",
         "value"      : "Beschreibung:",
         "description": "Label for the assembly description textarea"
+    },
+    {
+        "key"        : "_apiFunctionsHeading_",
+        "value"      : "API Funktionen",
+        "description": "Heading for the list of api functions"
+    },
+    {
+        "key"        : "_jobsHeading_",
+        "value"      : "Jobs",
+        "description": "Heading for the list of jobs"
     }
 ]
