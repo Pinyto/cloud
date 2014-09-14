@@ -38,6 +38,9 @@
     </ul>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeMyAssembliesHeading_">My Assemblies</h1>
+        <p><span data-i18n="_backofficeMyAssembliesExplanationBeforeLink_">
+        </span><a ng-href="/backoffice/assemblies/" data-i18n="_backofficeMyAssembliesExplanationLink_">
+        </a><span data-i18n="_backofficeMyAssembliesExplanationAfterLink_"></span></p>
         <div ng-repeat="assembly in assemblies">
             <h2>{{ assembly.name }}</h2>
             <p>
@@ -48,8 +51,8 @@
             <textarea ng-model="assembly.description"></textarea>
             <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
             <ul>
-                <li ng-repeat="function in assembly.apiFunctions">
-                    /{{ user.name }}/<input type="text" ng-model="assembly.name" /><br />
+                <li ng-repeat="function in assembly.api_functions">
+                    /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name" /><br />
                     <textarea ng-model="function.code"></textarea>
                 </li>
             </ul>

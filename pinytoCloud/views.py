@@ -210,3 +210,35 @@ def register(username, key_data):
     new_user.save()
     StoredPublicKey.create(new_user, unicode(key_data['N']), e)
     return {'success': True}
+
+
+@csrf_exempt
+def list_own_assemblies(request):
+    """
+    Returns a list of the assemblies of the user specified through the token.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        own_assemblies = []
+        for assembly in session.user.assemblies.all():
+            own_assemblies.append({
+                'name': assembly.name,
+                'description': assembly.description,
+                'api_functions': [{
+                    'name': api_function.name,
+                    'code': api_function.code
+                } for api_function in assembly.api_functions],
+                'jobs': [{
+                    'name': job.name,
+                    'code': job.code,
+                    'schedule': job.schedule
+                } for job in assembly.jobs]
+            })
+        return json_response(own_assemblies)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session

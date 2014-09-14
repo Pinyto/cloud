@@ -228,5 +228,26 @@
         "key"        : "_keyActivationRequestFailureNotice_",
         "value"      : "Irgendetwas hat beim Ändern des Aktivierungsstatus dieses Schlüssels nicht funktioniert.",
         "description": "Notice which is displayed if the key active state could not be changed"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesHeading_",
+        "value"      : "Meine Assemblies",
+        "description": "Heading for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesExplanationBeforeLink_",
+        "value"      : "Du kannst hier deine eigenen Assemblies schreiben und verwalten. Normale Benutzer brauchen keine eigenen Assemblies, da sie einfach fertige Assemblies installieren, die von anderen Benutzern geschrieben und aktualisiert werden. Assemblies von Anderen kannst du ",
+        "description": "Explanation for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesExplanationLink_",
+        "value"      : "hier",
+        "description": "Explanation for my assemblies in the backoffice"
+    }
+    ,
+    {
+        "key"        : "_backofficeMyAssembliesExplanationAfterLink_",
+        "value"      : " installieren. Wenn du aber neue Funktionen und Anwendungen selbst entwickeln möchtest, dann kannst du das direkt hier tun. Die Assemblies, die du hier erzeugst, werden unter deinem Benutzernamen für andere Benutzer verfügbar sein, die deine Assemblies dann einfach installieren können.",
+        "description": "Explanation for my assemblies in the backoffice"
     }
 ]

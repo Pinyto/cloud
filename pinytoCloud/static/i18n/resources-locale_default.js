@@ -228,5 +228,26 @@
         "key"        : "_keyActivationRequestFailureNotice_",
         "value"      : "Something went wrong while changing the active status of this key.",
         "description": "Notice which is displayed if the key active state could not be changed"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesHeading_",
+        "value"      : "My Assemblies",
+        "description": "Heading for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesExplanationBeforeLink_",
+        "value"      : "You can author your own assemblies here. Most users do not need their own assemblies because they rely on other users who create assemblies for them and update them. If you just want to use existing assemblies you can install them ",
+        "description": "Explanation for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_backofficeMyAssembliesExplanationLink_",
+        "value"      : "here",
+        "description": "Explanation for my assemblies in the backoffice"
+    }
+    ,
+    {
+        "key"        : "_backofficeMyAssembliesExplanationAfterLink_",
+        "value"      : ". If you want to develop your own assemblies you can do so right here. Your creations will automatically be visible to other users on this server who can use your assembly by installing them.",
+        "description": "Explanation for my assemblies in the backoffice"
     }
 ]

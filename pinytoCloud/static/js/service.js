@@ -85,6 +85,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&key_hash=' + keyHash,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            listOwnAssemsblies: function (token) {
+                return $http({
+                    method: "POST",
+                    url: '/list_own_assemblies',
+                    data: 'token=' + token,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })
