@@ -133,3 +133,11 @@
     height: 20px;
     background: url("../images/Trash-Icon.svg") no-repeat;
 }
+
+.plus-icon {
+    cursor: pointer;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("../images/Plus-Icon.svg") no-repeat;
+}

@@ -243,11 +243,25 @@
         "key"        : "_backofficeMyAssembliesExplanationLink_",
         "value"      : "hier",
         "description": "Explanation for my assemblies in the backoffice"
-    }
-    ,
+    },
     {
         "key"        : "_backofficeMyAssembliesExplanationAfterLink_",
         "value"      : " installieren. Wenn du aber neue Funktionen und Anwendungen selbst entwickeln möchtest, dann kannst du das direkt hier tun. Die Assemblies, die du hier erzeugst, werden unter deinem Benutzernamen für andere Benutzer verfügbar sein, die deine Assemblies dann einfach installieren können.",
         "description": "Explanation for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_addNewAssembly_",
+        "value"      : "neues Assembly erstellen",
+        "description": "Label for the create new assembly icon"
+    },
+    {
+        "key"        : "_assemblyNameLabel_",
+        "value"      : "Name des Assembly:",
+        "description": "Label for the assembly name input"
+    },
+    {
+        "key"        : "_assemblyDescriptionLabel_",
+        "value"      : "Beschreibung:",
+        "description": "Label for the assembly description textarea"
     }
 ]

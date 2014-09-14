@@ -47,20 +47,23 @@
                 <label for="Assembly{{ $index }}NameInput" data-i18n="_assemblyNameLabel_">Assembly Name:</label>
                 <input id="Assembly{{ $index }}NameInput" type="text" ng-model="assembly.name" />
             </p>
-            <h3 data-i18n="_assemblyDescriptionHeading_">Description</h3>
-            <textarea ng-model="assembly.description"></textarea>
+            <label for="Assembly{{ $index }}DescriptionTextarea" data-i18n="_assemblyDescriptionLabel_">
+                Description:
+            </label><br />
+            <textarea ng-model="assembly.description" id="Assembly{{ $index }}DescriptionTextarea"
+                      rows="10" style="width: 100%;"></textarea>
             <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
             <ul>
                 <li ng-repeat="function in assembly.api_functions">
                     /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name" /><br />
-                    <textarea ng-model="function.code"></textarea>
+                    <textarea ng-model="function.code" rows="10" style="width: 100%;"></textarea>
                 </li>
             </ul>
             <h3 data-i18n="_jobsHeading_">Jobs</h3>
             <ul>
                 <li ng-repeat="job in assembly.jobs">
                     <input type="text" ng-model="job.name" /><br />
-                    <textarea ng-model="job.code"></textarea>
+                    <textarea ng-model="job.code" rows="10" style="width: 100%;"></textarea>
                     Execute regularly:<input type="checkbox" ng-model="job.scheduleActivated" />
                     <div ng-show="job.scheduleActivated">
                         Execute every
@@ -69,6 +72,10 @@
                     </div>
                 </li>
             </ul>
+        </div>
+        <div>
+            <div class="plus-icon" style="position: relative; top: 5px;" ng-click="addAssembly()"></div>
+            <a ng-click="addAssembly()" data-i18n="_addNewAssembly_" style="cursor: pointer;"></a>
         </div>
     </div>
 </div>

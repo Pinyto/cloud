@@ -5,7 +5,17 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
         // Function Definitions
         $scope.getAssemblies = function () {
             Backend.listOwnAssemsblies(Authenticate.getToken()).success(function (data) {
-                $scope.assemblies = angular.fromJson(data);
+                $scope.assembliesOnline = angular.fromJson(data);
+                $scope.assemblies = angular.copy($scope.assembliesOnline);
+            });
+        };
+
+        $scope.addAssembly = function () {
+            $scope.assemblies.push({
+                'name': "",
+                'description': "",
+                'api_-functions': [],
+                'jobs': []
             });
         };
 

@@ -243,11 +243,25 @@
         "key"        : "_backofficeMyAssembliesExplanationLink_",
         "value"      : "here",
         "description": "Explanation for my assemblies in the backoffice"
-    }
-    ,
+    },
     {
         "key"        : "_backofficeMyAssembliesExplanationAfterLink_",
         "value"      : ". If you want to develop your own assemblies you can do so right here. Your creations will automatically be visible to other users on this server who can use your assembly by installing them.",
         "description": "Explanation for my assemblies in the backoffice"
+    },
+    {
+        "key"        : "_addNewAssembly_",
+        "value"      : "create a new assembly",
+        "description": "Label for the create new assembly icon"
+    },
+    {
+        "key"        : "_assemblyNameLabel_",
+        "value"      : "Assembly Name:",
+        "description": "Label for the assembly name input"
+    },
+    {
+        "key"        : "_assemblyDescriptionLabel_",
+        "value"      : "Description:",
+        "description": "Label for the assembly description textarea"
     }
 ]
