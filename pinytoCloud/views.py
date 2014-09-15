@@ -343,3 +343,31 @@ def save_assembly(request):
     else:
         # session is not a session so it has to be response object with an error message
         return session
+
+
+@csrf_exempt
+def delete_assembly(request):
+    """
+    Deletes the assembly specified by its name.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if not 'name' in request.POST:
+            return json_response(
+                {'error': "You have to supply the name of the assembly you want to delete."}
+            )
+        try:
+            assembly = session.user.assemblies.filter(name=request.POST['name']).all()[0]
+        except IndexError:
+            return json_response(
+                {'error': "There was no assembly found with the name " + request.POST['name'] + "."}
+            )
+        assembly.delete()
+        return json_response({'success': True})
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session

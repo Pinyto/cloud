@@ -333,5 +333,10 @@
         "key"        : "_jobNameErrorMessage_",
         "value"      : "Jobs müssen einen Namen bestehend aus Buchstaben, Zahlen, Bindestrichen und Unterstrichen haben, der nicht leer ist.",
         "description": "This message is displayed next to the job name if the name is not valid"
+    },
+    {
+        "key"        : "_deleteAssembly_",
+        "value"      : "Assembly löschen",
+        "description": "Label for the delete assembly icon"
     }
 ]

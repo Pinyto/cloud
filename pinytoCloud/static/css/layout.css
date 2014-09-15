@@ -141,3 +141,11 @@
     height: 20px;
     background: url("../images/Plus-Icon.svg") no-repeat;
 }
+
+.expand-icon {
+    cursor: pointer;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: url("../images/Expand-Icon.svg") no-repeat;
+}

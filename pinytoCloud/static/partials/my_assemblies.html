@@ -43,80 +43,98 @@
         </a><span data-i18n="_backofficeMyAssembliesExplanationAfterLink_"></span></p>
         <div ng-repeat="assembly in assemblies"
              style="border: 1px solid rgb(215, 215, 215); padding: 1em; margin-bottom: 1em;">
-            <h2 style="margin-top: 0;">{{ assembly.name }}</h2>
-            <p>
-                <label for="Assembly{{ $index }}NameInput" data-i18n="_assemblyNameLabel_">Assembly Name:</label>
-                <input id="Assembly{{ $index }}NameInput" type="text"
-                       ng-class="{'error': !assemblyHasAName(assembly)}" ng-model="assembly.name" />
-                <span ng-hide="assemblyHasAName(assembly)" class="error-message" style="display: block;"
-                      data-i18n="_assemblyNameErrorMessage_"></span>
-            </p>
-            <label for="Assembly{{ $index }}DescriptionTextarea" data-i18n="_assemblyDescriptionLabel_">
-                Description:
-            </label><br />
-            <textarea ng-model="assembly.description" id="Assembly{{ $index }}DescriptionTextarea"
-                      rows="10" style="width: calc(100% - 6px); resize:vertical;"></textarea>
-            <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
-            <ul>
-                <li ng-repeat="function in assembly.api_functions" style="margin-bottom: 1.5em;">
-                    <label for="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name" data-i18n="_path_"></label>
-                    /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name"
-                        ng-class="{'error': !apiFunctionHasAName(function)}"
-                        id="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name" />
-                    <span ng-hide="apiFunctionHasAName(function)" class="error-message" style="display: block;"
-                          data-i18n="_apiFunctionNameErrorMessage_"></span>
-                    <div class="trash-icon" ng-click="deleteApiFunction(assembly, $index)"
-                         style="position: relative; top: 5px; float: right;"></div>
-                    <br />
-                    <label for="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Code" data-i18n="_code_"></label>
-                    <textarea ng-model="function.code" rows="10"
-                              id="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
-                              style="width: calc(100% - 6px); resize:vertical;"></textarea>
-                </li>
-            </ul>
-            <div>
-                <div class="plus-icon" style="position: relative; top: 5px;" ng-click="addApiFunction(assembly)"></div>
-                <a ng-click="addApiFunction(assembly)" data-i18n="_addNewApiFunction_" style="cursor: pointer;"></a>
+            <div class="expand-icon" ng-click="assembly.show = !assembly.show"
+                 style="position: relative; top: 5px; float: left; margin-right: 0.5em;"
+                 ng-style="{'backgroundPosition': assembly.show ? '-20px 0' : '0 0'}"></div>
+            <span ng-hide="assembly.show">{{ assembly.name }}</span>
+            <div style="float: right;" ng-hide="assembly.deleteState">
+                <div class="trash-icon" ng-click="deleteAssembly(assembly, $index)"
+                     style="position: relative; top: 5px;"></div>
+                <a ng-click="deleteAssembly(assembly, $index)"
+                   data-i18n="_deleteAssembly_" style="cursor: pointer;"></a>
             </div>
-            <h3 data-i18n="_jobsHeading_">Jobs</h3>
-            <ul>
-                <li ng-repeat="job in assembly.jobs" style="margin-bottom: 1.5em;">
-                    <label for="Assembly{{ $parent.$index }}Job{{ $index }}Name" data-i18n="_name_"></label>
-                    <input id="Assembly{{ $parent.$index }}Job{{ $index }}Name" type="text" ng-model="job.name"
-                           ng-class="{'error': !jobHasAName(job)}" />
-                    <span ng-hide="jobHasAName(job)" class="error-message" style="display: block;"
-                          data-i18n="_jobNameErrorMessage_"></span>
-                    <div class="trash-icon" ng-click="deleteJob(assembly, $index)"
-                         style="position: relative; top: 5px; float: right;"></div>
-                    <br />
-                    <label for="Assembly{{ $parent.$index }}Job{{ $index }}Code" data-i18n="_code_"></label>
-                    <textarea ng-model="job.code" rows="10"
-                              id="Assembly{{ $parent.$index }}Job{{ $index }}Code"
-                              style="width: calc(100% - 6px); resize:vertical;"></textarea>
-                    <label for="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
-                           data-i18n="_executeRegularly_">Execute regularly:</label>
-                    <input type="checkbox" id="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
-                           ng-model="job.scheduleActivated" />
-                    <div ng-show="job.scheduleActivated">
-                        <label for="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
-                           data-i18n="_executeEvery_">Execute every</label>
-                        <input type="number" id="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
-                               style="max-width: 3em;"
-                               ng-model="job.schedule" />
-                        <span data-i18n="_executeEveryEndsentence_">Minutes.</span>
-                    </div>
-                </li>
-            </ul>
-            <div>
-                <div class="plus-icon" style="position: relative; top: 5px;" ng-click="addJob(assembly)"></div>
-                <a ng-click="addJob(assembly)" data-i18n="_addNewJob_" style="cursor: pointer;"></a>
-            </div>
-            <div style="padding-top: 1.5em;">
-                <button ng-click="saveAssembly(assembly, $index)" ng-show="assemblyChanged($index)"
-                        ng-class="{'disabled': !assemblyIsValid(assembly)}"
-                        style="float: right;"
-                        data-i18n="_saveAssembly_"></button>
-                <div style="clear: both;"></div>
+            <h2 ng-show="assembly.show" style="margin-top: 0;">{{ assembly.name }}</h2>
+            <div ng-show="assembly.show">
+                <p>
+                    <label for="Assembly{{ $index }}NameInput" data-i18n="_assemblyNameLabel_">
+                        Assembly Name:
+                    </label>
+                    <input id="Assembly{{ $index }}NameInput" type="text"
+                           ng-class="{'error': !assemblyHasAName(assembly)}" ng-model="assembly.name" />
+                    <span ng-hide="assemblyHasAName(assembly)" class="error-message" style="display: block;"
+                          data-i18n="_assemblyNameErrorMessage_"></span>
+                </p>
+                <label for="Assembly{{ $index }}DescriptionTextarea" data-i18n="_assemblyDescriptionLabel_">
+                    Description:
+                </label><br />
+                <textarea ng-model="assembly.description" id="Assembly{{ $index }}DescriptionTextarea"
+                          rows="10" style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
+                <ul>
+                    <li ng-repeat="function in assembly.api_functions" style="margin-bottom: 1.5em;">
+                        <label for="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name"
+                               data-i18n="_path_"></label>
+                        /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name"
+                            ng-class="{'error': !apiFunctionHasAName(function)}"
+                            id="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name" />
+                        <span ng-hide="apiFunctionHasAName(function)" class="error-message" style="display: block;"
+                              data-i18n="_apiFunctionNameErrorMessage_"></span>
+                        <div class="trash-icon" ng-click="deleteApiFunction(assembly, $index)"
+                             style="position: relative; top: 5px; float: right;"></div>
+                        <br />
+                        <label for="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                               data-i18n="_code_"></label>
+                        <textarea ng-model="function.code" rows="10"
+                                  id="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                                  style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                    </li>
+                </ul>
+                <div>
+                    <div class="plus-icon" style="position: relative; top: 5px;"
+                         ng-click="addApiFunction(assembly)"></div>
+                    <a ng-click="addApiFunction(assembly)"
+                       data-i18n="_addNewApiFunction_" style="cursor: pointer;"></a>
+                </div>
+                <h3 data-i18n="_jobsHeading_">Jobs</h3>
+                <ul>
+                    <li ng-repeat="job in assembly.jobs" style="margin-bottom: 1.5em;">
+                        <label for="Assembly{{ $parent.$index }}Job{{ $index }}Name" data-i18n="_name_"></label>
+                        <input id="Assembly{{ $parent.$index }}Job{{ $index }}Name" type="text" ng-model="job.name"
+                               ng-class="{'error': !jobHasAName(job)}" />
+                        <span ng-hide="jobHasAName(job)" class="error-message" style="display: block;"
+                              data-i18n="_jobNameErrorMessage_"></span>
+                        <div class="trash-icon" ng-click="deleteJob(assembly, $index)"
+                             style="position: relative; top: 5px; float: right;"></div>
+                        <br />
+                        <label for="Assembly{{ $parent.$index }}Job{{ $index }}Code" data-i18n="_code_"></label>
+                        <textarea ng-model="job.code" rows="10"
+                                  id="Assembly{{ $parent.$index }}Job{{ $index }}Code"
+                                  style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                        <label for="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
+                               data-i18n="_executeRegularly_">Execute regularly:</label>
+                        <input type="checkbox" id="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
+                               ng-model="job.scheduleActivated" />
+                        <div ng-show="job.scheduleActivated">
+                            <label for="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
+                               data-i18n="_executeEvery_">Execute every</label>
+                            <input type="number" id="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
+                                   style="max-width: 3em;"
+                                   ng-model="job.schedule" />
+                            <span data-i18n="_executeEveryEndsentence_">Minutes.</span>
+                        </div>
+                    </li>
+                </ul>
+                <div>
+                    <div class="plus-icon" style="position: relative; top: 5px;" ng-click="addJob(assembly)"></div>
+                    <a ng-click="addJob(assembly)" data-i18n="_addNewJob_" style="cursor: pointer;"></a>
+                </div>
+                <div style="padding-top: 1.5em;">
+                    <button ng-click="saveAssembly(assembly, $index)" ng-show="assemblyChanged($index)"
+                            ng-class="{'disabled': !assemblyIsValid(assembly)}"
+                            style="float: right;"
+                            data-i18n="_saveAssembly_"></button>
+                    <div style="clear: both;"></div>
+                </div>
             </div>
         </div>
         <div>

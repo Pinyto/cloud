@@ -101,6 +101,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&original_name=' + originalName + '&data=' + assemblyJson,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            deleteAssembly: function (token, name) {
+                return $http({
+                    method: "POST",
+                    url: '/delete_assembly',
+                    data: 'token=' + token + '&name=' + name,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

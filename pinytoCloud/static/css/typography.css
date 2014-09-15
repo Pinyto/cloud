@@ -42,6 +42,7 @@ body {
     font-size: 12pt;
     line-height: 160%;
     background-color: rgb(121, 121, 121);
+    overflow-y: scroll;
 }
 
 h1, h2, h3, h4, h5 {

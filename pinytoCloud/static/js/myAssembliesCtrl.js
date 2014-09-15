@@ -180,6 +180,22 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
             })
         };
 
+        $scope.deleteAssembly = function (assembly, index) {
+            var name = assembly['name'];
+            if (index < $scope.assembliesOnline.length) {
+                name = $scope.assembliesOnline[index].name;
+            }
+            assembly.deleteState = 'pending';
+            Backend.deleteAssembly(Authenticate.getToken(), name).success(function (data) {
+                if (angular.fromJson(data)['success']) {
+                    if (index < $scope.assembliesOnline.length) {
+                        $scope.assembliesOnline.splice(index, 1);
+                    }
+                    $scope.assemblies.splice(index, 1);
+                }
+            });
+        };
+
         // Initialization
         $scope.lang = $rootScope.language;
         $scope.assemblies = [];
