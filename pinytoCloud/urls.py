@@ -14,6 +14,7 @@ urlpatterns = patterns(
     url(r'^delete_key$', 'delete_key', name='delete_key'),
     url(r'^register$', 'register_request', name='register'),
     url(r'^list_own_assemblies$', 'list_own_assemblies', name='list_own_assemblies'),
+    url(r'^save_assembly$', 'save_assembly', name='save_assembly'),
 )
 
 urlpatterns += patterns(

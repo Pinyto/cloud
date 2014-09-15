@@ -112,7 +112,7 @@
                 <a ng-click="addJob(assembly)" data-i18n="_addNewJob_" style="cursor: pointer;"></a>
             </div>
             <div style="padding-top: 1.5em;">
-                <button ng-click="saveAssembly(assembly)" ng-show="assemblyChanged($index)"
+                <button ng-click="saveAssembly(assembly, $index)" ng-show="assemblyChanged($index)"
                         ng-class="{'disabled': !assemblyIsValid(assembly)}"
                         style="float: right;"
                         data-i18n="_saveAssembly_"></button>

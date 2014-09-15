@@ -93,6 +93,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            saveAssembly: function (token, originalName, assemblyJson) {
+                return $http({
+                    method: "POST",
+                    url: '/save_assembly',
+                    data: 'token=' + token + '&original_name=' + originalName + '&data=' + assemblyJson,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

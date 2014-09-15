@@ -141,8 +141,43 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
                 ($scope.assemblyJobsHaveDifferentNames(assembly));
         };
 
-        $scope.saveAssembly = function (assembly) {
-            console.log(assembly);
+        $scope.saveAssembly = function (assembly, index) {
+            assembly.saveState = 'pending';
+            var saveAssembly = {
+                'name': assembly['name'],
+                'description': assembly['description'],
+                'api_functions': [],
+                'jobs': []
+            }, i;
+            for (i = 0; i < assembly['api_functions'].length; i++) {
+                saveAssembly['api_functions'].push({
+                    'name': assembly['api_functions'][i]['name'],
+                    'code': assembly['api_functions'][i]['code']
+                });
+            }
+            for (i = 0; i < assembly['jobs'].length; i++) {
+                saveAssembly['jobs'].push({
+                    'name': assembly['jobs'][i]['name'],
+                    'code': assembly['jobs'][i]['code'],
+                    'schedule': assembly['jobs'][i]['schedule']
+                });
+            }
+            var name = assembly['name'];
+            if (index < $scope.assembliesOnline.length) {
+                name = $scope.assembliesOnline[index].name;
+            }
+            Backend.saveAssembly(
+                Authenticate.getToken(),
+                name,
+                angular.toJson(saveAssembly)
+            ).success(function (data) {
+                if (angular.fromJson(data)['success']) {
+                    assembly.saveState = 'success';
+                    $scope.assembliesOnline[index] = angular.copy(assembly);
+                } else {
+                    assembly.saveState = 'failure';
+                }
+            })
         };
 
         // Initialization

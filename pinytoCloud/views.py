@@ -9,7 +9,7 @@ from Crypto.Random import get_random_bytes
 import json
 
 from service.response import json_response
-from pinytoCloud.models import User, StoredPublicKey, Session
+from pinytoCloud.models import User, StoredPublicKey, Session, Assembly, ApiFunction, Job
 from pinytoCloud.settings import PINYTO_KEY
 from pinytoCloud.project_path import project_path
 from pinytoCloud.checktoken import check_token
@@ -231,14 +231,115 @@ def list_own_assemblies(request):
                 'api_functions': [{
                     'name': api_function.name,
                     'code': api_function.code
-                } for api_function in assembly.api_functions],
+                } for api_function in assembly.api_functions.all()],
                 'jobs': [{
                     'name': job.name,
                     'code': job.code,
                     'schedule': job.schedule
-                } for job in assembly.jobs]
+                } for job in assembly.jobs.all()]
             })
         return json_response(own_assemblies)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def save_assembly(request):
+    """
+    Saves the assembly specified by its original name. This can be used to rename an assembly because the
+    original name and the one specified in the data could be different.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if 'original_name' in request.POST and 'data' in request.POST:
+            try:
+                assembly_data = json.loads(request.POST['data'])
+            except ValueError:
+                return json_response({'error': "The assembly data is not in valid JSON format."})
+            assembly_is_new = False
+            try:
+                assembly = session.user.assemblies.filter(name=request.POST['original_name']).all()[0]
+            except IndexError:
+                assembly_is_new = True
+                assembly = Assembly(author=session.user)
+            if not 'name' in assembly_data or not 'description' in assembly_data:
+                return json_response(
+                    {'error': "The assembly data lacks a name or description. Both attributes must be present."}
+                )
+            assembly.name = assembly_data['name']
+            assembly.description = assembly_data['description']
+            assembly.save()
+            if not 'api_functions' in assembly_data:
+                assembly_data['api_functions'] = []
+            if not 'jobs' in assembly_data:
+                assembly_data['jobs'] = []
+            for api_function in assembly.api_functions.all():
+                found = False
+                for loaded_function in assembly_data['api_functions']:
+                    if not 'name' in loaded_function or not 'code' in loaded_function:
+                        if assembly_is_new:
+                            assembly.delete()
+                        return json_response(
+                            {'error': "The assembly data lacks a name or code attribute in a api function."}
+                        )
+                    if api_function.name == loaded_function['name']:
+                        api_function.code = loaded_function['code']
+                        api_function.save()
+                        found = True
+                if not found:
+                    api_function.delete()
+            for loaded_function in assembly_data['api_functions']:
+                if not loaded_function['name'] in [x.name for x in assembly.api_functions.all()]:
+                    new_function = ApiFunction(
+                        assembly=assembly,
+                        name=loaded_function['name'],
+                        code=loaded_function['code']
+                    )
+                    new_function.save()
+            for job in assembly.jobs.all():
+                found = False
+                for loaded_job in assembly_data['jobs']:
+                    if not 'name' in loaded_job or not 'code' in loaded_job:
+                        if assembly_is_new:
+                            assembly.delete()
+                        return json_response(
+                            {'error': "The assembly data lacks a name or code attribute in a job."}
+                        )
+                    if 'schedule' in loaded_job:
+                        schedule = loaded_job['schedule']
+                    else:
+                        schedule = 0
+                    if job.name == loaded_job['name']:
+                        job.code = loaded_job['code']
+                        job.schedule = schedule
+                        job.save()
+                        found = True
+                if not found:
+                    job.delete()
+            for loaded_job in assembly_data['jobs']:
+                if not loaded_job['name'] in [x.name for x in assembly.jobs.all()]:
+                    if 'schedule' in loaded_job:
+                        schedule = loaded_job['schedule']
+                    else:
+                        schedule = 0
+                    new_job = Job(
+                        assembly=assembly,
+                        name=loaded_job['name'],
+                        code=loaded_job['code'],
+                        schedule=schedule
+                    )
+                    new_job.save()
+            assembly.save()
+            return json_response({'success': True})
+        else:
+            return json_response(
+                {'error': "You have to supply an original_name and the data of the new or changed assembly."}
+            )
     else:
         # session is not a session so it has to be response object with an error message
         return session
