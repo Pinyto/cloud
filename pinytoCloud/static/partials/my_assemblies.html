@@ -46,7 +46,10 @@
             <h2 style="margin-top: 0;">{{ assembly.name }}</h2>
             <p>
                 <label for="Assembly{{ $index }}NameInput" data-i18n="_assemblyNameLabel_">Assembly Name:</label>
-                <input id="Assembly{{ $index }}NameInput" type="text" ng-model="assembly.name" />
+                <input id="Assembly{{ $index }}NameInput" type="text"
+                       ng-class="{'error': !assemblyHasAName(assembly)}" ng-model="assembly.name" />
+                <span ng-hide="assemblyHasAName(assembly)" class="error-message" style="display: block;"
+                      data-i18n="_assemblyNameErrorMessage_"></span>
             </p>
             <label for="Assembly{{ $index }}DescriptionTextarea" data-i18n="_assemblyDescriptionLabel_">
                 Description:
@@ -58,7 +61,10 @@
                 <li ng-repeat="function in assembly.api_functions" style="margin-bottom: 1.5em;">
                     <label for="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name" data-i18n="_path_"></label>
                     /{{ getUserName() }}/{{ assembly.name }}/<input type="text" ng-model="function.name"
+                        ng-class="{'error': !apiFunctionHasAName(function)}"
                         id="Assembly{{ $parent.$index }}ApiFunction{{ $index }}Name" />
+                    <span ng-hide="apiFunctionHasAName(function)" class="error-message" style="display: block;"
+                          data-i18n="_apiFunctionNameErrorMessage_"></span>
                     <div class="trash-icon" ng-click="deleteApiFunction(assembly, $index)"
                          style="position: relative; top: 5px; float: right;"></div>
                     <br />
@@ -76,7 +82,10 @@
             <ul>
                 <li ng-repeat="job in assembly.jobs" style="margin-bottom: 1.5em;">
                     <label for="Assembly{{ $parent.$index }}Job{{ $index }}Name" data-i18n="_name_"></label>
-                    <input id="Assembly{{ $parent.$index }}Job{{ $index }}Name" type="text" ng-model="job.name" />
+                    <input id="Assembly{{ $parent.$index }}Job{{ $index }}Name" type="text" ng-model="job.name"
+                           ng-class="{'error': !jobHasAName(job)}" />
+                    <span ng-hide="jobHasAName(job)" class="error-message" style="display: block;"
+                          data-i18n="_jobNameErrorMessage_"></span>
                     <div class="trash-icon" ng-click="deleteJob(assembly, $index)"
                          style="position: relative; top: 5px; float: right;"></div>
                     <br />
@@ -84,11 +93,17 @@
                     <textarea ng-model="job.code" rows="10"
                               id="Assembly{{ $parent.$index }}Job{{ $index }}Code"
                               style="width: calc(100% - 6px); resize:vertical;"></textarea>
-                    Execute regularly:<input type="checkbox" ng-model="job.scheduleActivated" />
+                    <label for="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
+                           data-i18n="_executeRegularly_">Execute regularly:</label>
+                    <input type="checkbox" id="Assembly{{ $parent.$index }}Job{{ $index }}RegularCheckbox"
+                           ng-model="job.scheduleActivated" />
                     <div ng-show="job.scheduleActivated">
-                        Execute every
-                        <input type="number" ng-model="job.schedule" />
-                        Minutes.
+                        <label for="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
+                           data-i18n="_executeEvery_">Execute every</label>
+                        <input type="number" id="Assembly{{ $parent.$index }}Job{{ $index }}ScheduleLabel"
+                               style="max-width: 3em;"
+                               ng-model="job.schedule" />
+                        <span data-i18n="_executeEveryEndsentence_">Minutes.</span>
                     </div>
                 </li>
             </ul>

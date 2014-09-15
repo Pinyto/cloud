@@ -81,11 +81,21 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
         };
 
         $scope.assemblyHasAName = function (assembly) {
-            return assembly['name'].length > 0;
+            if (assembly['name'].length > 0) {
+                if (assembly['name'].match(/^[a-zA-Z0-9-_]+$/)) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         $scope.apiFunctionHasAName = function (apiFunction) {
-            return apiFunction['name'].length > 0;
+            if (apiFunction['name'].length > 0) {
+                if (apiFunction['name'].match(/^[a-zA-Z0-9-_]+$/)) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         $scope.assemblyApiFunctionsHaveDifferentNames = function (assembly) {
@@ -103,7 +113,12 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
         };
 
         $scope.jobHasAName = function (job) {
-            return job['name'].length > 0;
+            if (job['name'].length > 0) {
+                if (job['name'].match(/^[a-zA-Z0-9-_]+$/)) {
+                    return true;
+                }
+            }
+            return false;
         };
 
         $scope.assemblyJobsHaveDifferentNames = function (assembly) {

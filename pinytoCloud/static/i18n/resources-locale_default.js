@@ -303,5 +303,35 @@
         "key"        : "_saveAssembly_",
         "value"      : "save",
         "description": "Value of the save button at assemblies"
+    },
+    {
+        "key"        : "_assemblyNameErrorMessage_",
+        "value"      : "Assemblies must have a name which consists of letters, numbers, scores and underscores.",
+        "description": "This message is displayed next to the assembly name if the name is not valid"
+    },
+    {
+        "key"        : "_executeRegularly_",
+        "value"      : "Execute regularly:",
+        "description": "Label for the regularly checkbox"
+    },
+    {
+        "key"        : "_executeEvery_",
+        "value"      : "Execute every ",
+        "description": "Label for the schedule input"
+    },
+    {
+        "key"        : "_executeEveryEndsentence_",
+        "value"      : " Minutes.",
+        "description": "Label for the schedule input. This is the end of the sentence"
+    },
+    {
+        "key"        : "_apiFunctionNameErrorMessage_",
+        "value"      : "API functions must have a name which consists of letters, numbers, scores and underscores. The name of the API function is the last part of the path.",
+        "description": "This message is displayed next to the API function name if the name is not valid"
+    },
+    {
+        "key"        : "_jobNameErrorMessage_",
+        "value"      : "Jobs must have a name which consists of letters, numbers, scores and underscores.",
+        "description": "This message is displayed next to the job name if the name is not valid"
     }
 ]

@@ -303,5 +303,35 @@
         "key"        : "_saveAssembly_",
         "value"      : "Assembly speichern",
         "description": "Value of the save button at assemblies"
+    },
+    {
+        "key"        : "_assemblyNameErrorMessage_",
+        "value"      : "Der Name eines Assembly darf nicht leer sein und muss aus Buchstaben, Zahlen, Bindestrichen und Unterstrichen bestehen.",
+        "description": "This message is displayed next to the assembly name if the name is not valid"
+    },
+    {
+        "key"        : "_executeRegularly_",
+        "value"      : "Regelmäßig ausführen?:",
+        "description": "Label for the regularly checkbox"
+    },
+    {
+        "key"        : "_executeEvery_",
+        "value"      : "Alle ",
+        "description": "Label for the schedule input"
+    },
+    {
+        "key"        : "_executeEveryEndsentence_",
+        "value"      : " Minuten ausführen.",
+        "description": "Label for the schedule input. This is the end of the sentence"
+    },
+    {
+        "key"        : "_apiFunctionNameErrorMessage_",
+        "value"      : "API-Funktionen müssen einen Namen bestehend aus Buchstaben, Zahlen, Bindestrichen und Unterstrichen haben, der nicht leer ist. Der Name der API-Funktion ist der letzte Teil des Pfads.",
+        "description": "This message is displayed next to the API function name if the name is not valid"
+    },
+    {
+        "key"        : "_jobNameErrorMessage_",
+        "value"      : "Jobs müssen einen Namen bestehend aus Buchstaben, Zahlen, Bindestrichen und Unterstrichen haben, der nicht leer ist.",
+        "description": "This message is displayed next to the job name if the name is not valid"
     }
 ]
