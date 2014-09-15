@@ -116,3 +116,11 @@ th {
 .main-menu li, .tabs li {
     font-family: 'Merriweather Sans', Verdana, sans-serif;
 }
+
+button {
+    padding: 0.2em;
+}
+
+button.disabled {
+    color: gray;
+}

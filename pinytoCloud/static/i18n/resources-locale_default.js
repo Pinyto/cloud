@@ -298,5 +298,10 @@
         "key"        : "_addNewJob_",
         "value"      : "add a new Job",
         "description": "Label for the add new job plus"
+    },
+    {
+        "key"        : "_saveAssembly_",
+        "value"      : "save",
+        "description": "Value of the save button at assemblies"
     }
 ]
