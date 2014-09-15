@@ -155,7 +155,7 @@ class Assembly(models.Model):
     installed it automatically load the new version. A user may fork an assembly which creates
     an exact clone with the forking user as new author.
     """
-    name = models.CharField(max_length=42, primary_key=True)
+    name = models.CharField(max_length=42, unique=True)
     author = models.ForeignKey(User, related_name='assemblies')
     description = models.TextField()
 
