@@ -348,5 +348,15 @@
         "key"        : "_uninstall_",
         "value"      : "uninstall",
         "description": "Uninstall button value"
+    },
+    {
+        "key"        : "_backofficeInstalledAssemblies_",
+        "value"      : "Installed Assemblies",
+        "description": "Heading for the list of installed assemblies"
+    },
+    {
+        "key"        : "_backofficeAvailableAssemblies_",
+        "value"      : "Assemblies Available for Installation",
+        "description": "Heading for the list of installed assemblies"
     }
 ]
