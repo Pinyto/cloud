@@ -24,7 +24,6 @@ class User(models.Model):
     storage_budget = models.FloatField()
     current_storage = models.BigIntegerField()
     last_calculation_time = models.DateTimeField()
-    installed_assemblies = models.ManyToManyField(Assembly, related_name='installed_at')
 
     def __str__(self):
         return self.name
@@ -159,6 +158,7 @@ class Assembly(models.Model):
     name = models.CharField(max_length=42, unique=True)
     author = models.ForeignKey(User, related_name='assemblies')
     description = models.TextField()
+    installed_at = models.ManyToManyField(User, related_name='installed_assemblies')
 
     def __str__(self):
         return self.author.name + '/' + self.name

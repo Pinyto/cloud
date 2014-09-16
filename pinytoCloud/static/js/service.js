@@ -109,6 +109,22 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&name=' + name,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            listInstalledAssemsblies: function (token) {
+                return $http({
+                    method: "POST",
+                    url: '/list_installed_assemblies',
+                    data: 'token=' + token,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            listAllAssemsblies: function (token) {
+                return $http({
+                    method: "POST",
+                    url: '/list_all_assemblies',
+                    data: 'token=' + token,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

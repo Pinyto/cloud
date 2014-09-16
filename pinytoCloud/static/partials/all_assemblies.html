@@ -40,6 +40,24 @@
         <h1 data-i18n="_backofficeAllAssembliesHeading_">Assemblies</h1>
         <p data-i18n="_assemblyExplanation_"></p>
         <h2 data-i18n="_backofficeInstalledAssemblies_">Installed Assemblies</h2>
+        <ul>
+            <li ng-repeat="assembly in installedAssemblies"
+                style="list-style-type: none; border: 1px solid rgb(215, 215, 215); padding: 1em; margin-bottom: 1em;">
+                <h3>{{ assembly.author }}/{{ assembly.name }}</h3>
+                <p>{{ assembly.description }}</p>
+                <button class="red" data-i18n="_uninstall_" style="float: right;"></button>
+                <div style="clear: both;"></div>
+            </li>
+        </ul>
         <h2 data-i18n="_backofficeAvailableAssemblies_">Available Assemblies</h2>
+        <ul>
+            <li ng-repeat="assembly in availableAssemblies"
+                style="list-style-type: none; border: 1px solid rgb(215, 215, 215); padding: 1em; margin-bottom: 1em;">
+                <h3>{{ assembly.author }}/{{ assembly.name }}</h3>
+                <p>{{ assembly.description }}</p>
+                <button class="green" data-i18n="_install_" style="float: right;"></button>
+                <div style="clear: both;"></div>
+            </li>
+        </ul>
     </div>
 </div>

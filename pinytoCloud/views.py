@@ -371,3 +371,51 @@ def delete_assembly(request):
     else:
         # session is not a session so it has to be response object with an error message
         return session
+
+
+@csrf_exempt
+def list_installed_assemblies(request):
+    """
+    Returns a list of the assemblies the user marked as installed.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        installed_assemblies = []
+        for assembly in session.user.installed_assemblies.all():
+            installed_assemblies.append({
+                'name': assembly.name,
+                'author': assembly.author,
+                'description': assembly.description
+            })
+        return json_response(installed_assemblies)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def list_all_assemblies(request):
+    """
+    Returns a list of all assemblies.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        all_assemblies = []
+        for assembly in Assembly.objects.all():
+            all_assemblies.append({
+                'name': assembly.name,
+                'author': assembly.author.name,
+                'description': assembly.description
+            })
+        return json_response(all_assemblies)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
