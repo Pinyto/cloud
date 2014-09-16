@@ -24,6 +24,7 @@ class User(models.Model):
     storage_budget = models.FloatField()
     current_storage = models.BigIntegerField()
     last_calculation_time = models.DateTimeField()
+    installed_assemblies = models.ManyToManyField(Assembly, related_name='installed_at')
 
     def __str__(self):
         return self.name
