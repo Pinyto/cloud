@@ -358,5 +358,15 @@
         "key"        : "_backofficeAvailableAssemblies_",
         "value"      : "Assemblies Available for Installation",
         "description": "Heading for the list of installed assemblies"
+    },
+    {
+        "key"        : "_backofficeAllAssembliesHeading_",
+        "value"      : "Assemblies",
+        "description": "Heading for the list of installed and available assemblies"
+    },
+    {
+        "key"        : "_assemblyExplanation_",
+        "value"      : "Assemblies are the server components of your apps. Here you can activate and deactivate them by installing or uninstalling them. Apps using Pinyto will require the matching assemblies to be installed in order to work properly. There is a description for each assembly which explains what the assembly does and how it reads and manipulates your data. Please make sure not to install any assemblies which expose more of your private data than you want and make sure the assemblies also do not delete data you want to see preserved. You can check by displaying the source code of the assemblies. If you display the source code you can also fork the assembly to create your own modified version which fits your needs.",
+        "description": "Explanation for the list of installed and available assemblies"
     }
 ]
