@@ -338,5 +338,15 @@
         "key"        : "_deleteAssembly_",
         "value"      : "delete this Assembly",
         "description": "Label for the delete assembly icon"
+    },
+    {
+        "key"        : "_install_",
+        "value"      : "install",
+        "description": "Install button value"
+    },
+    {
+        "key"        : "_uninstall_",
+        "value"      : "uninstall",
+        "description": "Uninstall button value"
     }
 ]
