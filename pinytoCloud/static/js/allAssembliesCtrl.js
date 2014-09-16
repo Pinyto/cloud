@@ -1,7 +1,7 @@
 'use strict';
 
 pinytoWebApp.controller('PinytoAllAssembliesCtrl',
-    function ($scope, $rootScope, Backend, Authenticate, $routeParams) {
+    function ($scope, $rootScope, Backend, Authenticate) {
     // Function Definitions
 
 
