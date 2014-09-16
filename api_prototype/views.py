@@ -67,7 +67,7 @@ def api_call(request, user_name, assembly_name, function_name):
             return HttpResponse(response, content_type='application/json')
     # If we reach this point the api_class was found but the function was not defined in the class.
     # So we try to load this code from the database.
-    return load_api(session, assembly_user, assembly_name, function_name)
+    return load_api(request, session, assembly_user, assembly_name, function_name)
 
 
 def load_api(request, session, assembly_user, assembly_name, function_name):
