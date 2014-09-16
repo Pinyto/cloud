@@ -45,7 +45,8 @@
                 style="list-style-type: none; border: 1px solid rgb(215, 215, 215); padding: 1em; margin-bottom: 1em;">
                 <h3>{{ assembly.author }}/{{ assembly.name }}</h3>
                 <p>{{ assembly.description }}</p>
-                <button class="red" data-i18n="_uninstall_" style="float: right;"></button>
+                <button class="red" data-i18n="_uninstall_" style="float: right;"
+                        ng-hide="assembly.uninstallState" ng-click="uninstallAssembly(assembly)"></button>
                 <div style="clear: both;"></div>
             </li>
         </ul>
@@ -55,7 +56,8 @@
                 style="list-style-type: none; border: 1px solid rgb(215, 215, 215); padding: 1em; margin-bottom: 1em;">
                 <h3>{{ assembly.author }}/{{ assembly.name }}</h3>
                 <p>{{ assembly.description }}</p>
-                <button class="green" data-i18n="_install_" style="float: right;"></button>
+                <button class="green" data-i18n="_install_" style="float: right;"
+                        ng-hide="assembly.installState" ng-click="installAssembly(assembly)"></button>
                 <div style="clear: both;"></div>
             </li>
         </ul>

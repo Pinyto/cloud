@@ -388,7 +388,7 @@ def list_installed_assemblies(request):
         for assembly in session.user.installed_assemblies.all():
             installed_assemblies.append({
                 'name': assembly.name,
-                'author': assembly.author,
+                'author': assembly.author.name,
                 'description': assembly.description
             })
         return json_response(installed_assemblies)
@@ -416,6 +416,81 @@ def list_all_assemblies(request):
                 'description': assembly.description
             })
         return json_response(all_assemblies)
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def install_assembly(request):
+    """
+    Adds the assembly specified by author and name to the installed assemblies of the user.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if 'author' in request.POST:
+            try:
+                author = User.objects.filter(name=request.POST['author']).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "There was no user found with the name " + request.POST['author'] + "."}
+                )
+        else:
+            return json_response(
+                {'error': "You have to supply an author to install an assembly."}
+            )
+        if 'name' in request.POST:
+            try:
+                assembly = author.assemblies.filter(name=request.POST['name']).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "There was no assembly found with the name " + request.POST['author'] + "/" +
+                              request.POST['name'] + "."}
+                )
+        else:
+            return json_response(
+                {'error': "You have to supply the name of the assembly you want to install."}
+            )
+        session.user.installed_assemblies.add(assembly)
+        return json_response({'success': True})
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
+def uninstall_assembly(request):
+    """
+    Removes the assembly specified by author and name from the installed assemblies of the user.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if 'author' in request.POST and 'name' in request.POST:
+            try:
+                assembly = session.user.installed_assemblies.filter(
+                    author__name=request.POST['author']
+                ).filter(
+                    name=request.POST['name']
+                ).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "There was no installed assembly found with the name " + request.POST['author'] +
+                              "/" + request.POST['name'] + "."}
+                )
+        else:
+            return json_response(
+                {'error': "You have to supply an author and a name to uninstall an assembly."}
+            )
+        session.user.installed_assemblies.remove(assembly)
+        return json_response({'success': True})
     else:
         # session is not a session so it has to be response object with an error message
         return session

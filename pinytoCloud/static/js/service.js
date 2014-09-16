@@ -125,6 +125,22 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            installAssembly: function (token, author, name) {
+                return $http({
+                    method: "POST",
+                    url: '/install_assembly',
+                    data: 'token=' + token + '&author=' + author + '&name=' + name,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            uninstallAssembly: function (token, author, name) {
+                return $http({
+                    method: "POST",
+                    url: '/uninstall_assembly',
+                    data: 'token=' + token + '&author=' + author + '&name=' + name,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })
