@@ -146,6 +146,16 @@ button.disabled {
     background-color: rgb(80, 80, 80);
 }
 
+button.green {
+    background-color: rgb(5, 96, 0);
+    color: rgb(220, 220, 220);
+}
+
+button.red {
+    background-color: rgb(219, 0, 6);
+    color: rgb(220, 220, 220);
+}
+
 .error-message {
     color: rgb(219, 0, 6);
     font-size: 10pt;
