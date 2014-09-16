@@ -19,7 +19,8 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
                 'name': "",
                 'description': "",
                 'api_functions': [],
-                'jobs': []
+                'jobs': [],
+                'show': true
             });
         };
 
