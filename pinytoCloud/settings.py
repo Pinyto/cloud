@@ -140,8 +140,8 @@ INSTALLED_APPS = (
     'database',
     'api_prototype',
     'service',
-    'pinyto_DocumentsAdmin'
-    'bborsalino_Librarian'
+    'api.pinyto_DocumentsAdmin',
+    'api.bborsalino_Librarian'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

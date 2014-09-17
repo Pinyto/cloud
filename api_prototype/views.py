@@ -48,7 +48,10 @@ def api_call(request, user_name, assembly_name, function_name):
         )
     # Try to load statically defined api functions.
     try:
-        api_class = getattr(__import__('api.' + user_name, fromlist=[assembly_name]), assembly_name)
+        api_class = getattr(__import__(
+            'api.' + user_name + '_' + assembly_name + '.assembly',
+            fromlist=[assembly_name]
+        ), assembly_name)
     except ImportError:
         # There is no statically defined api function for this call. Proceed to
         # loading the code from the database and executing it in the sandbox.
