@@ -368,5 +368,20 @@
         "key"        : "_assemblyExplanation_",
         "value"      : "Assemblies sind die Serverkomponenten deiner Apps die auf Pinyto aufbauen. Damit die Apps korrekt funktionieren können, müssen die passenden Assemblies installiert sein. Du kannst Assemblies hier installieren und deinstallieren (auch eigene Assembiles). Jedes Assembly hat eine Beschreibung, die dir Auskunft darüber gibt, was das Assembly macht, welche deiner Daten es dafür liest und welche Daten es manipuliert. Du musst sicher stellen, dass du kein Assembly installierst, das zu viel deiner Daten veröffentlicht oder Daten löscht die du behalten möchtest. Um das zu tun, kannst du von jedem Assembly den Quelltext einsehen. Dort gibt es auch die Möglichkeit das Assembly zu forken, um eine eigene, modifizierte Version des Assembly anzulegen.",
         "description": "Explanation for the list of installed and available assemblies"
+    },
+    {
+        "key"        : "_loadAssemblySourcecode_",
+        "value"      : "Quelltext laden und anzeigen",
+        "description": "Button text for loading sources"
+    },
+    {
+        "key"        : "_displaySourceLink_",
+        "value"      : "Quelltext anzeigen",
+        "description": "Link text for displaying sources"
+    },
+    {
+        "key"        : "_hideSourceLink_",
+        "value"      : "Quelltext ausblenden",
+        "description": "Link text for hiding sources"
     }
 ]
