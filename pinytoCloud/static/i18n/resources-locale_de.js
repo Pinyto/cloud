@@ -383,5 +383,10 @@
         "key"        : "_hideSourceLink_",
         "value"      : "Quelltext ausblenden",
         "description": "Link text for hiding sources"
+    },
+    {
+        "key"        : "_loadingSourceCode_",
+        "value"      : "Der Quelltext dieses Assemblies wird im Moment vom Server geladen.",
+        "description": "Explanation that the source code is being loaded at the moment"
     }
 ]

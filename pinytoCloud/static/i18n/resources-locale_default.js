@@ -383,5 +383,10 @@
         "key"        : "_hideSourceLink_",
         "value"      : "hide the source code",
         "description": "Link text for hiding sources"
+    },
+    {
+        "key"        : "_loadingSourceCode_",
+        "value"      : "Loading the source code of this assembly from the server. It will arrive any second.",
+        "description": "Explanation that the source code is being loaded at the moment"
     }
 ]
