@@ -8,7 +8,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.response import json_response
 from pinytoCloud.checktoken import check_token
-from pinytoCloud.models import Session
+from pinytoCloud.models import Session, Assembly
 from datetime import datetime
 from database.helpers import get_tags, get_str_or_discard
 import json
@@ -70,7 +70,9 @@ def statistics(request):
             'last_calculation': (
                 session.user.last_calculation_time - datetime.fromtimestamp(0, pytz.utc)
             ).total_seconds() * 1000,
-            'assembly_count': session.user.assemblies.count()
+            'assembly_count': session.user.assemblies.count(),
+            'installed_assemblies_count': session.user.installed_assemblies.count(),
+            'all_assemblies_count': Assembly.objects.count()
         })
     else:
         # session is not a session so it has to be response object with an error message
