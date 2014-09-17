@@ -141,6 +141,14 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&author=' + author + '&name=' + name,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            getAssemblySource: function (token, author, name) {
+                return $http({
+                    method: "POST",
+                    url: '/get_assembly_source',
+                    data: 'token=' + token + '&author=' + author + '&name=' + name,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

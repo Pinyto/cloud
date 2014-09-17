@@ -20,6 +20,7 @@ urlpatterns = patterns(
     url(r'^list_all_assemblies$', 'list_all_assemblies', name='list_all_assemblies'),
     url(r'^install_assembly$', 'install_assembly', name='install_assembly'),
     url(r'^uninstall_assembly$', 'uninstall_assembly', name='uninstall_assembly'),
+    url(r'^get_assembly_source$', 'get_assembly_source', name='get_assembly_source'),
 )
 
 urlpatterns += patterns(

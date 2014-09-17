@@ -4,6 +4,10 @@ pinytoWebApp.controller(
     'PinytoAllAssembliesCtrl',
     function ($scope, $rootScope, Backend, Authenticate) {
         // Function Definitions
+        $scope.getUserName = function () {
+            return Authenticate.getUsername();
+        };
+
         $scope.getAssemblies = function () {
             var calculateAvailableAssemblies = function () {
                 $scope.availableAssemblies = angular.copy($scope.allAssemblies);
@@ -43,7 +47,11 @@ pinytoWebApp.controller(
                         $scope.installedAssemblies.push({
                             'name': assembly['name'],
                             'author': assembly['author'],
-                            'description': assembly['description']
+                            'description': assembly['description'],
+                            'api_functions': assembly['api_functions'],
+                            'jobs': assembly['jobs'],
+                            'sourceCodeLoadState': assembly['sourceCodeLoadState'],
+                            'showSource': (assembly['description'] && assembly['api_functions']) ? false : undefined
                         })
                     }
                     if ($scope.availableAssemblies) {
@@ -73,7 +81,11 @@ pinytoWebApp.controller(
                         $scope.availableAssemblies.push({
                             'name': assembly['name'],
                             'author': assembly['author'],
-                            'description': assembly['description']
+                            'description': assembly['description'],
+                            'api_functions': assembly['api_functions'],
+                            'jobs': assembly['jobs'],
+                            'sourceCodeLoadState': assembly['sourceCodeLoadState'],
+                            'showSource': (assembly['description'] && assembly['api_functions']) ? false : undefined
                         })
                     }
                     if ($scope.installedAssemblies) {
@@ -86,6 +98,25 @@ pinytoWebApp.controller(
                     }
                 } else {
                     assembly.uninstallState = 'error';
+                }
+            });
+        };
+
+        $scope.getAssemblySource = function (assembly) {
+            assembly.sourceCodeLoadState = 'pending';
+            Backend.getAssemblySource(
+                Authenticate.getToken(),
+                assembly.author,
+                assembly.name
+            ).success(function (data) {
+                var codeData = angular.fromJson(data);
+                if (codeData['api_functions'] && codeData['jobs']) {
+                    assembly['api_functions'] = codeData['api_functions'];
+                    assembly['jobs'] = codeData['jobs'];
+                    assembly.sourceCodeLoadState = 'loaded';
+                    assembly.showSource = true;
+                } else {
+                    assembly.sourceCodeLoadState = 'error';
                 }
             });
         };

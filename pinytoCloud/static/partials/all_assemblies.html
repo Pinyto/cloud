@@ -48,6 +48,49 @@
                 <button class="red" data-i18n="_uninstall_" style="float: right;"
                         ng-hide="assembly.uninstallState" ng-click="uninstallAssembly(assembly)"></button>
                 <div style="clear: both;"></div>
+                <button ng-click="getAssemblySource(assembly)" data-i18n="_loadAssemblySourcecode_"
+                        ng-hide="assembly.sourceCodeLoadState"></button>
+                <div class="expand-icon" ng-click="assembly.showSource = !assembly.showSource"
+                     ng-show="assembly.sourceCodeLoadState"
+                     style="position: relative; top: 3px; float: left; margin-right: 0.5em; display: inline-block;"
+                     ng-style="{'backgroundPosition': assembly.showSource ? '-20px 0' : '0 0'}"></div>
+                <a ng-show="assembly.sourceCodeLoadState && !assembly.showSource"
+                   ng-click="assembly.showSource = true"
+                   data-i18n="_displaySourceLink_" style="cursor: pointer;"></a>
+                <a ng-show="assembly.sourceCodeLoadState && assembly.showSource"
+                   ng-click="assembly.showSource = false"
+                   data-i18n="_hideSourceLink_" style="cursor: pointer;"></a>
+                <div ng-show="assembly.sourceCodeLoadState && assembly.showSource">
+                    <p ng-show="assembly.sourceCodeLoadState == 'pending'" data-i18n="_loadingSourceCode_"></p>
+                    <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
+                    <ul>
+                        <li ng-repeat="function in assembly.api_functions" style="margin-bottom: 1.5em;">
+                            <span data-i18n="_path_"></span>
+                            /{{ getUserName() }}/{{ assembly.name }}/{{ function.name }}
+                            <br />
+                            <label for="InstalledAssembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                                   data-i18n="_code_"></label>
+                            <textarea ng-model="function.code" rows="10" disabled
+                                      id="InstalledAssembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                                      style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                        </li>
+                    </ul>
+                    <h3 data-i18n="_jobsHeading_">Jobs</h3>
+                    <ul>
+                        <li ng-repeat="job in assembly.jobs" style="margin-bottom: 1.5em;">
+                            {{ job.name }}
+                            <br />
+                            <label for="InstalledAssembly{{ $parent.$index }}Job{{ $index }}Code"
+                                   data-i18n="_code_"></label>
+                            <textarea ng-model="job.code" rows="10" disabled
+                                      id="InstalledAssembly{{ $parent.$index }}Job{{ $index }}Code"
+                                      style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                            <span data-i18n="_executeEvery_">Execute every</span>
+                            {{ job.schedule }}
+                            <span data-i18n="_executeEveryEndsentence_">Minutes.</span>
+                        </li>
+                    </ul>
+                </div>
             </li>
         </ul>
         <h2 data-i18n="_backofficeAvailableAssemblies_">Available Assemblies</h2>
@@ -59,6 +102,49 @@
                 <button class="green" data-i18n="_install_" style="float: right;"
                         ng-hide="assembly.installState" ng-click="installAssembly(assembly)"></button>
                 <div style="clear: both;"></div>
+                <button ng-click="getAssemblySource(assembly)" data-i18n="_loadAssemblySourcecode_"
+                        ng-hide="assembly.sourceCodeLoadState"></button>
+                <div class="expand-icon" ng-click="assembly.showSource = !assembly.showSource"
+                     ng-show="assembly.sourceCodeLoadState"
+                     style="position: relative; top: 3px; float: left; margin-right: 0.5em; display: inline-block;"
+                     ng-style="{'backgroundPosition': assembly.showSource ? '-20px 0' : '0 0'}"></div>
+                <a ng-show="assembly.sourceCodeLoadState && !assembly.showSource"
+                   ng-click="assembly.showSource = true"
+                   data-i18n="_displaySourceLink_" style="cursor: pointer;"></a>
+                <a ng-show="assembly.sourceCodeLoadState && assembly.showSource"
+                   ng-click="assembly.showSource = false"
+                   data-i18n="_hideSourceLink_" style="cursor: pointer;"></a>
+                <div ng-show="assembly.sourceCodeLoadState && assembly.showSource">
+                    <p ng-show="assembly.sourceCodeLoadState == 'pending'" data-i18n="_loadingSourceCode_"></p>
+                    <h3 data-i18n="_apiFunctionsHeading_">API Functions</h3>
+                    <ul>
+                        <li ng-repeat="function in assembly.api_functions" style="margin-bottom: 1.5em;">
+                            <span data-i18n="_path_"></span>
+                            /{{ getUserName() }}/{{ assembly.name }}/{{ function.name }}
+                            <br />
+                            <label for="AvailableAssembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                                   data-i18n="_code_"></label>
+                            <textarea ng-model="function.code" rows="10" disabled
+                                      id="AvailableAssembly{{ $parent.$index }}ApiFunction{{ $index }}Code"
+                                      style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                        </li>
+                    </ul>
+                    <h3 data-i18n="_jobsHeading_">Jobs</h3>
+                    <ul>
+                        <li ng-repeat="job in assembly.jobs" style="margin-bottom: 1.5em;">
+                            {{ job.name }}
+                            <br />
+                            <label for="AvailableAssembly{{ $parent.$index }}Job{{ $index }}Code"
+                                   data-i18n="_code_"></label>
+                            <textarea ng-model="job.code" rows="10" disabled
+                                      id="AvailableAssembly{{ $parent.$index }}Job{{ $index }}Code"
+                                      style="width: calc(100% - 6px); resize:vertical;"></textarea>
+                            <span data-i18n="_executeEvery_">Execute every</span>
+                            {{ job.schedule }}
+                            <span data-i18n="_executeEveryEndsentence_">Minutes.</span>
+                        </li>
+                    </ul>
+                </div>
             </li>
         </ul>
     </div>

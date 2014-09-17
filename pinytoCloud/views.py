@@ -494,3 +494,53 @@ def uninstall_assembly(request):
     else:
         # session is not a session so it has to be response object with an error message
         return session
+
+
+@csrf_exempt
+def get_assembly_source(request):
+    """
+    Fetches the sourcecode of the assebly specified by author and name.
+
+    @param request: Django request
+    @return: json
+    """
+    session = check_token(request.POST.get('token'))
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        if 'author' in request.POST:
+            try:
+                author = User.objects.filter(name=request.POST['author']).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "There was no user found with the name " + request.POST['author'] + "."}
+                )
+        else:
+            return json_response(
+                {'error': "You have to supply an author to identify the assembly."}
+            )
+        if 'name' in request.POST:
+            try:
+                assembly = author.assemblies.filter(name=request.POST['name']).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "There was no assembly found with the name " + request.POST['author'] + "/" +
+                              request.POST['name'] + "."}
+                )
+        else:
+            return json_response(
+                {'error': "You have to supply the name of the assembly."}
+            )
+        return json_response({
+            'api_functions': [{
+                'name': f.name,
+                'code': f.code
+            } for f in assembly.api_functions.all()],
+            'jobs': [{
+                'name': f.name,
+                'code': f.code,
+                'schedule': f.schedule
+            } for f in assembly.jobs.all()]
+        })
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
