@@ -129,7 +129,7 @@ input.error {
     background-color: rgb(254, 68, 73);
 }
 
-button {
+button, input[type=submit] {
     border: 0 solid black;
     padding: 0.5em;
     background-color: rgb(5, 96, 0);
