@@ -140,7 +140,7 @@ INSTALLED_APPS = (
     'database',
     'api_prototype',
     'service',
-    'api'
+    'bborsalino_Librarian'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

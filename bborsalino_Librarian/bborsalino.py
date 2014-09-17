@@ -255,7 +255,8 @@ class Librarian():
                          'summary': "Vollanzeige des Suchergebnises"}},
                     # They have a typo here!
                     {'tag': 'tr'}
-                ], {'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},
+                ], {
+                    'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},
                     'title': {'search tag': 'td',
                               'captions': [
                                   'Mehrteiliges Werk',
