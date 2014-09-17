@@ -1,0 +1,58 @@
+[
+    {
+        "model": "pinytoCloud.User",
+        "pk": "pinyto",
+        "fields": {
+            "time_budget": 0.0,
+            "last_calculation_time": "2014-09-16T15:47:14.357Z",
+            "current_storage": 0,
+            "storage_budget": 0.0
+        }
+    },
+    {
+        "model": "pinytoCloud.Assembly",
+        "pk": 1,
+        "fields": {
+            "name": "DocumentsAdmin",
+            "author": "pinyto",
+            "description": "Dieses Assembly gewährt dem Admin-Interface vollen zugriff auf alle Dokumente in der Datenbank. Da dieses Assembly auf alle Daten zugreifen kann, sollte es nur mit großer Vorsicht eingesetzt werden. Ist es nicht installiert, können jedoch über das Admin-Interface keine Daten in der Datenbank manipuliert werden.",
+            "installed_at": []
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 1,
+        "fields": {
+            "name": "index",
+            "code": "",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 2,
+        "fields": {
+            "name": "load",
+            "code": "",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 3,
+        "fields": {
+            "name": "save",
+            "code": "",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 4,
+        "fields": {
+            "name": "delete",
+            "code": "",
+            "assembly": 1
+        }
+    }
+]
