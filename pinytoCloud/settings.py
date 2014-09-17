@@ -139,7 +139,8 @@ INSTALLED_APPS = (
     'keyserver',
     'database',
     'api_prototype',
-    'service'
+    'service',
+    'api'
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

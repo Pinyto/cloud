@@ -1,0 +1,95 @@
+[
+    {
+        "model": "pinytoCloud.User",
+        "pk": "bborsalino",
+        "fields": {
+            "time_budget": 0.0,
+            "last_calculation_time": "2014-09-16T15:47:14.357Z",
+            "current_storage": 0,
+            "storage_budget": 0.0
+        }
+    },
+    {
+        "model": "pinytoCloud.Assembly",
+        "pk": 1,
+        "fields": {
+            "name": "Librarian",
+            "author": "bborsalino",
+            "description": "Dies ist eine Bibliotheksverwaltung. Sie speichert Dokumente mit type=book in der Datenbank und lässt dich diese Datensätze leicht erstellen, bearbeiten und löschen. Der große Plusnpunkt dieses Systems ist der complete-Job, der Bücher bei denen nur ISBN oder EAN angegeben sind automatisch beim Online-Katalog der deutschen Nationalbibliothek nachschlägt und mit den Informationen von dort den Datensatz verkomplettiert.",
+            "installed_at": []
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 1,
+        "fields": {
+            "name": "index",
+            "code": "ean = request.POST.get('ean')\nisbn = request.POST.get('isbn')\nif ean:\n    books = db.find({'type': 'book', 'data.ean': ean}, 42)\nelif isbn:\n    books = db.find({'type': 'book', 'data.isbn': isbn}, 42)\nelse:\n    books = db.find({'type': 'book'}, 42)\nreturn json.dumps({'index': books})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 2,
+        "fields": {
+            "name": "search",
+            "code": "search_string = request.POST.get('searchstring')\nbooks = db.find({'type': 'book',\n                 'data': {'$exists': True},\n                 '$or': [\n                     {'data.title': {'$regex': search_string, '$options': 'i'}},\n                     {'data.uniform_title': {'$regex': search_string, '$options': 'i'}},\n                     {'data.publisher': {'$regex': search_string, '$options': 'i'}},\n                     {'data.year': {'$regex': search_string, '$options': 'i'}},\n                     {'data.category': {'$regex': search_string, '$options': 'i'}},\n                     {'data.author': {'$regex': search_string, '$options': 'i'}}\n                 ]}, 42)\nreturn json.dumps({'index': books})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 3,
+        "fields": {
+            "name": "update",
+            "code": "try:\n    book_data = json.loads(request.POST['book'])\nexcept IndexError:\n    return json.dumps({'error': 'You have to supply a book to update.'})\nexcept ValueError:\n    return json.dumps({'error': 'The data you supplied is not valid json.'})\nif not 'type' in book_data:\n    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})\nif book_data['type'] != 'book':\n    return json.dumps({'error': 'This is not a book.'})\nif not '_id' in book_data:\n    return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})\nbook = db.find_document_for_id(book_data['_id'])\nif not book:  # there was an error\n    return json.dumps({'error': 'There is no book with this ID which could be updated.'})\nfor key in book_data['data']:\n    book['data'][key] = book_data['data'][key]\ndb.save(book)\nreturn json.dumps({'success': True})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 4,
+        "fields": {
+            "name": "update_all",
+            "code": "try:\n    book_data = json.loads(request.POST['book'])\nexcept IndexError:\n    return json.dumps({'error': 'You have to supply a book to update.'})\nexcept ValueError:\n    return json.dumps({'error': 'The data you supplied is not valid json.'})\nif not 'type' in book_data:\n    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})\nif book_data['type'] != 'book':\n    return json.dumps({'error': 'This is not a book.'})\nif 'isbn' in book_data['data']:\n    books = list(db.find_documents({'type': 'book',\n                                    'data': {'$exists': True},\n                                    'data.isbn': book_data['data']['isbn']}))\nelif 'ean' in book_data['data']:\n    books = list(db.find_documents({'type': 'book',\n                                    'data': {'$exists': True},\n                                    'data.ean': book_data['data']['ean']}))\nelse:\n    books = []\nif not books:  # there was an error\n    return json.dumps({'error': 'There are no books with this ISBN or EAN which could be updated.'})\nfor key in book_data['data']:\n    for book in books:\n        book['data'][key] = book_data['data'][key]\nfor book in books:\n    db.save(book)\nreturn json.dumps({'success': True})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 5,
+        "fields": {
+            "name": "duplicate",
+            "code": "try:\n    book_data = json.loads(request.POST['book'])\nexcept IndexError:\n    return json.dumps({'error': 'You have to supply a book to duplicate.'})\nexcept ValueError:\n    return json.dumps({'error': 'The data you supplied is not valid json.'})\nif book_data['type'] != 'book':\n    return json.dumps({'error': 'This is not a book.'})\nif not '_id' in book_data:\n    return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})\nbook = db.find_document_for_id(book_data['_id'])\nif not book:  # there was an error\n    return json.dumps({'error': 'There is no book with this ID which could be updated.'})\nfor key in book_data['data']:\n    book['data'][key] = book_data['data'][key]\ndb.insert(book)\nreturn json.dumps({'success': True})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 6,
+        "fields": {
+            "name": "remove",
+            "code": "try:\n    book_data = json.loads(request.POST['book'])\nexcept IndexError:\n    return json.dumps({'error': 'You have to supply a book to remove.'})\nexcept ValueError:\n    return json.dumps({'error': 'The data you supplied is not valid json.'})\nif book_data['type'] != 'book':\n    return json.dumps({'error': 'This is not a book.'})\nif not '_id' in book_data:\n    return json.dumps({'error': 'You have to specify an _id to identify the book you want to remove.'})\nbook = db.find_document_for_id(book_data['_id'])\nif not book:  # there was an error\n    return json.dumps({'error': 'There is no book with this ID which could be deleted.'})\ndb.remove(book)\nreturn json.dumps({'success': True})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 7,
+        "fields": {
+            "name": "statistics",
+            "code": "return json.dumps({\n    'book_count': db.count({'type': 'book'}),\n    'places_used': db.find_distinct(\n        {'type': 'book', 'data': {'$exists': True}}, 'data.place'),\n    'lent_count': db.count({'type': 'book',\n                            'data': {'$exists': True},\n                            'data.lent': {'$exists': True, '$ne': ''}})\n})",
+            "assembly": 1
+        }
+    },
+    {
+        "model": "pinytoCloud.Job",
+        "pk": 1,
+        "fields": {
+            "name": "job_complete_data_by_asking_dnb",
+            "code": "incomplete_books = db.find_documents({'type': 'book',\n                                      'data': {'$exists': True},\n                                      '$or': [\n                                          {'data.author': {'$exists': False}},\n                                          {'data.title': {'$exists': False}},\n                                          {'data.uniform_title': {'$exists': False}},\n                                          {'data.isbn': {'$exists': False}},\n                                          {'data.ean': {'$exists': False}}\n                                      ]})\nhttps = factory.create('Https')\nfor book in incomplete_books:\n    query = ''\n    if 'isbn' in book['data']:\n        query = book['data']['isbn']\n    if 'ean' in book['data']:\n        query = book['data']['ean']\n    content = https.get('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')\n    if not content:\n        continue\n    soup = factory.create('ParseHtml', content)\n    if not soup.contains([\n        {'tag': 'table',\n         'attrs': {'summary': 'Vollanzeige des Suchergebnises'}}  # They have a typo here!\n    ]):\n        # we probably found a list of results. lets check for that\n        link = soup.find_element_and_get_attribute_value(\n            [{'tag': 'table', 'attrs': {'summary': 'Suchergebnis'}},  # They have a typo here too!\n             {'tag': 'a'}],\n            'href')\n        if link:\n            content = https.get('portal.dnb.de', link)\n            soup = factory.create('ParseHtml', content)\n    parsed = soup.find_element_and_collect_table_like_information(\n        [\n            {'tag': 'table',\n             'attrs': {\n                 'summary': 'Vollanzeige des Suchergebnises'}},\n            # They have a typo here!\n            {'tag': 'tr'}\n        ], {'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},\n            'title': {'search tag': 'td',\n                      'captions': [\n                          'Mehrteiliges Werk',\n                          'Titel',\n                          'Titel/Bezeichnung'],\n                      'content tag': 'td'},\n            'uniform title': {'search tag': 'td', 'captions': ['Einheitssachtitel'], 'content tag': 'td'},\n            'year': {'search tag': 'td', 'captions': ['Erscheinungsjahr'], 'content tag': 'td'},\n            'languages': {'search tag': 'td', 'captions': ['Sprache(n)'], 'content tag': 'td'},\n            'category': {'search tag': 'td', 'captions': ['Sachgruppe(n)'], 'content tag': 'td'},\n            'publisher': {'search tag': 'td', 'captions': ['Verleger'], 'content tag': 'td'},\n            'edition': {'search tag': 'td', 'captions': ['Ausgabe'], 'content tag': 'td'},\n            'isbn': {'search tag': 'td', 'captions': ['ISBN/Einband/Preis'], 'content tag': 'td'},\n            'ean': {'search tag': 'td', 'captions': ['EAN'], 'content tag': 'td'}\n        }\n    )\n    for key in parsed:\n        if not key in book['data']:\n            book['data'][key] = parsed[key]\n    db.save(book)",
+            "schedule": 0,
+            "assembly": 1
+        }
+    }
+]
