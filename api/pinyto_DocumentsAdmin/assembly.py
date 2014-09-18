@@ -34,10 +34,10 @@ class DocumentsAdmin():
         except ValueError:
             return json.dumps({'error': 'The count you supplied is not a number.'})
         try:
-            query = json.loads(request.Post.get('query', '{}'))
+            query = json.loads(request.POST.get('query', '{}'))
         except ValueError:
             return json.dumps({'error': 'The search param is not in valid JSON format.'})
-        return json.dumps({'result': db.find(query=query, skip=skip, count=count)})
+        return json.dumps({'result': db.find(query=query, skip=skip, limit=count)})
 
     @staticmethod
     def save(request, db, factory):

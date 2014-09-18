@@ -53,6 +53,11 @@
                      ng-click="addAttribute(localDocument)"></div>
                 <a ng-click="addAttribute(localDocument)" data-i18n="_addAttribute_"
                    style="cursor: pointer;"></a>
+                <button ng-click="saveDocument(localDocument)" ng-show="documentChanged($index)"
+                        ng-class="{'disabled': !documentIsValid(localDocument)}"
+                        style="float: right;"
+                        data-i18n="_saveDocument_"></button>
+                <div style="clear: both;"></div>
             </li>
         </ul>
         <div>

@@ -150,7 +150,7 @@ angular.module('PinytoWebServices', [])
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
             },
-            searchDocument: function (token, query, skip, limit) {
+            searchDocuments: function (token, query, skip, limit) {
                 var params = '';
                 if (limit) {
                     params = '&limit=' + limit + params;
