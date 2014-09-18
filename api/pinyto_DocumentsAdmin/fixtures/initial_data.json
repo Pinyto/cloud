@@ -23,7 +23,7 @@
         "model": "pinytoCloud.ApiFunction",
         "pk": 1,
         "fields": {
-            "name": "index",
+            "name": "search",
             "code": "",
             "assembly": 1
         }
@@ -32,15 +32,6 @@
         "model": "pinytoCloud.ApiFunction",
         "pk": 2,
         "fields": {
-            "name": "load",
-            "code": "",
-            "assembly": 1
-        }
-    },
-    {
-        "model": "pinytoCloud.ApiFunction",
-        "pk": 3,
-        "fields": {
             "name": "save",
             "code": "",
             "assembly": 1
@@ -48,7 +39,7 @@
     },
     {
         "model": "pinytoCloud.ApiFunction",
-        "pk": 4,
+        "pk": 3,
         "fields": {
             "name": "delete",
             "code": "",

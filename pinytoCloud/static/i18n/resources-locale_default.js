@@ -388,5 +388,25 @@
         "key"        : "_loadingSourceCode_",
         "value"      : "Loading the source code of this assembly from the server. It will arrive any second.",
         "description": "Explanation that the source code is being loaded at the moment"
+    },
+    {
+        "key"        : "_backofficeViewDataHeading_",
+        "value"      : "My Data",
+        "description": "Heading for the view data tab in the backoffice"
+    },
+    {
+        "key"        : "_documents_",
+        "value"      : "Documents",
+        "description": "Heading for the list of documents"
+    },
+    {
+        "key"        : "_addNewDocument_",
+        "value"      : "create a new document",
+        "description": "Link text next to the create new document icon"
+    },
+    {
+        "key"        : "_addAttribute_",
+        "value"      : "add an attribute",
+        "description": "Link text next to the create new attribute icon"
     }
 ]

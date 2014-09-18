@@ -15,19 +15,26 @@ class CollectionWrapper(object):
     def __init__(self, collection):
         self.db = collection
 
-    def find(self, query, limit=0, sorting=None, sort_direction='asc'):
+    def find(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         encodes all fields beginning with _ for returning a valid
         json response.
 
         @param query: json string
+        @param skip: integer
         @param limit: int
         @param sorting: string identifiying the key
         @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
-        return encode_underscore_fields_list(self.find_documents(query, limit, sorting, sort_direction))
+        return encode_underscore_fields_list(self.find_documents(
+            query,
+            skip=skip,
+            limit=limit,
+            sorting=sorting,
+            sort_direction=sort_direction
+        ))
 
     def count(self, query):
         """
@@ -38,13 +45,14 @@ class CollectionWrapper(object):
         """
         return self.db.find(query).count()
 
-    def find_documents(self, query, limit=0, sorting=None, sort_direction='asc'):
+    def find_documents(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         returns complete documents with _id fields. Do not use this
         to construct json responses!
 
         @param query: json string
+        @param skip: integer
         @param limit: integer
         @param sorting: string identifiying the key
         @param sort_direction: 'asc' or 'desc'
@@ -55,9 +63,9 @@ class CollectionWrapper(object):
         else:
             sort_direction = ASCENDING
         if sorting:
-            return self.db.find(query).sort(sorting, sort_direction).limit(limit)
+            return self.db.find(query, skip=skip, limit=limit, sort=[(sorting, sort_direction)])
         else:
-            return self.db.find(query).limit(limit)
+            return self.db.find(query, skip=skip, limit=limit)
 
     def find_document_for_id(self, document_id):
         """
@@ -87,7 +95,7 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
-        self.db.save(document)
+        return str(self.db.save(document))
 
     def insert(self, document):
         """
@@ -101,7 +109,7 @@ class CollectionWrapper(object):
         if '_id' in document:
             del document['_id']
         document['time'] = datetime.utcnow()
-        self.db.insert(document)
+        return str(self.db.insert(document))
 
     def remove(self, document):
         """

@@ -388,5 +388,25 @@
         "key"        : "_loadingSourceCode_",
         "value"      : "Der Quelltext dieses Assemblies wird im Moment vom Server geladen.",
         "description": "Explanation that the source code is being loaded at the moment"
+    },
+    {
+        "key"        : "_backofficeViewDataHeading_",
+        "value"      : "Meine Daten",
+        "description": "Heading for the view data tab in the backoffice"
+    },
+    {
+        "key"        : "_documents_",
+        "value"      : "Datensätze",
+        "description": "Heading for the list of documents"
+    },
+    {
+        "key"        : "_addNewDocument_",
+        "value"      : "neuen Datensatz anlegen",
+        "description": "Link text next to the create new document icon"
+    },
+    {
+        "key"        : "_addAttribute_",
+        "value"      : "Attribut hinzufügen",
+        "description": "Link text next to the create new attribute icon"
     }
 ]

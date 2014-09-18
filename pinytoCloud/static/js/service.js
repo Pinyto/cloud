@@ -149,6 +149,40 @@ angular.module('PinytoWebServices', [])
                     data: 'token=' + token + '&author=' + author + '&name=' + name,
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
+            },
+            searchDocument: function (token, query, skip, limit) {
+                var params = '';
+                if (limit) {
+                    params = '&limit=' + limit + params;
+                }
+                if (skip) {
+                    params = '&skip=' + skip + params;
+                }
+                if (query) {
+                    params = '&query=' + query + params;
+                }
+                return $http({
+                    method: "POST",
+                    url: '/pinyto/DocumentsAdmin/search',
+                    data: 'token=' + token + params,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            saveDocument: function (token, document) {
+                return $http({
+                    method: "POST",
+                    url: '/pinyto/DocumentsAdmin/save',
+                    data: 'token=' + token + '&document=' + document,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
+            },
+            deleteDocument: function (token, document) {
+                return $http({
+                    method: "POST",
+                    url: '/pinyto/DocumentsAdmin/delete',
+                    data: 'token=' + token + '&document=' + document,
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                });
             }
         }
     })

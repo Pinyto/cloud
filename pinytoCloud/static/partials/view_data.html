@@ -38,6 +38,29 @@
     </ul>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeViewDataHeading_">View My Data</h1>
+        Use this mask to narrow your selection of documents down to the ones that you want to view or edit.
+        <ul>
+            <li ng-repeat="queryLine in queryParams"></li>
+        </ul>
+        <h2 data-i18n="_documents_">Documents</h2>
+        <ul>
+            <li ng-repeat="localDocument in localDocuments">
+                <div ng-repeat="line in localDocument">
+                    <input type="text" ng-model="line.attribute" />:
+                    <input type="text" ng-model="line.value" />
+                </div>
+                <div class="plus-icon" style="position: relative; top: 5px;"
+                     ng-click="addAttribute(localDocument)"></div>
+                <a ng-click="addAttribute(localDocument)" data-i18n="_addAttribute_"
+                   style="cursor: pointer;"></a>
+            </li>
+        </ul>
+        <div>
+            <div class="plus-icon" style="position: relative; top: 5px;" ng-click="addDocument()"></div>
+            <a ng-click="addDocument()" data-i18n="_addNewDocument_" style="cursor: pointer;"></a>
+        </div>
+
+
         <div style="text-align: justify; text-align-last: justify; width: 100%;">
             <div style="width: 0; height: 0; display: inline-block;"></div>
             <div style="display: inline-block;">Centered</div>
