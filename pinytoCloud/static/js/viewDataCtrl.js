@@ -140,6 +140,28 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             });
         };
 
+        $scope.deleteDocument = function (localDocument, index) {
+            var documentId = undefined;
+            for (var i = 0; i < localDocument.length; i++) {
+                if (localDocument[i].attribute == '_id') {
+                    documentId = localDocument[i].value
+                }
+            }
+            if (documentId) {
+                Backend.deleteDocument(
+                    Authenticate.getToken(),
+                    angular.toJson({'_id': documentId})
+                ).success(function (data) {
+                    if (angular.fromJson(data)['success']) {
+                        $scope.documents.splice(index, 1);
+                        $scope.localDocuments.splice(index, 1);
+                    }
+                })
+            } else {
+                $scope.localDocuments.splice(index, 1);
+            }
+        };
+
         // Initialization
         $scope.lang = $rootScope.language;
         $scope.localDocuments = [];

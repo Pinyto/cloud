@@ -45,6 +45,8 @@
         <h2 data-i18n="_documents_">Documents</h2>
         <ul>
             <li ng-repeat="localDocument in localDocuments">
+                <div class="trash-icon" ng-click="deleteDocument(localDocument, $index)"
+                     style="position: relative; top: 5px; float: right;"></div>
                 <div ng-repeat="line in localDocument">
                     <input type="text" ng-model="line.attribute" />:
                     <input type="text" ng-model="line.value" />
