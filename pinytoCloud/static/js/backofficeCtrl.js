@@ -6,9 +6,9 @@ pinytoWebApp.controller('PinytoBackofficeCtrl',
     $scope.loadStatistics = function () {
         Backend.statistics(Authenticate.getToken()).success(function (data) {
             $scope.statistics = angular.fromJson(data);
-            $scope.statistics['calculated_storage_budget'] = $scope.statistics['storage_budget'] +
+            $scope.statistics['calculated_storage_budget'] = Math.round($scope.statistics['storage_budget'] +
                 (Date.now() - parseInt($scope.statistics['last_calculation'])) / 1000.0 *
-                    parseInt($scope.statistics['current_storage']);
+                    parseInt($scope.statistics['current_storage']));
         });
     };
 
@@ -18,9 +18,9 @@ pinytoWebApp.controller('PinytoBackofficeCtrl',
 
     $interval(function () {
         if ($scope.statistics) {
-            $scope.statistics['calculated_storage_budget'] = $scope.statistics['storage_budget'] +
+            $scope.statistics['calculated_storage_budget'] = Math.round($scope.statistics['storage_budget'] +
                 (Date.now() - parseInt($scope.statistics['last_calculation'])) / 1000.0 *
-                    parseInt($scope.statistics['current_storage']);
+                    parseInt($scope.statistics['current_storage']));
         }
     }, 1000);
 
