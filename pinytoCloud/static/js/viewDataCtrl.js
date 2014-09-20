@@ -114,30 +114,41 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             });
         };
 
+        $scope.validQuery = function () {
+            try {
+                angular.fromJson($scope.query);
+                return true;
+            } catch (exception) {
+                return false;
+            }
+        };
+
         $scope.searchDocuments = function () {
-            Backend.searchDocuments(
-                Authenticate.getToken(),
-                $scope.query,
-                $scope.offset,
-                $scope.limit
-            ).success(function (data) {
-                $scope.localDocuments = [];
-                $scope.documents = angular.fromJson(data)['result'];
-                for (var i = 0; i < $scope.documents.length; i++) {
-                    console.log("Adding a local doc");
-                    $scope.localDocuments.push([]);
-                    for (var attribute in $scope.documents[i]) {
-                        if ($scope.documents[i].hasOwnProperty(attribute)) {
-                            $scope.localDocuments[i].push({
-                                attribute: attribute,
-                                value: $scope.documents[i][attribute]
-                            });
+            if ($scope.validQuery()) {
+                Backend.searchDocuments(
+                    Authenticate.getToken(),
+                    $scope.query,
+                    $scope.offset,
+                    $scope.limit
+                ).success(function (data) {
+                        $scope.localDocuments = [];
+                        $scope.documents = angular.fromJson(data)['result'];
+                        for (var i = 0; i < $scope.documents.length; i++) {
+                            console.log("Adding a local doc");
+                            $scope.localDocuments.push([]);
+                            for (var attribute in $scope.documents[i]) {
+                                if ($scope.documents[i].hasOwnProperty(attribute)) {
+                                    $scope.localDocuments[i].push({
+                                        attribute: attribute,
+                                        value: $scope.documents[i][attribute]
+                                    });
+                                }
+                            }
                         }
-                    }
-                }
-                console.log($scope.documents);
-                console.log($scope.localDocuments);
-            });
+                        console.log($scope.documents);
+                        console.log($scope.localDocuments);
+                    });
+            }
         };
 
         $scope.deleteDocument = function (localDocument, index) {

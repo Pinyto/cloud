@@ -38,10 +38,11 @@
     </ul>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeViewDataHeading_">View My Data</h1>
-        Use this mask to narrow your selection of documents down to the ones that you want to view or edit.
-        <ul>
-            <li ng-repeat="queryLine in queryParams"></li>
-        </ul>
+        Use this mask to narrow your selection of documents down to the ones that you want to view or edit.<br />
+        <textarea ng-model="query"></textarea>
+        <button ng-click="searchDocuments()" style="float: right;"
+                data-i18n="_search_" ng-class="{'disabled': !validQuery()}"></button>
+        <div ng-show="!validQuery()" data-i18n="_queryInvalidMessage_"></div>
         <h2 data-i18n="_documents_">Documents</h2>
         <ul>
             <li ng-repeat="localDocument in localDocuments">

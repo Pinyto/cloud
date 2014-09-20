@@ -408,5 +408,20 @@
         "key"        : "_addAttribute_",
         "value"      : "add an attribute",
         "description": "Link text next to the create new attribute icon"
+    },
+    {
+        "key"        : "_search_",
+        "value"      : "search",
+        "description": "Caption on search button"
+    },
+    {
+        "key"        : "_queryInvalidMessage_",
+        "value"      : "The query is not in valid JSON format.",
+        "description": "Explanation for why search can not be executed at the moment"
+    },
+    {
+        "key"        : "_saveDocument_",
+        "value"      : "save this document",
+        "description": "Caption of the save document button"
     }
 ]
