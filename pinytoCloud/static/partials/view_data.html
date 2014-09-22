@@ -48,14 +48,32 @@
             <li ng-repeat="localDocument in localDocuments">
                 <div class="trash-icon" ng-click="deleteDocument(localDocument, $index)"
                      style="position: relative; top: 5px; float: right;"></div>
-                <div ng-repeat="line in localDocument">
-                    <input type="text" ng-model="line.attribute" />:
-                    <input type="text" ng-model="line.value" />
+                <div>ID: {{ localDocument['_id'] }}</div>
+                <div>
+                    <label for="document{{ $index }}TypeInput" data-i18n="_typeLabel_"></label>
+                    <input type="text" id="document{{ $index }}TypeInput" ng-model="localDocument.type" />
                 </div>
-                <div class="plus-icon" style="position: relative; top: 5px;"
-                     ng-click="addAttribute(localDocument)"></div>
-                <a ng-click="addAttribute(localDocument)" data-i18n="_addAttribute_"
-                   style="cursor: pointer;"></a>
+                <div>
+                    tags: <div style="display: inline-block;" ng-repeat="tag in localDocument.tags">
+                        <label for="document{{ $parent.$index }}Tag{{ $index }}"
+                               style="width: 0;">Tag no. {{ $index }}:</label>
+                        <input id="document{{ $parent.$index }}Tag{{ $index }}"
+                               type="text" ng-model="tag" /><span ng-hide="$last">, </span>
+                    </div>
+                </div>
+                <div>
+                    <label for="document{{ $index }}TimeInput" data-i18n="_timeLabel_"></label>
+                    <input type="datetime" id="document{{ $index }}TimeInput" ng-model="localDocument.time">
+                </div>
+                <div>
+                    <label for="document{{ $index }}Data" data-i18n="_dataLabel_"></label>
+                    <input ng-if="!angular.isArray(localDocument.data)" type="text"
+                           id="document{{ $index }}Data" ng-model="localDocument.data">
+                    <div ng-if="angular.isArray(localDocument.data)">
+                        <div ng-include="'/static/partials/renderJson.html'"
+                             ng-repeat="data in [localDocument.data]"></div>
+                    </div>
+                </div>
                 <button ng-click="saveDocument(localDocument)" ng-show="documentChanged($index)"
                         ng-class="{'disabled': !documentIsValid(localDocument)}"
                         style="float: right;"

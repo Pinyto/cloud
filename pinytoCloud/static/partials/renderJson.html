@@ -1,0 +1,10 @@
+<div ng-repeat="line in data" style="padding-left: 1em;">
+    <input type="text" ng-model="line.attribute" />:
+    <input type="text" ng-model="line.value" />
+</div>
+<div style="padding-left: 1em;">
+    <div class="plus-icon" style="position: relative; top: 5px;"
+         ng-click="addAttribute(data)"></div>
+    <a ng-click="addAttribute(data)" data-i18n="_addAttribute_"
+       style="cursor: pointer;"></a>
+</div>

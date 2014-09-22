@@ -423,5 +423,20 @@
         "key"        : "_saveDocument_",
         "value"      : "Datensatz speichern",
         "description": "Caption of the save document button"
+    },
+    {
+        "key"        : "_typeLabel_",
+        "value"      : "type:",
+        "description": "This is a fixed data field. Do not translate!"
+    },
+    {
+        "key"        : "_timeLabel_",
+        "value"      : "time:",
+        "description": "This is a fixed data field. Do not translate!"
+    },
+    {
+        "key"        : "_dataLabel_",
+        "value"      : "data:",
+        "description": "This is a fixed data field. Do not translate!"
     }
 ]
