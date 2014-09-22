@@ -66,11 +66,23 @@
                     <input type="datetime" id="document{{ $index }}TimeInput" ng-model="localDocument.time">
                 </div>
                 <div>
-                    <label for="document{{ $index }}Data" data-i18n="_dataLabel_"></label>
-                    <input ng-if="!angular.isArray(localDocument.data)" type="text"
+                    <label for="document{{ $index }}DataType" data-i18n="_dataLabel_"></label>
+                    <select name="document{{ $index }}DataType" id="document{{ $index }}DataType"
+                            ng-model="localDocument.dataType"
+                            ng-change="localDocument.data = getInitialValue(localDocument.dataType)">
+                        <option value="simple">simple</option>
+                        <option value="array">array</option>
+                        <option value="object">object</option>
+                    </select>
+                    <label ng-if="localDocument.dataType == 'simple'" for="document{{ $index }}Data"></label>
+                    <input ng-if="localDocument.dataType == 'simple'" type="text"
                            id="document{{ $index }}Data" ng-model="localDocument.data">
-                    <div ng-if="angular.isArray(localDocument.data)">
-                        <div ng-include="'/static/partials/renderJson.html'"
+                    <div ng-if="localDocument.dataType == 'object'">
+                        <div ng-include="'/static/partials/renderObject.html'"
+                             ng-repeat="data in [localDocument.data]"></div>
+                    </div>
+                    <div ng-if="localDocument.dataType == 'array'">
+                        <div ng-include="'/static/partials/renderArray.html'"
                              ng-repeat="data in [localDocument.data]"></div>
                     </div>
                 </div>

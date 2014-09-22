@@ -107,9 +107,17 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                 ]);
         };
 
-        $scope.addAttribute = function (localDocument) {
-            localDocument.push({
+        $scope.addAttribute = function (localObject) {
+            localObject.push({
                 attribute: '',
+                type: 'simple',
+                value: ''
+            });
+        };
+
+        $scope.addItem = function (localArray) {
+            localArray.push({
+                type: 'simple',
                 value: ''
             });
         };
@@ -126,16 +134,39 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
         $scope.searchDocuments = function () {
             var createLocalDocumentStructure = function (data) {
                 if (angular.isObject(data)) {
-                    var localDocumentStructure = [];
+                    var localObjectStructure = [];
                     for (var attribute in data) {
                         if (data.hasOwnProperty(attribute)) {
-                            localDocumentStructure.push({
+                            var type = 'simple';
+                            if (angular.isObject(data[attribute])) {
+                                type = 'object';
+                            }
+                            if (angular.isArray(data[attribute])) {
+                                type = 'array';
+                            }
+                            localObjectStructure.push({
                                 attribute: attribute,
+                                type: type,
                                 value: createLocalDocumentStructure(data[attribute])
                             });
                         }
                     }
-                    return localDocumentStructure;
+                    return localObjectStructure;
+                } else if (angular.isArray(data)) {
+                    var localArrayStructure = [];
+                    for (var i = 0; i < data.length; i++) {
+                        type = 'simple';
+                        if (angular.isObject(data[i])) {
+                            type = 'object';
+                        }
+                        if (angular.isArray(data[i])) {
+                            type = 'array';
+                        }
+                        localArrayStructure.push({
+                            type: type,
+                            value: createLocalDocumentStructure(data[i])
+                        })
+                    }
                 } else {
                     return angular.copy(data);
                 }
@@ -150,12 +181,20 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     $scope.localDocuments = [];
                     $scope.documents = angular.fromJson(data)['result'];
                     for (var i = 0; i < $scope.documents.length; i++) {
+                        var dataType = 'simple';
+                        if (angular.isObject($scope.documents[i]['data'])) {
+                            dataType = 'object';
+                        }
+                        if (angular.isArray($scope.documents[i]['data'])) {
+                            dataType = 'array';
+                        }
                         $scope.localDocuments.push({
                             '_id': $scope.documents[i]['_id'],
                             'time': $scope.documents[i]['time'],
                             'type': $scope.documents[i]['type'],
                             'tags': [],
                             'data': createLocalDocumentStructure($scope.documents[i]['data']),
+                            'dataType': dataType,
                             'validFormat': true
                         });
                         if ($scope.documents[i]['tags']) {
@@ -197,6 +236,16 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                 })
             } else {
                 $scope.localDocuments.splice(index, 1);
+            }
+        };
+
+        $scope.getInitialValue = function (type) {
+            if (type == 'object') {
+                return {};
+            } else if (type == 'array') {
+                return [];
+            } else {
+                return "";
             }
         };
 

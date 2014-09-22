@@ -1,0 +1,24 @@
+<div ng-repeat="line in data" style="padding-left: 1em;">
+    <input type="text" ng-model="line.attribute" />:
+    <select ng-model="line.type"
+            ng-change="line.value = getInitialValue(line.type)">
+        <option value="simple">simple</option>
+        <option value="array">array</option>
+        <option value="object">object</option>
+    </select>
+    <input ng-if="line.type == 'simple'" type="text" ng-model="line.value" />
+    <div ng-if="line.type == 'object'">
+        <div ng-include="'/static/partials/renderObject.html'"
+             ng-repeat="data in [line.value]"></div>
+    </div>
+    <div ng-if="line.type == 'array'">
+        <div ng-include="'/static/partials/renderArray.html'"
+             ng-repeat="data in [line.value]"></div>
+    </div>
+</div>
+<div style="padding-left: 1em;">
+    <div class="plus-icon" style="position: relative; top: 5px;"
+         ng-click="addAttribute(data)"></div>
+    <a ng-click="addAttribute(data)" data-i18n="_addAttribute_"
+       style="cursor: pointer;"></a>
+</div>
