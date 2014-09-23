@@ -29,7 +29,7 @@ class CollectionWrapper(object):
         @return: dict
         """
         return encode_underscore_fields_list(self.find_documents(
-            query,
+            inject_object_id(query),
             skip=skip,
             limit=limit,
             sorting=sorting,
@@ -43,7 +43,7 @@ class CollectionWrapper(object):
         @param query: json string
         @return: dict
         """
-        return self.db.find(query).count()
+        return self.db.find(inject_object_id(query)).count()
 
     def find_documents(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
@@ -63,9 +63,9 @@ class CollectionWrapper(object):
         else:
             sort_direction = ASCENDING
         if sorting:
-            return self.db.find(query, skip=skip, limit=limit, sort=[(sorting, sort_direction)])
+            return self.db.find(inject_object_id(query), skip=skip, limit=limit, sort=[(sorting, sort_direction)])
         else:
-            return self.db.find(query, skip=skip, limit=limit)
+            return self.db.find(inject_object_id(query), skip=skip, limit=limit)
 
     def find_document_for_id(self, document_id):
         """
@@ -75,7 +75,7 @@ class CollectionWrapper(object):
         @param document_id: string
         @return: dict
         """
-        return self.db.find_one({'_id': ObjectId(document_id)})
+        return self.db.find_one(inject_object_id({'_id': document_id}))
 
     def find_distinct(self, query, attribute):
         """
@@ -86,7 +86,7 @@ class CollectionWrapper(object):
         @param attribute: string
         @return:
         """
-        return self.db.find(query).distinct(attribute)
+        return self.db.find(inject_object_id(query)).distinct(attribute)
 
     def save(self, document):
         """
@@ -95,6 +95,8 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
+        if not isinstance(document['_id'], ObjectId):
+            document['_id'] = ObjectId(document['_id'])
         return str(self.db.save(document))
 
     def insert(self, document):
@@ -118,7 +120,7 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
-        self.db.remove(spec_or_id={"_id": ObjectId(document['_id'])})
+        self.db.remove(spec_or_id=inject_object_id({"_id": document['_id']}))
 
 
 def encode_underscore_fields(data):
@@ -151,3 +153,18 @@ def encode_underscore_fields_list(data_list):
     for item in data_list:
         converted_list.append(encode_underscore_fields(item))
     return converted_list
+
+
+def inject_object_id(query):
+    """
+    Traverses all fields of the query dict and converts all '_id' to ObjectId instances.
+
+    @param query: dict
+    @return: dict
+    """
+    for key in query:
+        if key == '_id' and not isinstance(query[key], ObjectId):
+            query[key] = ObjectId(query[key])
+        if isinstance(query[key], dict) or isinstance(query[key], list):
+            query[key] = inject_object_id(query[key])
+    return query
