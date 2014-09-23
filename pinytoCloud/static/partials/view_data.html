@@ -70,9 +70,9 @@
                     <select name="document{{ $index }}DataType" id="document{{ $index }}DataType"
                             ng-model="localDocument.dataType"
                             ng-change="localDocument.data = getInitialValue(localDocument.dataType)">
-                        <option value="simple">simple</option>
-                        <option value="array">array</option>
-                        <option value="object">object</option>
+                        <option value="simple" data-i18n="_simple_"></option>
+                        <option value="array" data-i18n="_array_"></option>
+                        <option value="object" data-i18n="_object_"></option>
                     </select>
                     <label ng-if="localDocument.dataType == 'simple'" for="document{{ $index }}Data"></label>
                     <input ng-if="localDocument.dataType == 'simple'" type="text"

@@ -438,5 +438,25 @@
         "key"        : "_dataLabel_",
         "value"      : "data:",
         "description": "This is a fixed data field. Do not translate!"
+    },
+    {
+        "key"        : "_addItem_",
+        "value"      : "Liste verlängern",
+        "description": "Link text next to the plus symbol for adding new items to the list"
+    },
+    {
+        "key"        : "_simple_",
+        "value"      : "einzelnes Datum",
+        "description": "JSON data type identifier in the combo box"
+    },
+    {
+        "key"        : "_array_",
+        "value"      : "Liste",
+        "description": "JSON data type identifier in the combo box"
+    },
+    {
+        "key"        : "_object_",
+        "value"      : "Objekt",
+        "description": "JSON data type identifier in the combo box"
     }
 ]

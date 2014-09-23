@@ -3,89 +3,161 @@
 pinytoWebApp.controller('PinytoViewDataCtrl',
     function ($scope, $rootScope, Backend, Authenticate) {
         // Function Definitions
+        $scope.createLocalDocumentStructure = function (data) {
+            if (angular.isObject(data)) {
+                var localObjectStructure = [];
+                for (var attribute in data) {
+                    if (data.hasOwnProperty(attribute)) {
+                        var type = 'simple';
+                        if (angular.isObject(data[attribute])) {
+                            type = 'object';
+                        }
+                        if (angular.isArray(data[attribute])) {
+                            type = 'array';
+                        }
+                        localObjectStructure.push({
+                            attribute: attribute,
+                            type: type,
+                            value: $scope.createLocalDocumentStructure(data[attribute])
+                        });
+                    }
+                }
+                return localObjectStructure;
+            } else if (angular.isArray(data)) {
+                var localArrayStructure = [];
+                for (var i = 0; i < data.length; i++) {
+                    type = 'simple';
+                    if (angular.isObject(data[i])) {
+                        type = 'object';
+                    }
+                    if (angular.isArray(data[i])) {
+                        type = 'array';
+                    }
+                    localArrayStructure.push({
+                        type: type,
+                        value: $scope.createLocalDocumentStructure(data[i])
+                    })
+                }
+            } else {
+                return angular.copy(data);
+            }
+        };
+
+        $scope.convertLocalStructureToOnlineStructure = function (localStructure, type) {
+            var structure, i;
+            if (type == 'array') {
+                structure = [];
+                for (i = 0; i < localStructure.length; i++) {
+                    structure.push($scope.convertLocalStructureToOnlineStructure(
+                        localStructure[i].value,
+                        localStructure[i].type
+                    ));
+                }
+                return structure;
+            } else if (type == 'object') {
+                structure = {};
+                for (i = 0; i < localStructure.length; i++) {
+                    structure[localStructure[i].attribute] = $scope.convertLocalStructureToOnlineStructure(
+                        localStructure[i].value,
+                        localStructure[i].type
+                    );
+                }
+                return structure;
+            } else {
+                return angular.copy(localStructure);
+            }
+        };
+
         $scope.saveDocument = function (localDocument) {
             var document = {};
-            for (var i = 0; i < localDocument.length; i++) {
-                document[localDocument[i].attribute] = localDocument[i].value;
+            if (localDocument['_id']) {
+                document['_id'] = localDocument['_id'];
+            }
+            if (localDocument['type']) {
+                document['type'] = localDocument['type'];
+            } else {
+                document['type'] = "";
+            }
+            if (localDocument['time']) {
+                document['time'] = localDocument['time'];
+            }
+            if (localDocument['tags']) {
+                document['tags'] = localDocument['tags'];
+            } else {
+                document['tags'] = [];
+            }
+            if (localDocument['data']) {
+                document['data'] = $scope.convertLocalStructureToOnlineStructure(
+                    localDocument['data'],
+                    localDocument['dataType']
+                );
+            } else {
+                document['data'] = {};
             }
             Backend.saveDocument(Authenticate.getToken(), angular.toJson(document)).success(function (data) {
                 var response = angular.fromJson(data);
                 if (response['success']) {
-                    var found = false;
-                    for (var i = 0; i < localDocument.length; i++) {
-                        if (localDocument[i].attribute == '_id') {
-                            found = true;
-                            localDocument[i].value = response['_id'];
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        localDocument.splice(0, 0, {
-                            attribute: '_id',
-                            value: response['_id']
-                        })
-                    }
+                    localDocument['_id'] = response['_id'];
                     $scope.updateDocument(localDocument);
                 }
             });
         };
 
         $scope.updateDocument = function (localDocument) {
-            for (var i = 0; i < localDocument.length; i++) {
-                if (localDocument[i].attribute == '_id') {
-                    var documentId = localDocument[i].value;
-                    break;
-                }
-            }
-            if (documentId) {
+            if (localDocument['_id']) {
                 Backend.searchDocuments(
                     Authenticate.getToken(),
-                    angular.toJson({'_id': documentId}),
+                    angular.toJson({'_id': localDocument['_id']}),
                     0,
                     1
                 ).success(function (data) {
-                    var documentData = angular.fromJson(data);
-                    var newLocalDocument = [];
-                    for (var attribute in documentData) {
-                        if (documentData.hasOwnProperty(attribute)) {
-                            newLocalDocument.push({attribute: attribute, value: documentData[attribute]});
+                    var documentData = angular.fromJson(data)['result'][0];
+                    var newLocalDocument = {};
+                    newLocalDocument['_id'] = documentData['_id'];
+                    newLocalDocument['type'] = documentData['type'];
+                    newLocalDocument['time'] = documentData['time'];
+                    newLocalDocument['tags'] = documentData['tags'];
+                    if (angular.isObject(documentData['data'])) {
+                        newLocalDocument['dataType'] = 'object';
+                    }
+                    if (angular.isArray(documentData['data'])) {
+                        newLocalDocument['dataType'] = 'array';
+                    } else {
+                        newLocalDocument['dataType'] = 'simple';
+                    }
+                    newLocalDocument['data'] = $scope.createLocalDocumentStructure(documentData['data']);
+                    localDocument = newLocalDocument;
+                    if ($scope.localDocuments) {
+                        for (var i = 0; i < $scope.localDocuments.length; i++) {
+                            if (localDocument['_id'] == $scope.localDocuments[i]['_id']) {
+                                $scope.documents[i] = documentData;
+                            }
                         }
                     }
-                    localDocument = newLocalDocument;
                 });
             }
         };
 
         $scope.documentChanged = function (index) {
-            var i;
             if ($scope.documents && ($scope.documents.length > index)) {
-                for (var attribute in $scope.documents[index]) {
-                    if ($scope.documents[index].hasOwnProperty(attribute)) {
-                        var keyFound = false;
-                        for (i = 0; i < $scope.localDocuments[index].length; i++) {
-                            if (attribute == $scope.localDocuments[index][i].attribute) {
-                                keyFound = true;
-                                if ($scope.documents[index][attribute] != $scope.localDocuments[index][i].value) {
-                                    return true;
-                                }
-                            }
-                        }
-                        if (!keyFound) {
-                            return true
-                        }
-                    }
+                if ((($scope.documents[index]['_id']) &&
+                     ($scope.documents[index]['_id'] != $scope.localDocuments[index]['_id'])) ||
+                    (($scope.documents[index]['type']) &&
+                     ($scope.documents[index]['type'] != $scope.localDocuments[index]['type'])) ||
+                    (($scope.documents[index]['time']) &&
+                    ($scope.documents[index]['time'] != $scope.localDocuments[index]['time'])) ||
+                    (($scope.documents[index]['tags']) &&
+                    (!angular.equals($scope.documents[index]['tags'], $scope.localDocuments[index]['tags'])))) {
+                    return true;
                 }
-                for (i = 0; i < $scope.localDocuments[index].length; i++) {
-                    if (!($scope.localDocuments[index][i].attribute in $scope.documents[index]) ||
-                        ($scope.documents[index][$scope.localDocuments[index][i].attribute] !=
-                            $scope.localDocuments[index][i].value)) {
-                        return true;
-                    }
-                }
+                return !!(($scope.documents[index]['data']) &&
+                    (!angular.equals($scope.documents[index]['data'], $scope.convertLocalStructureToOnlineStructure(
+                        $scope.localDocuments[index]['data'],
+                        $scope.localDocuments[index]['dataType']
+                    ))));
             } else {
                 return true;
             }
-            return false;
         };
 
         $scope.documentIsValid = function (localDocument) {
@@ -99,15 +171,17 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
 
         $scope.addDocument = function () {
             $scope.localDocuments.push(
-                [
-                    {
-                        attribute: 'type',
-                        value: ''
-                    }
-                ]);
+                {
+                    'type': "",
+                    'tags': [],
+                    'data': "",
+                    'dataType': 'simple',
+                    'validFormat': true
+                });
         };
 
         $scope.addAttribute = function (localObject) {
+            console.log(localObject);
             localObject.push({
                 attribute: '',
                 type: 'simple',
@@ -132,45 +206,6 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
         };
 
         $scope.searchDocuments = function () {
-            var createLocalDocumentStructure = function (data) {
-                if (angular.isObject(data)) {
-                    var localObjectStructure = [];
-                    for (var attribute in data) {
-                        if (data.hasOwnProperty(attribute)) {
-                            var type = 'simple';
-                            if (angular.isObject(data[attribute])) {
-                                type = 'object';
-                            }
-                            if (angular.isArray(data[attribute])) {
-                                type = 'array';
-                            }
-                            localObjectStructure.push({
-                                attribute: attribute,
-                                type: type,
-                                value: createLocalDocumentStructure(data[attribute])
-                            });
-                        }
-                    }
-                    return localObjectStructure;
-                } else if (angular.isArray(data)) {
-                    var localArrayStructure = [];
-                    for (var i = 0; i < data.length; i++) {
-                        type = 'simple';
-                        if (angular.isObject(data[i])) {
-                            type = 'object';
-                        }
-                        if (angular.isArray(data[i])) {
-                            type = 'array';
-                        }
-                        localArrayStructure.push({
-                            type: type,
-                            value: createLocalDocumentStructure(data[i])
-                        })
-                    }
-                } else {
-                    return angular.copy(data);
-                }
-            };
             if ($scope.validQuery()) {
                 Backend.searchDocuments(
                     Authenticate.getToken(),
@@ -193,7 +228,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                             'time': $scope.documents[i]['time'],
                             'type': $scope.documents[i]['type'],
                             'tags': [],
-                            'data': createLocalDocumentStructure($scope.documents[i]['data']),
+                            'data': $scope.createLocalDocumentStructure($scope.documents[i]['data']),
                             'dataType': dataType,
                             'validFormat': true
                         });
@@ -211,8 +246,6 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                             }
                         }
                     }
-                    console.log($scope.documents);
-                    console.log($scope.localDocuments);
                 });
             }
         };
@@ -241,7 +274,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
 
         $scope.getInitialValue = function (type) {
             if (type == 'object') {
-                return {};
+                return [];
             } else if (type == 'array') {
                 return [];
             } else {
