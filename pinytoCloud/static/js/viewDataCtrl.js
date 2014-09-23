@@ -181,7 +181,6 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
         };
 
         $scope.addAttribute = function (localObject) {
-            console.log(localObject);
             localObject.push({
                 attribute: '',
                 type: 'simple',
@@ -189,11 +188,29 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             });
         };
 
+        $scope.deleteAttribute = function (localObject, index) {
+            localObject.splice(index, 1);
+        };
+
         $scope.addItem = function (localArray) {
             localArray.push({
                 type: 'simple',
                 value: ''
             });
+        };
+
+        $scope.deleteItem = function (localArray, index) {
+            localArray.splice(index, 1);
+        };
+
+        $scope.addTag = function (index) {
+            if ($scope.localDocuments[index].tags.indexOf("") < 0) {
+                $scope.localDocuments[index].tags.push("");
+            }
+        };
+
+        $scope.deleteTag = function (documentIndex, tagIndex) {
+            $scope.localDocuments[documentIndex].tags.splice(tagIndex, 1);
         };
 
         $scope.validQuery = function () {
@@ -251,16 +268,10 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
         };
 
         $scope.deleteDocument = function (localDocument, index) {
-            var documentId = undefined;
-            for (var i = 0; i < localDocument.length; i++) {
-                if (localDocument[i].attribute == '_id') {
-                    documentId = localDocument[i].value
-                }
-            }
-            if (documentId) {
+            if (localDocument['_id']) {
                 Backend.deleteDocument(
                     Authenticate.getToken(),
-                    angular.toJson({'_id': documentId})
+                    angular.toJson({'_id': localDocument['_id']})
                 ).success(function (data) {
                     if (angular.fromJson(data)['success']) {
                         $scope.documents.splice(index, 1);

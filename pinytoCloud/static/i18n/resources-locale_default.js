@@ -458,5 +458,10 @@
         "key"        : "_object_",
         "value"      : "object",
         "description": "JSON data type identifier in the combo box"
+    },
+    {
+        "key"        : "_addTag_",
+        "value"      : "add Tag",
+        "description": "Link text next to the plus symbol for adding new tags"
     }
 ]

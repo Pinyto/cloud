@@ -7,6 +7,8 @@
         <option value="object" data-i18n="_object_"></option>
     </select>
     <input ng-if="line.type == 'simple'" type="text" ng-model="line.value" />
+    <div class="trash-icon" ng-click="deleteAttribute(data, $index)"
+         style="position: relative; top: 5px;"></div>
     <div ng-if="line.type == 'object'">
         <div ng-include="'/static/partials/renderObject.html'"
              ng-repeat="data in [line.value]"></div>

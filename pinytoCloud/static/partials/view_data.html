@@ -54,11 +54,21 @@
                     <input type="text" id="document{{ $index }}TypeInput" ng-model="localDocument.type" />
                 </div>
                 <div>
-                    tags: <div style="display: inline-block;" ng-repeat="tag in localDocument.tags">
-                        <label for="document{{ $parent.$index }}Tag{{ $index }}"
-                               style="width: 0;">Tag no. {{ $index }}:</label>
-                        <input id="document{{ $parent.$index }}Tag{{ $index }}"
-                               type="text" ng-model="tag" /><span ng-hide="$last">, </span>
+                    tags:
+                    <div style="padding-left: 1em;">
+                        <div ng-repeat="tag in localDocument.tags track by $index">
+                            <label for="document{{ $parent.$index }}Tag{{ $index }}"
+                                   style="display: none;">Tag no. {{ $index }}:</label>
+                            <input id="document{{ $parent.$index }}Tag{{ $index }}"
+                                   type="text" ng-model="localDocument.tags[$index]" />
+                            <div class="trash-icon" ng-click="deleteTag($parent.$index, $index)"
+                                 style="position: relative; top: 5px;"></div>
+                            <span ng-hide="$last">, </span>
+                        </div>
+                        <div class="plus-icon" style="position: relative; top: 5px;"
+                             ng-click="addTag($index)"></div>
+                        <a ng-click="addTag($index)" data-i18n="_addTag_"
+                           style="cursor: pointer;"></a>
                     </div>
                 </div>
                 <div>
