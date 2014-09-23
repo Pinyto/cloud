@@ -463,5 +463,15 @@
         "key"        : "_addTag_",
         "value"      : "Tag hinzufügen",
         "description": "Link text next to the plus symbol for adding new tags"
+    },
+    {
+        "key"        : "_viewDataIntroductionAndWarning_",
+        "value"      : "Hier kannst du sämtliche Datensätze in deiner Datenbank sehen. Du kannst diese Datensätze auch editieren. Dabei solltest du aber sehr vorsichtig sein, da dieses Backoffice dir alle Möglichkeiten beim Editieren lässt und du damit die Struktur der Daten so verändern kannst, dass Assemblies und Applikationen die darauf aufbauen nicht mehr richtig funktionieren. Diese Funktion richtet sich daher an Experten, die wissen,was sie tun.",
+        "description": "Introductory text wihich explains what can be done in the view data tab and why you do not want to do that"
+    },
+    {
+        "key"        : "_viewDataQueryExplanation_",
+        "value"      : "Im Nachfolgenden Textfeld kann eine Query als JSON Struktur definiert werden. Die genaue Syntax kann in der Dokumentation von PyMongo nachgelesen werden. Wenn du nicht weißt, was du hier eintragen sollst, solltest du nichts auf dieser Seite abändern.",
+        "description": "Explanation paragraph about how to use the query"
     }
 ]

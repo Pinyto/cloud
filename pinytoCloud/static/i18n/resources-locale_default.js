@@ -463,5 +463,15 @@
         "key"        : "_addTag_",
         "value"      : "add Tag",
         "description": "Link text next to the plus symbol for adding new tags"
+    },
+    {
+        "key"        : "_viewDataIntroductionAndWarning_",
+        "value"      : "Here you can view all documents in your database. You are also able to edit all documents but you should be careful if you do that. Changing the documents may put them in a state that leads to assemblies and applications which are unable to work as intended. If in doubt do not change anything. This function is for experts who know what they are doing.",
+        "description": "Introductory text wihich explains what can be done in the view data tab and why you do not want to do that"
+    },
+    {
+        "key"        : "_viewDataQueryExplanation_",
+        "value"      : "In the following textarea you can specify a query in JSON syntax. Pinyto uses PyMongo so refer to the PyMongo documentation for details about queries. If you do not know what to put in there then leave it as it is.",
+        "description": "Explanation paragraph about how to use the query"
     }
 ]

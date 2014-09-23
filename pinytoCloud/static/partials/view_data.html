@@ -38,7 +38,8 @@
     </ul>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeViewDataHeading_">View My Data</h1>
-        Use this mask to narrow your selection of documents down to the ones that you want to view or edit.<br />
+        <p data-i18n="_viewDataIntroductionAndWarning_"></p>
+        <p data-i18n="_viewDataQueryExplanation_"></p>
         <textarea ng-model="query"></textarea>
         <button ng-click="searchDocuments()" style="float: right;"
                 data-i18n="_search_" ng-class="{'disabled': !validQuery()}"></button>
