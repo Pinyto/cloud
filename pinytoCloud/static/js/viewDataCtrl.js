@@ -126,11 +126,11 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                         newLocalDocument['dataType'] = 'simple';
                     }
                     newLocalDocument['data'] = $scope.createLocalDocumentStructure(documentData['data']);
-                    localDocument = newLocalDocument;
                     if ($scope.localDocuments) {
                         for (var i = 0; i < $scope.localDocuments.length; i++) {
                             if (localDocument['_id'] == $scope.localDocuments[i]['_id']) {
                                 $scope.documents[i] = documentData;
+                                $scope.localDocuments[i] = newLocalDocument;
                             }
                         }
                     }
