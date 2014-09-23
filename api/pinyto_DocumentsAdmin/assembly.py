@@ -63,10 +63,9 @@ class DocumentsAdmin():
                                         'Only one document at a time will be saved.'})
         if not ('_id' in document and db.count({'_id': document['_id']}) > 0):
             str_id = db.insert(document)
-            return json.dumps({'success': True, '_id': str_id})
         else:
-            db.save(document)
-            return json.dumps({'success': True, '_id': document['_id']})
+            str_id = db.save(document)
+        return json.dumps({'success': True, '_id': str_id})
 
     @staticmethod
     def delete(request, db, factory):

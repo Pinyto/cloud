@@ -116,7 +116,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     newLocalDocument['_id'] = documentData['_id'];
                     newLocalDocument['type'] = documentData['type'];
                     newLocalDocument['time'] = documentData['time'];
-                    newLocalDocument['tags'] = documentData['tags'];
+                    newLocalDocument['tags'] = angular.copy(documentData['tags']);
                     if (angular.isObject(documentData['data'])) {
                         newLocalDocument['dataType'] = 'object';
                     }
@@ -145,10 +145,18 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     (($scope.documents[index]['type']) &&
                      ($scope.documents[index]['type'] != $scope.localDocuments[index]['type'])) ||
                     (($scope.documents[index]['time']) &&
-                    ($scope.documents[index]['time'] != $scope.localDocuments[index]['time'])) ||
-                    (($scope.documents[index]['tags']) &&
-                    (!angular.equals($scope.documents[index]['tags'], $scope.localDocuments[index]['tags'])))) {
+                    ($scope.documents[index]['time'] != $scope.localDocuments[index]['time']))) {
                     return true;
+                }
+                if ($scope.documents[index]['tags']) {
+                    if ($scope.documents[index]['tags'].length != $scope.localDocuments[index]['tags'].length) {
+                        return true;
+                    }
+                    for (var i = 0; i < $scope.documents[index]['tags'].length; i++) {
+                        if ($scope.documents[index]['tags'][i] != $scope.localDocuments[index]['tags'][i]) {
+                            return true;
+                        }
+                    }
                 }
                 return !!(($scope.documents[index]['data']) &&
                     (!angular.equals($scope.documents[index]['data'], $scope.convertLocalStructureToOnlineStructure(
@@ -204,9 +212,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
         };
 
         $scope.addTag = function (index) {
-            if ($scope.localDocuments[index].tags.indexOf("") < 0) {
-                $scope.localDocuments[index].tags.push("");
-            }
+            $scope.localDocuments[index].tags.push("");
         };
 
         $scope.deleteTag = function (documentIndex, tagIndex) {
