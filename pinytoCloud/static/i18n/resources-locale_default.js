@@ -473,5 +473,15 @@
         "key"        : "_viewDataQueryExplanation_",
         "value"      : "In the following textarea you can specify a query in JSON syntax. Pinyto uses PyMongo so refer to the PyMongo documentation for details about queries. If you do not know what to put in there then leave it as it is.",
         "description": "Explanation paragraph about how to use the query"
+    },
+    {
+        "key"        : "_noAccountYet_",
+        "value"      : "You do not have a Pinyto account yet?",
+        "description": "Question if the user has no account yet"
+    },
+    {
+        "key"        : "_thenRegister_",
+        "value"      : "Then create one right away!",
+        "description": "Propose to register an account"
     }
 ]

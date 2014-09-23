@@ -473,5 +473,15 @@
         "key"        : "_viewDataQueryExplanation_",
         "value"      : "Im Nachfolgenden Textfeld kann eine Query als JSON Struktur definiert werden. Die genaue Syntax kann in der Dokumentation von PyMongo nachgelesen werden. Wenn du nicht weißt, was du hier eintragen sollst, solltest du nichts auf dieser Seite abändern.",
         "description": "Explanation paragraph about how to use the query"
+    },
+    {
+        "key"        : "_noAccountYet_",
+        "value"      : "Du hast noch keinen Pinyto-Account?",
+        "description": "Question if the user has no account yet"
+    },
+    {
+        "key"        : "_thenRegister_",
+        "value"      : "Dann erstelle hier deinen neuen Account.",
+        "description": "Propose to register an account"
     }
 ]
