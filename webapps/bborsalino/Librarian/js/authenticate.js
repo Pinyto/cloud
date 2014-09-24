@@ -7,7 +7,6 @@ bibApp.factory('Authenticate', function (Backend, SessionService) {
     authService.login = function (username, password) {
         return Backend.login(username, password).success(function (data) {
             var response = angular.fromJson(data);
-            console.log(response);
             if ('token' in response) {
                 SessionService.set('authenticated', true);
                 SessionService.set('token', response['token']);
@@ -59,9 +58,16 @@ bibApp.factory('SessionService', function () {
 });
 
 bibApp.run(function ($rootScope, $location, Authenticate) {
+    $rootScope.isAuthenticated = function () {
+        return Authenticate.isAuthenticated();
+    };
+    $rootScope.logout = function () {
+        Authenticate.logout();
+        $location.path('/webapps/bborsalino/Librarian/login/');
+    };
     $rootScope.$on('$routeChangeStart', function (event, next, current) {
-        if(!Authenticate.isAuthenticated() && !($location.path() == '/login/')) {
-            $location.path('/login/');
+        if(!Authenticate.isAuthenticated() && !($location.path() == '/webapps/bborsalino/Librarian/login/')) {
+            $location.path('/webapps/bborsalino/Librarian/login/');
         }
     });
 });

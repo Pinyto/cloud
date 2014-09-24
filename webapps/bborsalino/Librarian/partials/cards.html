@@ -1,6 +1,7 @@
 <div>
     <form ng-submit="dataInput()" class="floating-list">
         <div class="box">
+            <a ng-click="logout()" style="cursor: pointer; float: right;">Ausloggen</a>
             Bibliothek: {{bookCount}} Bücher an {{placesUsed.length}} Orten. {{lentCount}} Bücher verliehen.
         </div>
         <div class="box center" id="search-box">
@@ -33,7 +34,8 @@
             <li ng-repeat="(no, book) in books" class="box" ng-click="setPlaceValue(book.data.place)">
                 <div ng-show="hasID(book)" style="float: right;">
                     <a ng-click="book.showSettings = !book.showSettings;">
-                        <img src="img/wheel.png" alt="Einstellungen" width="14" height="14" />
+                        <img src="/webapps/bborsalino/Librarian/img/wheel.png"
+                             alt="Einstellungen" width="14" height="14" />
                     </a>
                     <div class="sizeless" style="float: left"
                          ng-show="book.showSettings" ng-mouseleave="book.showSettings = false;">

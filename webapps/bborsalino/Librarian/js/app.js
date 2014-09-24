@@ -10,10 +10,10 @@ var bibApp = angular.module(
     )
     .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
         $routeProvider.
-            when('/', {
+            when('/webapps/bborsalino/Librarian/', {
                 templateUrl: '/webapps/bborsalino/Librarian/partials/cards.html',
                 controller: 'bibCtrl'}).
-            when('/login/', {
+            when('/webapps/bborsalino/Librarian/login/', {
                 templateUrl: '/webapps/bborsalino/Librarian/partials/login.html',
                 controller: 'loginCtrl'}).
             otherwise({

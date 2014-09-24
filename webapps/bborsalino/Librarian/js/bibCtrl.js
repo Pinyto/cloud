@@ -65,6 +65,7 @@ bibApp.controller('bibCtrl',
                 $scope.input,
                 $scope.place);
         searchOrStoreResponse['promise'].success(function (data) {
+            console.log(data);
             $scope.books = angular.fromJson(data)['index'];
             if ($scope.books.length <= 0 && searchOrStoreResponse['savePossible']) {
                 $scope.lastSaveInput = $scope.input;
