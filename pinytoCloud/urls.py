@@ -45,5 +45,6 @@ urlpatterns += patterns(
 urlpatterns += patterns(
     'pinytoCloud.views',
 
+    #url(r'^webapps/(?P<user_name>\w+)/(?P<app_name>\w+)/(?P<file_name>.*)$', 'webapp', name='webapp'),
     url(r'^.*', 'home', name='home'),
 )

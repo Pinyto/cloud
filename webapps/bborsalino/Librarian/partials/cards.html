@@ -1,0 +1,111 @@
+<div>
+    <form ng-submit="dataInput()" class="floating-list">
+        <div class="box">
+            Bibliothek: {{bookCount}} Bücher an {{placesUsed.length}} Orten. {{lentCount}} Bücher verliehen.
+        </div>
+        <div class="box center" id="search-box">
+            <label for="search">Suchen:</label>
+            <input type="search" name="search" id="search" ng-model="input" value="" ng-change="dataInput()"/>
+            <input type="submit" value="Suchen"/>
+        </div>
+        <div class="box">
+            <label for="place">Ort für neue Bücher:</label>
+            <input type="text" name="place" id="place" value="Arbeitszimmer"
+                   ng-model="place"
+                   ng-change="resetCountdown()"
+                   ng-click="resetCountdown()"
+                   ng-focus="showPlaceSelector = true"
+                   ng-blur="hidePlaceSelector()"/>
+            <div class="sizeless">
+                <ul class="places-list selectBox" ng-show="placesUsed.length > 0 && showPlaceSelector"
+                    ng-mouseover="resetCountdown()" ng-mousemove="resetCountdown()">
+                    <li ng-repeat="selectedPlace in placesUsed" ng-click="setPlaceValue(selectedPlace)">
+                        <a class="pseudoLink">{{selectedPlace}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+
+    <div class="results">
+        <h2 class="center">Suchergebnisse</h2>
+        <ul class="floating-list">
+            <li ng-repeat="(no, book) in books" class="box" ng-click="setPlaceValue(book.data.place)">
+                <div ng-show="hasID(book)" style="float: right;">
+                    <a ng-click="book.showSettings = !book.showSettings;">
+                        <img src="img/wheel.png" alt="Einstellungen" width="14" height="14" />
+                    </a>
+                    <div class="sizeless" style="float: left"
+                         ng-show="book.showSettings" ng-mouseleave="book.showSettings = false;">
+                        <ul class="settings selectBox">
+                            <li ng-show="!book.editMode">
+                                <a class="pseudoLink"
+                                   ng-click="book.editMode = true;">Bearbeitungsmodus einschalten</a>
+                            </li>
+                            <li ng-show="book.editMode">
+                                <a class="pseudoLink"
+                                   ng-click="book.editMode = false;">Buch speichern</a>
+                            </li>
+                            <li ng-show="hasID(book)">
+                                <a class="pseudoLink"
+                                   ng-click="duplicateBook(book)">Ein weiteres Exemplar dieses Buchs speichern</a>
+                            </li>
+                            <li ng-show="hasID(book)">
+                                <a class="pseudoLink"
+                                   ng-click="removeBook(book)">Buch löschen</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="head-data">
+                    <span class="additional-info">
+                        {{book.time.getDate()}}.{{book.time.getMonth()}}.{{book.time.getFullYear()}}
+                        {{book.time.getHours()}}:{{book.time.getMinutes()}}
+                    </span>
+                    <span class="additional-info" style="float: right;" ng-if="book.data.isbn">
+                        ISBN: {{book.data.isbn}}&nbsp;&nbsp;
+                    </span>
+                    <span class="additional-info" style="float: right;" ng-if="book.data.ean">
+                        EAN: {{book.data.ean}}&nbsp;&nbsp;
+                    </span>
+                </div>
+                <div ng-show="!book.data.author" class="notice">
+                    Dieses Buch wurde mit unvollständigen Daten gepeichert. Die Pinyto-Cloud recherchiert
+                    gerade die restlichen Daten. Dies kann bis zu einer Minute dauern. Falls du in dieser
+                    Zeit nicht nach einem Buch suchst, wird dieser Eintrag automatisch aktualisiert.
+                </div>
+                <div ng-if="book.data.author">{{book.data.author}}:</div>
+                <h2>
+                    {{book.data.title}}
+                    <span class="heading-year" ng-if="book.data.year">({{book.data.year}})</span>
+                </h2>
+
+                <div ng-if="book.data.publisher">Verlag: {{book.data.publisher}}</div>
+                <div class="additional-info" ng-if="book.data.languages">Sprachen: {{book.data.languages}}</div>
+                <div class="additional-info" ng-if="book.data.category">Kategorie: {{book.data.category}}</div>
+                <div class="additional-info">
+                    <label for="place_{{no}}">Standort:</label>
+                    <input ng-show="hasID(book)"
+                           type="text"
+                           id="place_{{no}}"
+                           ng-model="book.data.place"
+                           ng-change="resetCountdown()"
+                           ng-click="resetCountdown()"
+                           ng-blur="saveBook(book)" />
+                    <span ng-show="!hasID(book)">{{ book.data.place }}</span>
+                </div>
+                <div class="additional-info">
+                    <label for="lent_{{no}}">Verliehen an:</label>
+                    <input ng-show="hasID(book)"
+                           type="text"
+                           id="lent_{{no}}"
+                           ng-model="book.data.lent"
+                           ng-change="resetCountdown()"
+                           ng-click="resetCountdown()"
+                           ng-blur="saveBook(book)" />
+                    <span ng-show="!hasID(book)">{{ book.data.lent }}</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

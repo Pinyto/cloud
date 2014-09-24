@@ -1,5 +1,4 @@
 <div ng-repeat="line in data" style="padding-left: 1em;">
-    <input type="text" ng-model="line.attribute" />:
     <select ng-model="line.type"
             ng-change="line.value = getInitialValue(line.type)">
         <option value="simple" data-i18n="_simple_"></option>
@@ -7,20 +6,20 @@
         <option value="object" data-i18n="_object_"></option>
     </select>
     <input ng-if="line.type == 'simple'" type="text" ng-model="line.value" />
-    <div class="trash-icon" ng-click="deleteAttribute(data, $index)"
+    <div class="trash-icon" ng-click="deleteItem(data, $index)"
          style="position: relative; top: 5px;"></div>
     <div ng-if="line.type == 'object'">
-        <div ng-include="'/static/partials/renderObject.html'"
+        <div ng-include="'/webapps/pinyto/backoffice/partials/renderObject.html'"
              ng-repeat="data in [line.value]"></div>
     </div>
     <div ng-if="line.type == 'array'">
-        <div ng-include="'/static/partials/renderArray.html'"
+        <div ng-include="'/webapps/pinyto/backoffice/partials/renderArray.html'"
              ng-repeat="data in [line.value]"></div>
     </div>
 </div>
 <div style="padding-left: 1em;">
     <div class="plus-icon" style="position: relative; top: 5px;"
-         ng-click="addAttribute(data)"></div>
-    <a ng-click="addAttribute(data)" data-i18n="_addAttribute_"
+         ng-click="addItem(data)"></div>
+    <a ng-click="addItem(data)" data-i18n="_addItem_"
        style="cursor: pointer;"></a>
 </div>

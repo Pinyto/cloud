@@ -2,16 +2,16 @@
 """
 This File is part of Pinyto
 """
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from hashlib import sha256
 from Crypto.Random import get_random_bytes
 import json
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
+from project_path import project_path
 from service.response import json_response
 from pinytoCloud.models import User, StoredPublicKey, Session, Assembly, ApiFunction, Job
 from pinytoCloud.settings import PINYTO_KEY
-from pinytoCloud.project_path import project_path
 from pinytoCloud.checktoken import check_token
 
 
@@ -23,7 +23,7 @@ def home(request):
     @param request:
     @return:
     """
-    with open(project_path("static/index.html"), 'r') as index_html_file:
+    with open(project_path("webapps/pinyto/backoffice/index.html"), 'r') as index_html_file:
         return HttpResponse(index_html_file.read(), content_type='text/html')
 
 

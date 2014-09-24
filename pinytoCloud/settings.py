@@ -4,6 +4,7 @@ This File is part of Pinyto
 """
 
 from Crypto.PublicKey import RSA
+from project_path import project_path
 
 # Django settings for pinytoCloud project.
 
@@ -72,13 +73,14 @@ STATIC_ROOT = ''
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = '/webapps/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    project_path('webapps/'),
 )
 
 # List of finder classes that know how to find static files in
@@ -96,7 +98,6 @@ SECRET_KEY = 'w_stpdw@im!72s2^%ad5wz5&9mfd8n#95mc3)bqj3qd%f*)ile'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -124,16 +125,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
-    #'django.contrib.auth',
-    #'django.contrib.contenttypes',
-    #'django.contrib.sessions',
-    #'django.contrib.sites',
-    #'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'corsheaders',
     'pinytoCloud',
     'keyserver',

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="pinytoWeb">
+<head>
+    <meta charset="utf-8"/>
+
+    <link rel="stylesheet" href="/webapps/pinyto/backoffice/css/reset.css"/>
+    <link rel="stylesheet" href="/webapps/pinyto/backoffice/css/layout.css"/>
+    <link rel="stylesheet" href="/webapps/pinyto/backoffice/css/typography.css"/>
+
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/lib/angular/angular.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/lib/angular/angular-route.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/lib/localize.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/app.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/service.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/authenticate.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/menuCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/loginCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/registerCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/welcomeCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/backofficeCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/allAssembliesCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/myAssembliesCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/viewDataCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/accountSettingsCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/explanationCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/hardwareCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/developmentCtrl.js"></script>
+    <script type="text/javascript" src="/webapps/pinyto/backoffice/js/impressumCtrl.js"></script>
+
+    <title data-i18n="_pageTitle_"></title>
+</head>
+<body>
+    <div id="page-container">
+        <div class="header-bar">
+            <form style="float: right;">
+                <label for="languages" data-i18n="_language_">Language:</label>
+                <select id="languages" name="languages" ng-model="language">
+                    <option ng-repeat="lang in getLanguages()">{{lang}}</option>
+                </select>
+            </form>
+            <div style="float: right;">&nbsp;|&nbsp;</div>
+            <div style="float: right;">
+                <a ng-href="/impressum/" data-i18n="_impressum_">Impressum</a>
+            </div>
+            <div style="float: right;" ng-show="isAuthenticated()">&nbsp;|&nbsp;</div>
+            <div style="float: right;" ng-show="isAuthenticated()">
+                <a ng-click="logout()" data-i18n="_logout_" style="cursor: pointer;">Logout</a>
+            </div>
+        </div>
+        <div ng-include src="'/webapps/pinyto/backoffice/partials/menu.html'"></div>
+        <div ng-view></div>
+    </div>
+</body>
+</html>

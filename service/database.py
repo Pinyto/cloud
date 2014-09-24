@@ -162,9 +162,14 @@ def inject_object_id(query):
     @param query: dict
     @return: dict
     """
-    for key in query:
-        if key == '_id' and not isinstance(query[key], ObjectId):
-            query[key] = ObjectId(query[key])
-        if isinstance(query[key], dict) or isinstance(query[key], list):
-            query[key] = inject_object_id(query[key])
+    if isinstance(query, list):
+        for index, value in enumerate(query):
+            if isinstance(value, dict) or isinstance(value, list):
+                query[index] = inject_object_id(value)
+    else:
+        for key in query:
+            if key == '_id' and not isinstance(query[key], ObjectId):
+                query[key] = ObjectId(query[key])
+            if isinstance(query[key], dict) or isinstance(query[key], list):
+                query[key] = inject_object_id(query[key])
     return query

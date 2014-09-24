@@ -89,11 +89,11 @@
                     <input ng-if="localDocument.dataType == 'simple'" type="text"
                            id="document{{ $index }}Data" ng-model="localDocument.data">
                     <div ng-if="localDocument.dataType == 'object'">
-                        <div ng-include="'/static/partials/renderObject.html'"
+                        <div ng-include="'/webapps/pinyto/backoffice/partials/renderObject.html'"
                              ng-repeat="data in [localDocument.data]"></div>
                     </div>
                     <div ng-if="localDocument.dataType == 'array'">
-                        <div ng-include="'/static/partials/renderArray.html'"
+                        <div ng-include="'/webapps/pinyto/backoffice/partials/renderArray.html'"
                              ng-repeat="data in [localDocument.data]"></div>
                     </div>
                 </div>
