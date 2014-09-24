@@ -143,13 +143,14 @@ def check_for_jobs(sender, **kwargs):
                     ).all()[0].assemblies.filter(name=job['data']['assembly_name']).all()
                     if len(assemblies) > 1:
                         return json_response(
-                            {'error': "The user has more than one assembly of this name. That does not make any sense."}
+                            {'error': "The user has more than one assembly of this name. " +
+                                      "That does not make any sense."}
                         )
                     assembly = assemblies[0]
                 except IndexError:
                     return json_response(
-                        {'error': "Assembly not found. Does " + job['data']['assembly_user'] + " have an Assembly named " +
-                                  job['data']['assembly_name'] + "?"}
+                        {'error': "Assembly not found. Does " + job['data']['assembly_user'] +
+                                  " have an Assembly named " + job['data']['assembly_name'] + "?"}
                     )
                 try:
                     api_function = assembly.jobs.filter(name=job['data']['job_name']).all()[0]

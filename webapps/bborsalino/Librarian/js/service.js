@@ -147,7 +147,7 @@ angular.module('BibServices', [])
                 return $http({
                     method: "POST",
                     url: '/bborsalino/Librarian/update',
-                    data: 'token=' + token + '&book=' + angular.toJson(book),
+                    data: 'token=' + token + '&book=' + btoa(unescape(encodeURIComponent(angular.toJson(book)))),
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 });
             },

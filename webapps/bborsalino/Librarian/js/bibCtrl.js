@@ -44,7 +44,7 @@ function removeFrontendFields(book) {
 }
 
 bibApp.controller('bibCtrl',
-    function ($scope, Backend, Authenticate, $routeParams) {
+    function ($scope, Backend, Authenticate, $timeout) {
     // Function Definitions
     $scope.statistics = function () {
         Backend.statistics(Authenticate.getToken()).success(function (data) {
@@ -59,19 +59,20 @@ bibApp.controller('bibCtrl',
         document.focusChangeCountdown = 5;
     };
 
-    $scope.dataInput = function () {
+    $scope.dataInput = function (input) {
+        if (!input) {
+            input = $scope.input;
+        }
         var searchOrStoreResponse = Backend.searchOrStore(
                 Authenticate.getToken(),
-                $scope.input,
+                input,
                 $scope.place);
         searchOrStoreResponse['promise'].success(function (data) {
-            console.log(data);
             $scope.books = angular.fromJson(data)['index'];
             if ($scope.books.length <= 0 && searchOrStoreResponse['savePossible']) {
-                $scope.lastSaveInput = $scope.input;
-                setTimeout(function () {
-                    $scope.input = $scope.lastSaveInput;
-                    $scope.dataInput();
+                $scope.lastSaveInput = input;
+                $timeout(function () {
+                    $scope.dataInput($scope.lastSaveInput);
                 }, 10);
             }
             var incompleteBooks = false;
@@ -85,20 +86,21 @@ bibApp.controller('bibCtrl',
                     } else {
                         book['data']['title'] = book['data']['ean'];
                     }
+                    incompleteBooks = true;
                 }
                 if (!book['data']['year']) {
                     book['data']['year'] = "gespeichert " + book['time'].getFullYear();
+                    incompleteBooks = true;
                 }
                 if (!book['data']['author']) {
                     incompleteBooks = true;
                 }
             });
             if (incompleteBooks) {
-                setTimeout(function () {
+                $timeout(function () {
                     if (searchOrStoreResponse['savePossible']) {
                         console.log("Looking for new data of incomplete books.");
-                        $scope.input = $scope.lastSaveInput;
-                        $scope.dataInput();
+                        $scope.dataInput($scope.lastSaveInput);
                     }
                 }, 3000);
             }
@@ -137,7 +139,6 @@ bibApp.controller('bibCtrl',
             duplicate['time'] = Date.now();
             delete duplicate['_id'];
             delete duplicate['$$hashKey'];
-            console.log(duplicate);
             $scope.books.push(duplicate);
             $scope.statistics();
         });
@@ -156,7 +157,7 @@ bibApp.controller('bibCtrl',
     };
 
     $scope.hasID = function (book) {
-        return book['_id'];
+        return !!book['_id'];
     };
 
     // Initialization

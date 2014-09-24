@@ -4,6 +4,7 @@ This File is part of Pinyto
 """
 
 import json
+from base64 import b64decode
 
 
 class Librarian():
@@ -27,11 +28,11 @@ class Librarian():
         ean = request.POST.get('ean')
         isbn = request.POST.get('isbn')
         if ean:
-            books = db.find({'type': 'book', 'data.ean': ean}, 42)
+            books = db.find({'type': 'book', 'data.ean': ean}, 0, 42)
         elif isbn:
-            books = db.find({'type': 'book', 'data.isbn': isbn}, 42)
+            books = db.find({'type': 'book', 'data.isbn': isbn}, 0, 42)
         else:
-            books = db.find({'type': 'book'}, 42)
+            books = db.find({'type': 'book'}, 0, 42)
         return json.dumps({'index': books})
 
     @staticmethod
@@ -56,7 +57,7 @@ class Librarian():
                              {'data.year': {'$regex': search_string, '$options': 'i'}},
                              {'data.category': {'$regex': search_string, '$options': 'i'}},
                              {'data.author': {'$regex': search_string, '$options': 'i'}}
-                         ]}, 42)
+                         ]}, 0, 42)
         return json.dumps({'index': books})
 
     @staticmethod
@@ -71,7 +72,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.POST['book'])
+            book_data = json.loads(b64decode(request.POST['book']))
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
