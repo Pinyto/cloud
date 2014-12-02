@@ -220,11 +220,11 @@ class TestBBorsalinoSandbox(TestCase):
         self.librarian_index = ApiFunction(name='index', code="""ean = request.POST.get('ean')
 isbn = request.POST.get('isbn')
 if ean:
-    books = db.find({'type': 'book', 'data.ean': ean}, 42)
+    books = db.find({'type': 'book', 'data.ean': ean}, 0, 42)
 elif isbn:
-    books = db.find({'type': 'book', 'data.isbn': isbn}, 42)
+    books = db.find({'type': 'book', 'data.isbn': isbn}, 0, 42)
 else:
-    books = db.find({'type': 'book'}, 42)
+    books = db.find({'type': 'book'}, 0, 42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_index.save()
         self.librarian_search = ApiFunction(name='search', code="""search_string = request.POST.get('searchstring')
@@ -237,7 +237,7 @@ books = db.find({'type': 'book',
                      {'data.year': {'$regex': search_string, '$options': 'i'}},
                      {'data.category': {'$regex': search_string, '$options': 'i'}},
                      {'data.author': {'$regex': search_string, '$options': 'i'}}
-                 ]}, 42)
+                 ]}, skip=0, limit=42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_search.save()
         self.librarian_update = ApiFunction(name='update', code="""try:
@@ -246,11 +246,11 @@ except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
-if not 'type' in book_data:
+if 'type' not in book_data:
     return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
-if not '_id' in book_data:
+if '_id' not in book_data:
     return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})
 book = db.find_document_for_id(book_data['_id'])
 if not book:  # there was an error
@@ -266,7 +266,7 @@ except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
-if not 'type' in book_data:
+if 'type' not in book_data:
     return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
@@ -297,7 +297,7 @@ except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
-if not '_id' in book_data:
+if '_id' not in book_data:
     return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
 book = db.find_document_for_id(book_data['_id'])
 if not book:  # there was an error
@@ -315,7 +315,7 @@ except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
-if not '_id' in book_data:
+if '_id' not in book_data:
     return json.dumps({'error': 'You have to specify an _id to identify the book you want to remove.'})
 book = db.find_document_for_id(book_data['_id'])
 if not book:  # there was an error
@@ -425,6 +425,7 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'ean': '1234567890123'})
         self.assertEqual(response.status_code, 200)
+        #self.assertEqual(response.content, "bla")
         self.assertEqual(json.loads(response.content)['index'], [])
         response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'isbn': '978-3-943176-24-7'})
         self.assertEqual(response.status_code, 200)

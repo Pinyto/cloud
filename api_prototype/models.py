@@ -16,17 +16,26 @@ class SandboxCollectionWrapper(object):
     def __init__(self, child_pipe):
         self.child = child_pipe
 
-    def find(self, query, limit=0):
+    def find(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         encodes all fields beginning with _ for returning a valid
         json response.
 
         @param query: json string
+        @param skip: integer
         @param limit: int
+        @param sorting: string identifiying the key
+        @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
-        return piped_command(self.child, {'db.find': {'query': query, 'limit': limit}})
+        return piped_command(self.child, {'db.find': {
+            'query': query,
+            'skip': skip,
+            'limit': limit,
+            'sorting': sorting,
+            'sort_direction': sort_direction
+        }})
 
     def count(self, query):
         """
@@ -37,19 +46,30 @@ class SandboxCollectionWrapper(object):
         """
         return int(piped_command(self.child, {'db.count': {'query': query}}))
 
-    def find_documents(self, query, limit=0):
+    def find_documents(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
         Use this function to read from the database. This method
         returns complete documents with _id fields. Do not use this
         to construct json responses!
 
         @param query: json string
+        @param skip: integer
         @param limit: integer
+        @param sorting: string identifiying the key
+        @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
         return [unescape_all_objectids_and_datetime(item) for item in piped_command(
             self.child,
-            {'db.find_documents': {'query': query, 'limit': limit}}
+            {
+                'db.find_documents': {
+                    'query': query,
+                    'skip': skip,
+                    'limit': limit,
+                    'sorting': sorting,
+                    'sort_direction': sort_direction
+                }
+            }
         )]
 
     def find_document_for_id(self, document_id):

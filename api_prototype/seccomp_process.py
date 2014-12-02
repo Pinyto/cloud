@@ -186,7 +186,10 @@ class SecureHost(object):
             elif 'db.find' in response:
                 return_value = real_db.find(
                     response['db.find']['query'],
-                    response['db.find']['limit'])
+                    response['db.find']['skip'],
+                    response['db.find']['limit'],
+                    response['db.find']['sorting'],
+                    response['db.find']['sort_direction'])
                 write_to_pipe(self.host, {'response': return_value})
             elif 'db.count' in response:
                 return_value = real_db.count(response['db.count']['query'])
@@ -194,7 +197,10 @@ class SecureHost(object):
             elif 'db.find_documents' in response:
                 return_value = [escape_all_objectids_and_datetime(item) for item in list(real_db.find_documents(
                     response['db.find_documents']['query'],
-                    response['db.find_documents']['limit']))]
+                    response['db.find_documents']['skip'],
+                    response['db.find_documents']['limit'],
+                    response['db.find_documents']['sorting'],
+                    response['db.find_documents']['sort_direction']))]
                 write_to_pipe(self.host, {'response': return_value})
             elif 'db.find_document_for_id' in response:
                 return_value = escape_all_objectids_and_datetime(real_db.find_document_for_id(

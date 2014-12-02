@@ -28,11 +28,11 @@ class Librarian():
         ean = request.POST.get('ean')
         isbn = request.POST.get('isbn')
         if ean:
-            books = db.find({'type': 'book', 'data.ean': ean}, 0, 42)
+            books = db.find({'type': 'book', 'data.ean': ean}, skip=0, limit=42)
         elif isbn:
-            books = db.find({'type': 'book', 'data.isbn': isbn}, 0, 42)
+            books = db.find({'type': 'book', 'data.isbn': isbn}, skip=0, limit=42)
         else:
-            books = db.find({'type': 'book'}, 0, 42)
+            books = db.find({'type': 'book'}, skip=0, limit=42)
         return json.dumps({'index': books})
 
     @staticmethod
@@ -57,7 +57,7 @@ class Librarian():
                              {'data.year': {'$regex': search_string, '$options': 'i'}},
                              {'data.category': {'$regex': search_string, '$options': 'i'}},
                              {'data.author': {'$regex': search_string, '$options': 'i'}}
-                         ]}, 0, 42)
+                         ]}, skip=0, limit=42)
         return json.dumps({'index': books})
 
     @staticmethod
@@ -72,16 +72,16 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(b64decode(request.POST['book']))
+            book_data = json.loads(request.POST['book'])
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
-        if not 'type' in book_data:
+        if 'type' not in book_data:
             return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
-        if not '_id' in book_data:
+        if '_id' not in book_data:
             return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
@@ -107,7 +107,7 @@ class Librarian():
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
-        if not 'type' in book_data:
+        if 'type' not in book_data:
             return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
@@ -148,7 +148,7 @@ class Librarian():
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
-        if not '_id' in book_data:
+        if '_id' not in book_data:
             return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
@@ -176,7 +176,7 @@ class Librarian():
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
-        if not '_id' in book_data:
+        if '_id' not in book_data:
             return json.dumps({'error': 'You have to specify an _id to identify the book you want to remove.'})
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
@@ -275,6 +275,6 @@ class Librarian():
                 }
             )
             for key in parsed:
-                if not key in book['data']:
+                if key not in book['data']:
                     book['data'][key] = parsed[key]
             db.save(book)
