@@ -52,7 +52,7 @@ def authenticate(request):
             json.dumps({'error': "Cloud Error: " + response['error'] + " Authentication failed."}),
             content_type='application/json'
         )
-    if not 'encrypted_token' in response:
+    if 'encrypted_token' not in response:
         return HttpResponse(
             json.dumps({'error': "Malformatted Response of the Pinyto-Cloud. Authentication failed."}),
             content_type='application/json'
@@ -90,7 +90,7 @@ def register(request):
     # Register at the PinytoCloud
     key_data = {'N': unicode(new_account.N), 'e': unicode(new_account.e)}
     response = cloud_register(name, key_data)
-    if not 'success' in response or not response['success']:
+    if 'success' not in response or not response['success']:
         new_account.delete()
         return HttpResponse(
             json.dumps(

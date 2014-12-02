@@ -10,6 +10,7 @@ from django.test import TestCase
 from unittest import skip
 from hashlib import sha256
 from keyserver.models import Account
+from pinytoCloud.views import register as cloud_register
 
 
 class MockCypher(object):
@@ -55,22 +56,11 @@ class KeyserverTest(TestCase):
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Wrong password. Authentication failed.")
 
-    def mock_empty_secure_request(self, domain, path, request_type='GET', params=None):
-        return ""
+    def mock_wrong_signature_cloud_authenticate(self, param):
+        return {'encrypted_token': '48616C6C6F2057656C7421',
+                'signature': '23456789348578923589293576897'}
 
-    @mock.patch('keyserver.views.secure_request', mock_empty_secure_request)
-    def test_no_pinyto_cloud_returns_error(self):
-        response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': 'b123'})
-        self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
-        self.assertIn('error', res)
-        self.assertEqual(res['error'], "Could not connect to Pinyto-Cloud. Authentication failed.")
-
-    def mock_wrong_signature_secure_request(self, domain, path, request_type='GET', params=None):
-        return '{"encrypted_token": "48616C6C6F2057656C7421", ' + \
-               '"signature": "23456789348578923589293576897"}'
-
-    @mock.patch('keyserver.views.secure_request', mock_wrong_signature_secure_request)
+    @mock.patch('keyserver.views.cloud_authenticate', mock_wrong_signature_cloud_authenticate)
     def test_wrong_signature_pinyto_cloud_returns_error(self):
         response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': 'b123'})
         self.assertEqual(response.status_code, 200)
@@ -79,29 +69,32 @@ class KeyserverTest(TestCase):
         self.assertEqual(res['error'], "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! " +
                                        "The developers will be informed. Authentication aborted.")
 
-    def mock_secure_request(self, domian, path, request_type='GET', params=None):
-        return '{"encrypted_token": "2F78453236DBB543B240B897CD7C1D1B58777B1FD536E88BF8FC33B5FB46EA78DCC601B8AF9FD' + \
-               '88D13A50996C4B29EE37671BFED3FD66C0E93B1FA43F4C4442B703B240E120A5C56C624F0F10D45A4DC39B0EF0706023E4' + \
-               'A279C369232FE185B104FD42C4F39B437B82497BFD21534B2EF0BBAD6E1D33CCF25F5002F82144145100E8C66B28D62CAF' + \
-               '24441A2AAED01550B94B2675A62061DC037C31930D7C1FD79740699CC79CCA2CF1530F1BECD5B9E0D531E0A284D622689E' + \
-               '895FFFFDC708C59946C576C94AFFF5235748A267015F01E30D51FF02EBDF29A21B3CB5D3A556D596DD43E964DFB3D3F6E1' + \
-               '5FCA4EF1B6725EFABF25EBA016B5937A825C1AF16DDEB707E20AB463C19FED8C21FC0519C31793B04BEDB5652ED3ABAD49' + \
-               'A077080E0D5E1F0D0DCB1215637D958C9077E0F71EFE0619526C05994480B5FF7A333ACCAE93AD402C35F77848D7937279' + \
-               'ADAA931E885005F96D4BDA6F903DC7748497D7EC59209AEFFF245CFB5767F2485EBEBF87F1FA49ACE54AC676E83DA32D9A' + \
-               '13473", ' + \
-               '"signature": "290253272399975850626178062509445415393683240869208995537567532936434175352728979019' + \
-               '31383101748938197010526062905450939343036284540623707339418124634085649393121564786810133329726168' + \
-               '74410593315670558626613729531454111175578424501163677325862728190950424163247693358965366870106656' + \
-               '73928611864992744515778345907236459846802330926995641218238438872786836583139578748136246954513127' + \
-               '43540582475779546485917118376886765622179591081551227790932017717432104905042760343424687678139071' + \
-               '69317246461047771129420756922151668384220232525570023301989097684368494865897097153262825967843297' + \
-               '87949024765709323679347463529906738973533580782084110648023864364802801389382706134156435359679781' + \
-               '01850022889290541487134288708973595109900228276531873416519372661710902711063931609988022436708966' + \
-               '15766749289464748350827810894521557325435340811696825722024470238235575070191152788666547261010494' + \
-               '586454893834564736984828076584996698178733674599088504406"}'
+    def mock_cloud_authenticate(self, param):
+        return {
+            'encrypted_token': '2F78453236DBB543B240B897CD7C1D1B58777B1FD536E88BF8FC33B5FB46EA78DCC601B8AF9FD' + \
+                               '88D13A50996C4B29EE37671BFED3FD66C0E93B1FA43F4C4442B703B240E120A5C56C624F0F10D' + \
+                               '45A4DC39B0EF0706023E4A279C369232FE185B104FD42C4F39B437B82497BFD21534B2EF0BBAD' + \
+                               '6E1D33CCF25F5002F82144145100E8C66B28D62CAF24441A2AAED01550B94B2675A62061DC037' + \
+                               'C31930D7C1FD79740699CC79CCA2CF1530F1BECD5B9E0D531E0A284D622689E895FFFFDC708C5' + \
+                               '9946C576C94AFFF5235748A267015F01E30D51FF02EBDF29A21B3CB5D3A556D596DD43E964DFB' + \
+                               '3D3F6E15FCA4EF1B6725EFABF25EBA016B5937A825C1AF16DDEB707E20AB463C19FED8C21FC05' + \
+                               '19C31793B04BEDB5652ED3ABAD49A077080E0D5E1F0D0DCB1215637D958C9077E0F71EFE06195' + \
+                               '26C05994480B5FF7A333ACCAE93AD402C35F77848D7937279ADAA931E885005F96D4BDA6F903D' + \
+                               'C7748497D7EC59209AEFFF245CFB5767F2485EBEBF87F1FA49ACE54AC676E83DA32D9A13473',
+            'signature':
+                '290253272399975850626178062509445415393683240869208995537567532936434175352728979019' + \
+                '31383101748938197010526062905450939343036284540623707339418124634085649393121564786810133329726168' + \
+                '74410593315670558626613729531454111175578424501163677325862728190950424163247693358965366870106656' + \
+                '73928611864992744515778345907236459846802330926995641218238438872786836583139578748136246954513127' + \
+                '43540582475779546485917118376886765622179591081551227790932017717432104905042760343424687678139071' + \
+                '69317246461047771129420756922151668384220232525570023301989097684368494865897097153262825967843297' + \
+                '87949024765709323679347463529906738973533580782084110648023864364802801389382706134156435359679781' + \
+                '01850022889290541487134288708973595109900228276531873416519372661710902711063931609988022436708966' + \
+                '15766749289464748350827810894521557325435340811696825722024470238235575070191152788666547261010494' + \
+                '586454893834564736984828076584996698178733674599088504406'}
 
     @mock.patch('keyserver.views.PKCS1_OAEP')
-    @mock.patch('keyserver.views.secure_request', mock_secure_request)
+    @mock.patch('keyserver.views.cloud_authenticate', mock_cloud_authenticate)
     def test_authentication_successful(self, cipher_mock):
         cipher_mock.new.return_value = MockCypher()
         # set the key of hugo to a one which we know
@@ -129,6 +122,8 @@ class KeyserverTest(TestCase):
                            "61943536058172250284493872241602927081466173228570347358923898232778648464146232798951" +
                            "76897011486238041195423698137185180296903854366288149786346385889")
         self.hugo.save()
+        key_data = {'N': unicode(self.hugo.N), 'e': unicode(self.hugo.e)}
+        cloud_register('Hugo', key_data)
         # do the response
         response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': 'b123'})
         self.assertEqual(response.status_code, 200)
@@ -146,29 +141,21 @@ class KeyserverTest(TestCase):
                 u'D9A13473'
         self.assertEqual(res['token'], token)
 
-    @skip("This would need an account with the matching public key at the server")
     def test_authentication_real_request(self):
         jonny = Account.create(u'jonny', u'1234', 2)
+        key_data = {'N': unicode(jonny.N), 'e': unicode(jonny.e)}
+        cloud_register('jonny', key_data)
         response = self.client.post(reverse('authenticate'), {'name': 'jonny', 'password': '1234'})
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertNotIn('error', res)
         self.assertIn('token', res)
-        print(res['token'])
+        self.assertTrue(len(res['token']) > 10)
 
-    @mock.patch('keyserver.views.secure_request', mock_empty_secure_request)
-    def test_register_no_connection_to_cloud(self):
-        response = self.client.post(reverse('register'), {'name': 'Jaal', 'password': 'abc'})
-        self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
-        self.assertIn('error', res)
-        self.assertEqual(res['error'], "Could not connect to Pinyto-Cloud. Registration failed.")
-        self.assertEqual(len(Account.objects.filter(name='Jaal')), 0)
+    def mock_cloud_register_success(self, param):
+        return {'success': True}
 
-    def mock_secure_request_register_success(self, domian, path, request_type='GET', params=None):
-        return '{"success": true}'
-
-    @mock.patch('keyserver.views.secure_request', mock_secure_request_register_success)
+    @mock.patch('keyserver.views.cloud_register', mock_cloud_register_success)
     def test_register_successful(self):
         response = self.client.post(reverse('register'), {'name': 'Jaal', 'password': 'abc'})
         self.assertEqual(response.status_code, 200)
@@ -185,7 +172,6 @@ class KeyserverTest(TestCase):
         self.assertIn('success', res)
         self.assertTrue(res['success'])
 
-    @skip("Only succeeds when there is no user 'jonny' in the cloud.")
     def test_register_successful_real_request(self):
         response = self.client.post(reverse('register'), {'name': 'jonny', 'password': '1234'})
         self.assertEqual(response.status_code, 200)
