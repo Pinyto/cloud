@@ -66,7 +66,7 @@ class AuthenticateTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "This is not a registered public key of this user.")
+        self.assertEqual(res['error'], "This is not a registered and active public key of this user.")
 
     @patch('pinytoCloud.models.PKCS1_OAEP')
     @patch('pinytoCloud.views.get_random_bytes', mock_get_random_string)
