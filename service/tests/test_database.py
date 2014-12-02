@@ -5,6 +5,7 @@ This File is part of Pinyto
 from django.test import TestCase
 from pymongo import MongoClient
 from pymongo.collection import Collection
+from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
 from service.database import encode_underscore_fields, encode_underscore_fields_list
 
@@ -19,7 +20,10 @@ class TestCollectionWrapper(TestCase):
     def test_save(self):
         wrapper = CollectionWrapper(self.collection)
         self.assertEqual(self.collection.find().count(), 0)
-        document = {'a': 1, 'b': 'Test'}
+        document_prototype = {'a': 9, 'b': 'Test'}
+        wrapper.insert(document_prototype)
+        document = self.collection.find()[0]
+        document['a'] = 1
         wrapper.save(document)
         self.assertEqual(self.collection.find().count(), 1)
         for doc in self.collection.find():
@@ -28,46 +32,54 @@ class TestCollectionWrapper(TestCase):
 
     def test_find(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(len(wrapper.find({'a': 1})), 1)
         self.assertEqual(len(wrapper.find({'a': 2})), 1)
         self.assertEqual(len(wrapper.find({'b': 'Test'})), 2)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 1)), 1)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 0, 'a', 'asc')), 2)
-        for i, doc in enumerate(wrapper.find({'b': 'Test'}, 0, 'a', 'asc')):
+        self.assertEqual(len(wrapper.find({'b': 'Test'}, skip=1)), 1)
+        self.assertEqual(len(wrapper.find({'b': 'Test'}, limit=1)), 1)
+        self.assertEqual(len(wrapper.find({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc')), 2)
+        for i, doc in enumerate(wrapper.find({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc')):
             self.assertEqual(doc['a'], i + 1)
             self.assertIn('_id', doc)
             self.assertEqual(type(doc['_id']), str)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 0, 'a', 'desc')), 2)
-        for i, doc in enumerate(wrapper.find({'b': 'Test'}, 0, 'a', 'desc')):
+        self.assertEqual(len(wrapper.find({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')), 2)
+        for i, doc in enumerate(wrapper.find({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')):
             self.assertEqual(doc['a'], 2 - i)
             self.assertIn('_id', doc)
             self.assertEqual(type(doc['_id']), str)
 
     def test_find_documents(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
-        self.assertEqual(len(wrapper.find({'a': 1})), 1)
-        self.assertEqual(len(wrapper.find({'a': 2})), 1)
-        self.assertEqual(len(wrapper.find({'b': 'Test'})), 2)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 1)), 1)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 0, 'a', 'asc')), 2)
-        for i, doc in enumerate(wrapper.find({'b': 'Test'}, 0, 'a', 'asc')):
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        self.assertEqual(len(list(wrapper.find_documents({'a': 1}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'a': 2}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}))), 2)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, skip=1))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, limit=1))), 1)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc'))),
+            2
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc')):
             self.assertEqual(doc['a'], i + 1)
             self.assertIn('_id', doc)
-            self.assertEqual(type(doc['_id']), str)
-        self.assertEqual(len(wrapper.find({'b': 'Test'}, 0, 'a', 'desc')), 2)
-        for i, doc in enumerate(wrapper.find({'b': 'Test'}, 0, 'a', 'desc')):
+            self.assertEqual(type(doc['_id']), ObjectId)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc'))),
+            2
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')):
             self.assertEqual(doc['a'], 2 - i)
             self.assertIn('_id', doc)
-            self.assertEqual(type(doc['_id']), str)
+            self.assertEqual(type(doc['_id']), ObjectId)
 
     def test_find_document_for_id(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
         original_document = wrapper.find({'a': 1})[0]
         retrieved_document = wrapper.find_document_for_id(original_document['_id'])
         self.assertEqual(original_document['a'], retrieved_document['a'])
@@ -76,22 +88,22 @@ class TestCollectionWrapper(TestCase):
 
     def test_find_distinct(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(wrapper.find_distinct({'b': 'Test'}, 'a'), [2, 1])
 
     def test_count(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
-        wrapper.save({'a': 2, 'b': 'Test2'})
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test2'})
         self.assertEqual(wrapper.count({'a': 1}), 1)
         self.assertEqual(wrapper.count({'a': 2}), 2)
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
 
     def test_insert(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(wrapper.count({'a': 1}), 1)
         document = wrapper.find({'a': 1})[0]
         wrapper.insert(document)
@@ -104,8 +116,8 @@ class TestCollectionWrapper(TestCase):
 
     def test_remove(self):
         wrapper = CollectionWrapper(self.collection)
-        wrapper.save({'a': 2, 'b': 'Test'})
-        wrapper.save({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
         document = wrapper.find({'a': 1})[0]
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
         wrapper.remove(document)
