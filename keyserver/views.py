@@ -24,13 +24,23 @@ def authenticate(request):
     @param request:
     @return:
     """
-    if not 'name' in request.POST or not 'password' in request.POST:
+    try:
+        request_data = json.loads(request.data)
+    except ValueError:
         return HttpResponse(
-            json.dumps({'error': "Please supply username and password as POST parameters. Authentication failed."}),
+            json.dumps({'error': "Please supply username and password as JSON data. " +
+                                 "This is not valid JSON. Authentication failed."}),
             content_type='application/json'
         )
-    name = request.POST['name']
-    password = request.POST['password']
+    try:
+        name = request_data['name']
+        password = request_data['password']
+    except IndexError:
+        return HttpResponse(
+            json.dumps(
+                {'error': "Please supply username and password in the JSON request data. Authentication failed."}),
+            content_type='application/json'
+        )
     try:
         account = Account.objects.filter(name=name).all()[0]
     except IndexError:
@@ -80,8 +90,23 @@ def register(request):
     @param request:
     @return:
     """
-    name = request.POST['name']
-    password = request.POST['password']
+    try:
+        request_data = json.loads(request.data)
+    except ValueError:
+        return HttpResponse(
+            json.dumps({'error': "Please supply username and password as JSON data. " +
+                                 "This is not valid JSON. Registration failed."}),
+            content_type='application/json'
+        )
+    try:
+        name = request_data['name']
+        password = request_data['password']
+    except IndexError:
+        return HttpResponse(
+            json.dumps(
+                {'error': "Please supply username and password in the JSON request data. Registration failed."}),
+            content_type='application/json'
+        )
     if Account.objects.filter(name=name).count() > 0:
         return HttpResponse(
             json.dumps({'error': "The requested username is already taken. Registration failed."}),
@@ -107,15 +132,27 @@ def change_password(request):
     @param request: Django request
     @return: json response
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.data)
+    except ValueError:
+        return HttpResponse(
+            json.dumps({'error': "Please supply the new password as JSON data. " +
+                                 "This is not valid JSON. Password change failed."}),
+            content_type='application/json'
+        )
+    try:
+        token = request_data['token']
+        password = request_data['password']
+    except IndexError:
+        return HttpResponse(
+            json.dumps(
+                {'error': "Please supply the new password in the JSON request data. Password change failed."}),
+            content_type='application/json'
+        )
+    session = check_token(token)
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if not 'password' in request.POST:
-            return HttpResponse(
-                json.dumps(
-                    {'error': "You have to supply a password if you want to set one."}
-                ), content_type='application/json')
-        Account.objects.get(name=session.user.name).change_password(request.POST['password'])
+        Account.objects.get(name=session.user.name).change_password(password)
         return HttpResponse(json.dumps({'success': True}), content_type='application/json')
     else:
         # session is not a session so it has to be response object with an error message

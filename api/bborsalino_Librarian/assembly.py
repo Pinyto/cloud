@@ -4,7 +4,6 @@ This File is part of Pinyto
 """
 
 import json
-from base64 import b64decode
 
 
 class Librarian():
@@ -25,12 +24,14 @@ class Librarian():
         @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
-        ean = request.POST.get('ean')
-        isbn = request.POST.get('isbn')
-        if ean:
-            books = db.find({'type': 'book', 'data.ean': ean}, skip=0, limit=42)
-        elif isbn:
-            books = db.find({'type': 'book', 'data.isbn': isbn}, skip=0, limit=42)
+        try:
+            data = json.loads(request.body)
+        except ValueError:
+            return json.dumps({'error': 'The data you supplied is not valid json.'})
+        if 'ean' in data:
+            books = db.find({'type': 'book', 'data.ean': data['ean']}, skip=0, limit=42)
+        elif 'isbn' in data:
+            books = db.find({'type': 'book', 'data.isbn': data['isbn']}, skip=0, limit=42)
         else:
             books = db.find({'type': 'book'}, skip=0, limit=42)
         return json.dumps({'index': books})
@@ -47,7 +48,12 @@ class Librarian():
         @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
-        search_string = request.POST.get('searchstring')
+        try:
+            search_string = json.loads(request.body)['searchstring']
+        except ValueError:
+            return json.dumps({'error': 'The data you supplied is not valid json.'})
+        except IndexError:
+            search_string = ""
         books = db.find({'type': 'book',
                          'data': {'$exists': True},
                          '$or': [
@@ -72,13 +78,13 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.POST['book'])
+            book_data = json.loads(request.body)['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         if 'type' not in book_data:
-            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
         if '_id' not in book_data:
@@ -102,13 +108,13 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.POST['book'])
+            book_data = json.loads(request.body)['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         if 'type' not in book_data:
-            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
         if book_data['type'] != 'book':
             return json.dumps({'error': 'This is not a book.'})
         if 'isbn' in book_data['data']:
@@ -141,7 +147,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.POST['book'])
+            book_data = json.loads(request.body)['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to duplicate.'})
         except ValueError:
@@ -169,7 +175,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.POST['book'])
+            book_data = json.loads(request.body)['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to remove.'})
         except ValueError:

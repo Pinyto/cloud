@@ -18,6 +18,7 @@ from pinytoCloud.models import User
 from sandbox import safely_exec
 from inspect import getmembers, isfunction
 import time
+import json
 
 ApiClasses = [('librarian.views', 'Librarian')]
 
@@ -32,8 +33,11 @@ def api_call(request, user_name, assembly_name, function_name):
     @param request: Django Request object
     @return: json response
     """
-    token = request.POST.get('token')
-    if not token:
+    try:
+        token = json.loads(request.body)['token']
+    except ValueError:
+        return json_response({'error': "All Pinyto API-calls have to use json. This is not valid JSON data."})
+    except IndexError:
         return json_response({'error': "Unauthenticated API-calls are not supported. Please supply a token."})
     session = check_token(token)
     if not isinstance(session, Session):
