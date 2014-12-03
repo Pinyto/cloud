@@ -47,14 +47,23 @@ class TestBBorsalino(TestCase):
     def test_index(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/index', {'token': 'fake', 'ean': '1234567890123'})
+        response = test_client.post(
+            '/bborsalino/Librarian/index',
+            json.dumps({'token': 'fake', 'ean': '1234567890123'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['index'], [])
-        response = test_client.post('/bborsalino/Librarian/index', {'token': 'fake', 'isbn': '978-3-943176-24-7'})
+        response = test_client.post(
+            '/bborsalino/Librarian/index',
+            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
-        response = test_client.post('/bborsalino/Librarian/index', {'token': 'fake'})
+        response = test_client.post(
+            '/bborsalino/Librarian/index',
+            json.dumps({'token': 'fake'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
@@ -86,7 +95,10 @@ class TestBBorsalino(TestCase):
                                          "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
                                          "place": "Arbeitszimmer", "year": 2009}})
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/search', {'token': 'fake', 'searchstring': 'Informatik'})
+        response = test_client.post(
+            '/bborsalino/Librarian/search',
+            json.dumps({'token': 'fake', 'searchstring': 'Informatik'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 2)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
@@ -99,7 +111,10 @@ class TestBBorsalino(TestCase):
         book['data']['place'] = "B"
         book['_id'] = str(book['_id'])
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/update', {'token': 'fake', 'book': json.dumps(book)})
+        response = test_client.post(
+            '/bborsalino/Librarian/update',
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         book_test = self.collection.find()[0]
@@ -110,9 +125,16 @@ class TestBBorsalino(TestCase):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/update_all', {'token': 'fake', 'book': json.dumps({
-            "type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "C"}
-        })})
+        response = test_client.post(
+            '/bborsalino/Librarian/update_all',
+            json.dumps({
+                'token': 'fake',
+                'book': {
+                    "type": "book",
+                    "data": {"isbn": "978-3-943176-24-7", "place": "C"}
+                }
+            }),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         for book in self.collection.find():
@@ -126,7 +148,10 @@ class TestBBorsalino(TestCase):
         self.assertFalse('author' in book['data'])
         book['_id'] = str(book['_id'])
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/duplicate', {'token': 'fake', 'book': json.dumps(book)})
+        response = test_client.post(
+            '/bborsalino/Librarian/duplicate',
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find(
@@ -143,7 +168,10 @@ class TestBBorsalino(TestCase):
         book = self.collection.find_one()
         book['_id'] = str(book['_id'])
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/remove', {'token': 'fake', 'book': json.dumps(book)})
+        response = test_client.post(
+            '/bborsalino/Librarian/remove',
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
@@ -155,7 +183,10 @@ class TestBBorsalino(TestCase):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
         test_client = Client()
-        response = test_client.post('/bborsalino/Librarian/statistics', {'token': 'fake'})
+        response = test_client.post(
+            '/bborsalino/Librarian/statistics',
+            json.dumps({'token': 'fake'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertEqual(res['book_count'], 4)
@@ -167,22 +198,35 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/store',
-            {'token': 'fake', 'type': 'book', 'data': "{\"isbn\": \"978-3-943176-24-7\", \"place\": \"\"}"}
+            json.dumps({
+                'token': 'fake',
+                'type': 'book',
+                'data': {
+                    "isbn": "978-3-943176-24-7",
+                    "place": ""}
+            }),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/store',
-            {'token': 'fake', 'type': 'job',
-             'data': "{\"assembly_user\": \"bborsalino\", " +
-                     "\"assembly_name\": \"Librarian\", " +
-                     "\"job_name\": \"job_complete_data_by_asking_dnb\"}"}
+            json.dumps({
+                'token': 'fake',
+                'type': 'job',
+                'data': {
+                    "assembly_user": "bborsalino",
+                    "assembly_name": "Librarian",
+                    "job_name": "job_complete_data_by_asking_dnb"}
+            }),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/bborsalino/Librarian/index',
-            {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
@@ -196,7 +240,8 @@ class TestBBorsalino(TestCase):
                 self.fail("Maximum iterations reached. The data was not completed.")
             response = test_client.post(
                 '/bborsalino/Librarian/index',
-                {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+                json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+                content_type='application/json'
             )
             if len(json.loads(response.content)['index']) >= 1 and \
                'data' in json.loads(response.content)['index'][0] and \
@@ -217,17 +262,24 @@ class TestBBorsalinoSandbox(TestCase):
         self.bborsalino.save()
         self.assembly = Assembly(name='Librarian', author=self.bborsalino, description="Manage your books.")
         self.assembly.save()
-        self.librarian_index = ApiFunction(name='index', code="""ean = request.POST.get('ean')
-isbn = request.POST.get('isbn')
-if ean:
-    books = db.find({'type': 'book', 'data.ean': ean}, 0, 42)
-elif isbn:
-    books = db.find({'type': 'book', 'data.isbn': isbn}, 0, 42)
+        self.librarian_index = ApiFunction(name='index', code="""try:
+    data = json.loads(request.body)
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+if 'ean' in data:
+    books = db.find({'type': 'book', 'data.ean': data['ean']}, skip=0, limit=42)
+elif 'isbn' in data:
+    books = db.find({'type': 'book', 'data.isbn': data['isbn']}, skip=0, limit=42)
 else:
-    books = db.find({'type': 'book'}, 0, 42)
+    books = db.find({'type': 'book'}, skip=0, limit=42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_index.save()
-        self.librarian_search = ApiFunction(name='search', code="""search_string = request.POST.get('searchstring')
+        self.librarian_search = ApiFunction(name='search', code="""try:
+    search_string = json.loads(request.body)['searchstring']
+except ValueError:
+    return json.dumps({'error': 'The data you supplied is not valid json.'})
+except IndexError:
+    search_string = ""
 books = db.find({'type': 'book',
                  'data': {'$exists': True},
                  '$or': [
@@ -241,13 +293,13 @@ books = db.find({'type': 'book',
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_search.save()
         self.librarian_update = ApiFunction(name='update', code="""try:
-    book_data = json.loads(request.POST['book'])
+    book_data = json.loads(request.body)['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if 'type' not in book_data:
-    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
 if '_id' not in book_data:
@@ -261,13 +313,13 @@ db.save(book)
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_update.save()
         self.librarian_update_all = ApiFunction(name='update_all', code="""try:
-    book_data = json.loads(request.POST['book'])
+    book_data = json.loads(request.body)['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if 'type' not in book_data:
-    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type=book.'})
+    return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
 if book_data['type'] != 'book':
     return json.dumps({'error': 'This is not a book.'})
 if 'isbn' in book_data['data']:
@@ -290,7 +342,7 @@ for book in books:
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_update_all.save()
         self.librarian_duplicate = ApiFunction(name='duplicate', code="""try:
-    book_data = json.loads(request.POST['book'])
+    book_data = json.loads(request.body)['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to duplicate.'})
 except ValueError:
@@ -308,7 +360,7 @@ db.insert(book)
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_duplicate.save()
         self.librarian_remove = ApiFunction(name='remove', code="""try:
-    book_data = json.loads(request.POST['book'])
+    book_data = json.loads(request.body)['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to remove.'})
 except ValueError:
@@ -371,7 +423,8 @@ for book in incomplete_books:
                  'summary': "Vollanzeige des Suchergebnises"}},
             # They have a typo here!
             {'tag': 'tr'}
-        ], {'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},
+        ], {
+            'author': {'search tag': 'td', 'captions': ['Person(en)'], 'content tag': 'td'},
             'title': {'search tag': 'td',
                       'captions': [
                           'Mehrteiliges Werk',
@@ -389,7 +442,7 @@ for book in incomplete_books:
         }
     )
     for key in parsed:
-        if not key in book['data']:
+        if key not in book['data']:
             book['data'][key] = parsed[key]
     db.save(book)""", assembly=self.assembly, schedule=0)
         self.librarian_complete.save()
@@ -423,15 +476,23 @@ for book in incomplete_books:
     def test_index(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'ean': '1234567890123'})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/index',
+            json.dumps({'token': 'fake', 'ean': '1234567890123'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        #self.assertEqual(response.content, "bla")
         self.assertEqual(json.loads(response.content)['index'], [])
-        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake', 'isbn': '978-3-943176-24-7'})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/index',
+            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
-        response = test_client.post('/bborsalinosandbox/Librarian/index', {'token': 'fake'})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/index',
+            json.dumps({'token': 'fake'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
@@ -463,7 +524,10 @@ for book in incomplete_books:
                                          "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
                                          "place": "Arbeitszimmer", "year": 2009}})
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/search', {'token': 'fake', 'searchstring': 'Informatik'})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/search',
+            json.dumps({'token': 'fake', 'searchstring': 'Informatik'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 2)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
@@ -476,7 +540,10 @@ for book in incomplete_books:
         book['data']['place'] = "B"
         book['_id'] = str(book['_id'])
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/update', {'token': 'fake', 'book': json.dumps(book)})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/update',
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         book_test = self.collection.find()[0]
@@ -487,9 +554,16 @@ for book in incomplete_books:
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/update_all', {'token': 'fake', 'book': json.dumps({
-            "type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "C"}
-        })})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/update_all',
+            json.dumps({
+                'token': 'fake',
+                'book': {
+                    "type": "book",
+                    "data": {"isbn": "978-3-943176-24-7", "place": "C"}
+                }
+            }),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         for book in self.collection.find():
@@ -505,7 +579,8 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/duplicate',
-            {'token': 'fake', 'book': json.dumps(book)}
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
@@ -523,7 +598,10 @@ for book in incomplete_books:
         book = self.collection.find_one()
         book['_id'] = str(book['_id'])
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/remove', {'token': 'fake', 'book': json.dumps(book)})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/remove',
+            json.dumps({'token': 'fake', 'book': book}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
@@ -535,7 +613,10 @@ for book in incomplete_books:
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
         test_client = Client()
-        response = test_client.post('/bborsalinosandbox/Librarian/statistics', {'token': 'fake'})
+        response = test_client.post(
+            '/bborsalinosandbox/Librarian/statistics',
+            json.dumps({'token': 'fake'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertEqual(res['book_count'], 4)
@@ -547,22 +628,29 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/store',
-            {'token': 'fake', 'type': 'book', 'data': "{\"isbn\": \"978-3-943176-24-7\", \"place\": \"\"}"}
+            json.dumps({'token': 'fake', 'type': 'book', 'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/store',
-            {'token': 'fake', 'type': 'job',
-             'data': "{\"assembly_user\": \"bborsalinosandbox\", " +
-                     "\"assembly_name\": \"Librarian\", " +
-                     "\"job_name\": \"job_complete_data_by_asking_dnb\"}"}
+            json.dumps({
+                'token': 'fake',
+                'type': 'job',
+                'data': {
+                    "assembly_user": "bborsalinosandbox",
+                    "assembly_name": "Librarian",
+                    "job_name": "job_complete_data_by_asking_dnb"}
+            }),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
-            {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
@@ -576,7 +664,8 @@ for book in incomplete_books:
                 self.fail("Maximum iterations reached. The data was not completed.")
             response = test_client.post(
                 '/bborsalinosandbox/Librarian/index',
-                {'token': 'fake', 'isbn': '978-3-943176-24-7'}
+                json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+                content_type='application/json'
             )
             if len(json.loads(response.content)['index']) >= 1 and \
                'data' in json.loads(response.content)['index'][0] and \

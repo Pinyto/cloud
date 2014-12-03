@@ -34,17 +34,23 @@ def store(request):
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         data = request_data['data']
-        data_type = get_str_or_discard(str(request_data['type']))
-        try:
-            tags = get_tags(request_data['tags'])
-        except TypeError or ValueError:
+        if 'type' in request_data:
+            data_type = get_str_or_discard(str(request_data['type']))
+        else:
+            data_type = ""
+        if 'tags' in request_data:
+            try:
+                tags = get_tags(request_data['tags'])
+            except TypeError or ValueError:
+                tags = []
+        else:
             tags = []
         if data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
             document = {'type': data_type,
                         'time': datetime.utcnow(),
                         'tags': tags,
-                        'data': json.loads(data)}
+                        'data': data}
             db.insert(document)
             return json_response({'success': True})
         else:
