@@ -55,14 +55,20 @@ class AuthenticateTest(TestCase):
         )
 
     def test_unknown_user_returns_error(self):
-        response = self.client.post('/authenticate', {'username': 'Max', 'keyhash': 'wrong'})
+        response = self.client.post(
+            '/authenticate',
+            json.dumps({'username': 'Max', 'key_hash': 'wrong'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
         self.assertEqual(res['error'], "User 'Max' is unknown. Please register first.")
 
     def test_wrong_hash_returns_error(self):
-        response = self.client.post('/authenticate', {'username': 'hugo', 'keyhash': 'wrong'})
+        response = self.client.post(
+            '/authenticate',
+            json.dumps({'username': 'hugo', 'key_hash': 'wrong'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
@@ -75,7 +81,8 @@ class AuthenticateTest(TestCase):
         cipher_mock.new.return_value = MockCypher()
         response = self.client.post(
             '/authenticate',
-            {'username': 'hugo', 'keyhash': 'b44c98daa8'}
+            json.dumps({'username': 'hugo', 'key_hash': 'b44c98daa8'}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)

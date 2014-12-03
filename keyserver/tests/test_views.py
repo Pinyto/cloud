@@ -43,14 +43,20 @@ class KeyserverTest(TestCase):
         self.hugo = Account.create(u'Hugo', u'b123', 2)
 
     def test_missing_account_returns_error(self):
-        response = self.client.post(reverse('authenticate'), {'name': 'Max', 'password': '123a'})
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'Max', 'password': '123a'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Max is not a valid account name. Authentication failed.")
 
     def test_wrong_password_returns_error(self):
-        response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': '123a'})
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'Hugo', 'password': '123a'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
@@ -62,7 +68,10 @@ class KeyserverTest(TestCase):
 
     @mock.patch('keyserver.views.cloud_authenticate', mock_wrong_signature_cloud_authenticate)
     def test_wrong_signature_pinyto_cloud_returns_error(self):
-        response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': 'b123'})
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'Hugo', 'password': 'b123'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
@@ -125,7 +134,10 @@ class KeyserverTest(TestCase):
         key_data = {'N': unicode(self.hugo.N), 'e': unicode(self.hugo.e)}
         cloud_register('Hugo', key_data)
         # do the response
-        response = self.client.post(reverse('authenticate'), {'name': 'Hugo', 'password': 'b123'})
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'Hugo', 'password': 'b123'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertNotIn('error', res)
@@ -145,7 +157,10 @@ class KeyserverTest(TestCase):
         jonny = Account.create(u'jonny', u'1234', 2)
         key_data = {'N': unicode(jonny.N), 'e': unicode(jonny.e)}
         cloud_register('jonny', key_data)
-        response = self.client.post(reverse('authenticate'), {'name': 'jonny', 'password': '1234'})
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'jonny', 'password': '1234'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertNotIn('error', res)
@@ -157,7 +172,10 @@ class KeyserverTest(TestCase):
 
     @mock.patch('keyserver.views.cloud_register', mock_cloud_register_success)
     def test_register_successful(self):
-        response = self.client.post(reverse('register'), {'name': 'Jaal', 'password': 'abc'})
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({'name': 'Jaal', 'password': 'abc'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertEqual(Account.objects.filter(name='Jaal').count(), 1)
@@ -173,7 +191,10 @@ class KeyserverTest(TestCase):
         self.assertTrue(res['success'])
 
     def test_register_successful_real_request(self):
-        response = self.client.post(reverse('register'), {'name': 'jonny', 'password': '1234'})
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({'name': 'jonny', 'password': '1234'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertEqual(Account.objects.filter(name='jonny').count(), 1)

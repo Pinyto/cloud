@@ -11,28 +11,40 @@ class RegisterTest(TestCase):
     def test_taken_username(self):
         self.hugo = User(name='hugo')
         self.hugo.save()
-        response = self.client.post('/register', {'username': 'hugo', 'public_key': '{"N": "1", "e": "1"}'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'username': 'hugo', 'public_key': {'N': 1, 'e': 1}}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Username hugo is already taken. Try another username.")
 
     def test_no_username(self):
-        response = self.client.post('/register', {'thing': '42'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'thing': '42'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "You have to supply a username.")
+        self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
 
     def test_no_key_data(self):
-        response = self.client.post('/register', {'username': 'hugo'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'username': 'hugo'}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "You have to supply a public_key.")
+        self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
 
     def test_key_data_in_a_wrong_format(self):
-        response = self.client.post('/register', {'username': 'hugo', 'public_key': '{"No": "1", "ne": "1"}'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'username': 'hugo', 'public_key': {"No": "1", "ne": "1"}}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
@@ -42,7 +54,10 @@ class RegisterTest(TestCase):
         )
 
     def test_n_not_a_number(self):
-        response = self.client.post('/register', {'username': 'hugo', 'public_key': '{"N": "abc", "e": "1"}'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'username': 'hugo', 'public_key': {"N": "abc", "e": "1"}}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
@@ -51,7 +66,8 @@ class RegisterTest(TestCase):
     def test_e_not_a_number(self):
         response = self.client.post(
             '/register',
-            {'username': 'hugo', 'public_key': '{"N": ' + str(pow(2, 3072) - 7458345) + ', "e": "xxx"}'}
+            json.dumps({'username': 'hugo', 'public_key': {'N': str(pow(2, 3072) - 7458345), 'e': 'xxx'}}),
+            content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
@@ -59,11 +75,14 @@ class RegisterTest(TestCase):
         self.assertEqual(res['error'], "Factor e in the public key is not a number. It has to be a long integer.")
 
     def test_n_too_small(self):
-        response = self.client.post('/register', {'username': 'hugo', 'public_key': '{"N": "3845", "e": "1"}'})
+        response = self.client.post(
+            '/register',
+            json.dumps({'username': 'hugo', 'public_key': {"N": 3845, "e": 1}}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "Factor N in the public key is too small. Please use 3072 bit.")
+        self.assertEqual(res['error'], "Factor N in the public key is too small. Please use at least 3072 bit.")
 
     def test_successful_registration(self):
         n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
@@ -79,7 +98,8 @@ class RegisterTest(TestCase):
         e = "65537"
         response = self.client.post(
             '/register',
-            {'username': 'hugo', 'public_key': '{"N": ' + n + ', "e": ' + e + '}'})
+            json.dumps({'username': 'hugo', 'public_key': {'N': n, 'e': e}}),
+            content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('success', res)

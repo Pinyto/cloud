@@ -43,7 +43,7 @@ def authenticate_request(request):
         return json_response({'error': "Your request contained no valid JSON data. " +
                                        "You have to supply a username and a key_hash to authenticate."})
     if 'username' not in request_data or 'key_hash' not in request_data:
-        return json_response({'error': "You have to supply a username and a keyhash to authenticate."})
+        return json_response({'error': "You have to supply a username and a key_hash to authenticate."})
     return json_response(authenticate(request_data['username'], request_data['key_hash']))
 
 
@@ -207,7 +207,7 @@ def register_request(request):
         return json_response({'error': "Please supply the username and public_key as JSON."})
     if 'username' not in request_data or 'public_key' not in request_data:
         return json_response({'error': "Please supply JSON with username and public_key."})
-    return json_response(register(request_data['username'], request_data['key_data']))
+    return json_response(register(request_data['username'], request_data['public_key']))
 
 
 def register(username, key_data):
