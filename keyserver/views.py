@@ -25,7 +25,7 @@ def authenticate(request):
     @return:
     """
     try:
-        request_data = json.loads(request.data)
+        request_data = json.loads(request.body)
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply username and password as JSON data. " +
@@ -91,7 +91,7 @@ def register(request):
     @return:
     """
     try:
-        request_data = json.loads(request.data)
+        request_data = json.loads(request.body)
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply username and password as JSON data. " +
@@ -133,7 +133,7 @@ def change_password(request):
     @return: json response
     """
     try:
-        request_data = json.loads(request.data)
+        request_data = json.loads(request.body)
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply the new password as JSON data. " +

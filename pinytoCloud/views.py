@@ -37,11 +37,14 @@ def authenticate_request(request):
     @param request:
     @return: json {encrypted_token: string, signature: string}
     """
-    username = request.POST.get('username')
-    key_hash = request.POST.get('keyhash')
-    if not username or not key_hash:
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Your request contained no valid JSON data. " +
+                                       "You have to supply a username and a key_hash to authenticate."})
+    if 'username' not in request_data or 'key_hash' not in request_data:
         return json_response({'error': "You have to supply a username and a keyhash to authenticate."})
-    return json_response(authenticate(username, key_hash))
+    return json_response(authenticate(request_data['username'], request_data['key_hash']))
 
 
 def authenticate(username, key_hash):
@@ -77,7 +80,13 @@ def logout(request):
     @param request:
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         session.delete()
@@ -94,7 +103,13 @@ def list_keys(request):
     @param request:
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         key_list = []
@@ -117,18 +132,24 @@ def set_key_active(request):
     @param request:
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if not 'key_hash' in request.POST or not 'active_state' in request.POST:
+        if 'key_hash' not in request_data or 'active_state' not in request_data:
             return json_response({'error': "You have to supply a key_hash and an active_state."})
-        if session.user.keys.filter(active=True).exclude(key_hash=request.POST['key_hash']).count() < 1:
+        if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
             return json_response(
                 {'error': "You are deactivating your last active key. " +
                           "That is in all possible scenarios a bad idea so it will not be done."}
             )
-        key = session.user.keys.get(key_hash=request.POST['key_hash'])
-        if request.POST['active_state']:
+        key = session.user.keys.get(key_hash=request_data['key_hash'])
+        if request_data['active_state']:
             key.active = True
         else:
             key.active = False
@@ -147,17 +168,23 @@ def delete_key(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if not 'key_hash' in request.POST:
+        if 'key_hash' not in request.POST:
             return json_response({'error': "You have to supply a key_hash."})
-        if session.user.keys.filter(active=True).exclude(key_hash=request.POST['key_hash']).count() < 1:
+        if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
             return json_response(
                 {'error': "You are deleting your last active key. " +
                           "That is in all possible scenarios a bad idea so it will not be done."}
             )
-        key = session.user.keys.get(key_hash=request.POST['key_hash'])
+        key = session.user.keys.get(key_hash=request_data['key_hash'])
         key.delete()
         return json_response({'success': True})
     else:
@@ -174,14 +201,13 @@ def register_request(request):
     @param request:
     @return: json
     """
-    username = request.POST.get('username')
-    if not username:
-        return json_response({'error': "You have to supply a username."})
     try:
-        key_data = json.loads(request.POST.get('public_key'))
-    except TypeError:
-        return json_response({'error': "You have to supply a public_key."})
-    return json_response(register(username, key_data))
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the username and public_key as JSON."})
+    if 'username' not in request_data or 'public_key' not in request_data:
+        return json_response({'error': "Please supply JSON with username and public_key."})
+    return json_response(register(request_data['username'], request_data['key_data']))
 
 
 def register(username, key_data):
@@ -194,12 +220,12 @@ def register(username, key_data):
     """
     if User.objects.filter(name=username).count() > 0:
         return {'error': "Username " + username + " is already taken. Try another username."}
-    if not 'N' in key_data or not 'e' in key_data:
+    if 'N' not in key_data or 'e' not in key_data:
         return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
     try:
         n = long(key_data['N'])
         if n < pow(2, 3071):
-            return {'error': "Factor N in the public key is too small. Please use 3072 bit."}
+            return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
     except ValueError:
         return {'error': "Factor N in the public key is not a number. It has to be a long integer."}
     try:
@@ -220,7 +246,13 @@ def list_own_assemblies(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         own_assemblies = []
@@ -253,35 +285,38 @@ def save_assembly(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if 'original_name' in request.POST and 'data' in request.POST:
-            try:
-                assembly_data = json.loads(request.POST['data'])
-            except ValueError:
-                return json_response({'error': "The assembly data is not in valid JSON format."})
+        if 'original_name' in request_data and 'data' in request_data:
+            assembly_data = request_data['data']
             assembly_is_new = False
             try:
-                assembly = session.user.assemblies.filter(name=request.POST['original_name']).all()[0]
+                assembly = session.user.assemblies.filter(name=request_data['original_name']).all()[0]
             except IndexError:
                 assembly_is_new = True
                 assembly = Assembly(author=session.user)
-            if not 'name' in assembly_data or not 'description' in assembly_data:
+            if 'name' not in assembly_data or 'description' not in assembly_data:
                 return json_response(
                     {'error': "The assembly data lacks a name or description. Both attributes must be present."}
                 )
             assembly.name = assembly_data['name']
             assembly.description = assembly_data['description']
             assembly.save()
-            if not 'api_functions' in assembly_data:
+            if 'api_functions' not in assembly_data:
                 assembly_data['api_functions'] = []
-            if not 'jobs' in assembly_data:
+            if 'jobs' not in assembly_data:
                 assembly_data['jobs'] = []
             for api_function in assembly.api_functions.all():
                 found = False
                 for loaded_function in assembly_data['api_functions']:
-                    if not 'name' in loaded_function or not 'code' in loaded_function:
+                    if 'name' not in loaded_function or 'code' not in loaded_function:
                         if assembly_is_new:
                             assembly.delete()
                         return json_response(
@@ -304,7 +339,7 @@ def save_assembly(request):
             for job in assembly.jobs.all():
                 found = False
                 for loaded_job in assembly_data['jobs']:
-                    if not 'name' in loaded_job or not 'code' in loaded_job:
+                    if 'name' not in loaded_job or 'code' not in loaded_job:
                         if assembly_is_new:
                             assembly.delete()
                         return json_response(
@@ -353,18 +388,24 @@ def delete_assembly(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if not 'name' in request.POST:
+        if 'name' not in request_data:
             return json_response(
                 {'error': "You have to supply the name of the assembly you want to delete."}
             )
         try:
-            assembly = session.user.assemblies.filter(name=request.POST['name']).all()[0]
+            assembly = session.user.assemblies.filter(name=request_data['name']).all()[0]
         except IndexError:
             return json_response(
-                {'error': "There was no assembly found with the name " + request.POST['name'] + "."}
+                {'error': "There was no assembly found with the name " + request_data['name'] + "."}
             )
         assembly.delete()
         return json_response({'success': True})
@@ -381,7 +422,13 @@ def list_installed_assemblies(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         installed_assemblies = []
@@ -405,7 +452,13 @@ def list_all_assemblies(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         all_assemblies = []
@@ -429,27 +482,33 @@ def install_assembly(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         if 'author' in request.POST:
             try:
-                author = User.objects.filter(name=request.POST['author']).all()[0]
+                author = User.objects.filter(name=request_data['author']).all()[0]
             except IndexError:
                 return json_response(
-                    {'error': "There was no user found with the name " + request.POST['author'] + "."}
+                    {'error': "There was no user found with the name " + request_data['author'] + "."}
                 )
         else:
             return json_response(
                 {'error': "You have to supply an author to install an assembly."}
             )
-        if 'name' in request.POST:
+        if 'name' in request_data:
             try:
-                assembly = author.assemblies.filter(name=request.POST['name']).all()[0]
+                assembly = author.assemblies.filter(name=request_data['name']).all()[0]
             except IndexError:
                 return json_response(
-                    {'error': "There was no assembly found with the name " + request.POST['author'] + "/" +
-                              request.POST['name'] + "."}
+                    {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
+                              request_data['name'] + "."}
                 )
         else:
             return json_response(
@@ -470,20 +529,26 @@ def uninstall_assembly(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if 'author' in request.POST and 'name' in request.POST:
+        if 'author' in request_data and 'name' in request_data:
             try:
                 assembly = session.user.installed_assemblies.filter(
-                    author__name=request.POST['author']
+                    author__name=request_data['author']
                 ).filter(
-                    name=request.POST['name']
+                    name=request_data['name']
                 ).all()[0]
             except IndexError:
                 return json_response(
-                    {'error': "There was no installed assembly found with the name " + request.POST['author'] +
-                              "/" + request.POST['name'] + "."}
+                    {'error': "There was no installed assembly found with the name " + request_data['author'] +
+                              "/" + request_data['name'] + "."}
                 )
         else:
             return json_response(
@@ -504,27 +569,33 @@ def get_assembly_source(request):
     @param request: Django request
     @return: json
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the data as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if 'author' in request.POST:
+        if 'author' in request_data:
             try:
-                author = User.objects.filter(name=request.POST['author']).all()[0]
+                author = User.objects.filter(name=request_data['author']).all()[0]
             except IndexError:
                 return json_response(
-                    {'error': "There was no user found with the name " + request.POST['author'] + "."}
+                    {'error': "There was no user found with the name " + request_data['author'] + "."}
                 )
         else:
             return json_response(
                 {'error': "You have to supply an author to identify the assembly."}
             )
-        if 'name' in request.POST:
+        if 'name' in request_data:
             try:
-                assembly = author.assemblies.filter(name=request.POST['name']).all()[0]
+                assembly = author.assemblies.filter(name=request_data['name']).all()[0]
             except IndexError:
                 return json_response(
-                    {'error': "There was no assembly found with the name " + request.POST['author'] + "/" +
-                              request.POST['name'] + "."}
+                    {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
+                              request_data['name'] + "."}
                 )
         else:
             return json_response(

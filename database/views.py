@@ -24,13 +24,19 @@ def store(request):
     @param request: Django request
     @return JSON
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        data = request.POST.get('data')
-        data_type = get_str_or_discard(str(request.POST.get('type')))
+        data = request_data['data']
+        data_type = get_str_or_discard(str(request_data['type']))
         try:
-            tags = get_tags(json.loads(request.POST.get('tags')))
+            tags = get_tags(request_data['tags'])
         except TypeError or ValueError:
             tags = []
         if data and data_type:
@@ -60,7 +66,13 @@ def statistics(request):
     @param request: Django request
     @return JSON
     """
-    session = check_token(request.POST.get('token'))
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token as JSON."})
+    if 'token' not in request_data:
+        return json_response({'error': "Please supply JSON with a token key."})
+    session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         return json_response({

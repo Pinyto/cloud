@@ -26,17 +26,30 @@ class DocumentsAdmin():
         @return: string
         """
         try:
-            skip = int(request.POST.get('skip', 0))
+            request_data = json.loads(request.body)
         except ValueError:
-            return json.dumps({'error': 'The skip value you supplied is not a number.'})
-        try:
-            count = int(request.POST.get('count', 42))
-        except ValueError:
-            return json.dumps({'error': 'The count you supplied is not a number.'})
-        try:
-            query = json.loads(request.POST.get('query', '{}'))
-        except ValueError:
-            return json.dumps({'error': 'The search param is not in valid JSON format.'})
+            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+        if 'skip' in request_data:
+            try:
+                skip = int(request_data['skip'])
+            except ValueError:
+                return json.dumps({'error': 'The skip value you supplied is not a number.'})
+        else:
+            skip = 0
+        if 'count' in request_data:
+            try:
+                count = int(request_data['count'])
+            except ValueError:
+                return json.dumps({'error': 'The count you supplied is not a number.'})
+        else:
+            count = 42
+        if 'query' in request_data:
+            try:
+                query = json.loads(request_data['query'])
+            except ValueError:
+                return json.dumps({'error': 'The search param is not in valid JSON format.'})
+        else:
+            query = {}
         return json.dumps({'result': db.find(query=query, skip=skip, limit=count)})
 
     @staticmethod
@@ -52,12 +65,13 @@ class DocumentsAdmin():
         @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
-        if not 'document' in request.POST:
-            return json.dumps({'error': 'You have to supply a document to save.'})
         try:
-            document = json.loads(request.POST.get('document'))
+            request_data = json.loads(request.body)
         except ValueError:
-            return json.dumps({'error': 'The document you supplied is not in valid JSON format.'})
+            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+        if 'document' not in request_data:
+            return json.dumps({'error': 'You have to supply a document to save.'})
+        document = request_data['document']
         if not isinstance(document, dict):
             return json.dumps({'error': 'The document you supplied is not a single document. ' +
                                         'Only one document at a time will be saved.'})
@@ -78,12 +92,13 @@ class DocumentsAdmin():
         @return: string
         """
         try:
-            document = json.loads(request.POST['document'])
-        except IndexError:
-            return json.dumps({'error': 'You have to supply a document to delete.'})
+            request_data = json.loads(request.body)
         except ValueError:
-            return json.dumps({'error': 'The document you supplied is not valid json.'})
-        if not '_id' in document:
+            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+        if 'document' not in request_data:
+            return json.dumps({'error': 'You have to supply a document to delete.'})
+        document = request_data['document']
+        if '_id' not in document:
             return json.dumps({'error': 'You have to specify an _id to identify the document you want to delete.'})
         if not db.count({'_id': document['_id']}) > 0:
             return json.dumps({'error': 'There is no document with this ID. The document could not be deleted.'})
