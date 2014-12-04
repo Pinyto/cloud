@@ -262,4 +262,4 @@ class SecureHost(object):
                 result += response['result']
             else:
                 write_to_pipe(self.host, {'error': "No command and no result."})
-        return result
+        return {'result': result}

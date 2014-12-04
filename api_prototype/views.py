@@ -111,6 +111,10 @@ def load_api(request, session, assembly_user, assembly_name, function_name):
     collection = Collection(MongoClient().pinyto, session.user.name)
     collection_wrapper = CollectionWrapper(collection)
     response_data, elapsed_time = safely_exec(api_function.code, request, collection_wrapper)
+    if 'result' in response_data:
+        response_data = response_data['result']
+    else:
+        response_data = json.dumps(response_data)
     session.user.calculate_time_and_storage(
         elapsed_time,
         12  # MongoClient().pinyto.command('collstats', session.user.name)['size']
