@@ -151,26 +151,10 @@ class SandboxRequestPost(object):
     def get(self, param):
         """
         Returns the specified param
+
+        @param param: string
         """
         return piped_command(self.child, {'request.post.get': {'param': param}})
-
-
-class SandboxRequestBody(object):
-    """
-    This wrapper is used to expose Django's request object to the users assemblies.
-    This class returns the request.data.
-    """
-    def __init__(self, child_pipe):
-        self.child = child_pipe
-
-    def __get__(self):
-        return piped_command(self.child, {'request.body': {}})
-
-    def __unicode__(self):
-        return piped_command(self.child, {'request.body': {}})
-
-    def __str__(self):
-        return piped_command(self.child, {'request.body': {}})
 
 
 class SandboxRequest(object):
@@ -182,7 +166,13 @@ class SandboxRequest(object):
     def __init__(self, child_pipe):
         self.child = child_pipe
         self.POST = SandboxRequestPost(child_pipe)
-        self.body = SandboxRequestBody(child_pipe)
+        self.body = ""
+
+    def init_body(self):
+        """
+        This needs to be called after the seccomp process is initialized to fill in valid body data for the request.
+        """
+        self.body = piped_command(self.child, {'request.body': {}})
 
 
 class CanNotCreateNewInstanceInTheSandbox(Exception):

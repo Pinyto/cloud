@@ -128,6 +128,7 @@ class SecureHost(object):
 
         db = SandboxCollectionWrapper(self.child)
         request = SandboxRequest(self.child)
+        initialized_request_body = False
         factory = Factory(self.child)
         self.claim_and_free_memory()
         resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
@@ -136,6 +137,9 @@ class SecureHost(object):
             doc = read_from_pipe(self.child)
             response = ''
             if doc['cmd'] == 'exec':
+                if not initialized_request_body:
+                    request.init_body()
+                    initialized_request_body = True
                 response = self.do_exec(doc, request, db, factory)
             elif doc['cmd'] == 'exit':
                 libc_exit(0)

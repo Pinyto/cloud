@@ -583,7 +583,6 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, 'blubb')
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find(
             {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}

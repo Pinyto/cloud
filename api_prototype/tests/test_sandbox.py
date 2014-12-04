@@ -24,7 +24,7 @@ class TestSandbox(TestCase):
     def test_safely_exec(self):
         code = "print('Hallo')\nprint('Welt !')\nreturn ''"
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, "Hallo\nWelt !\n\n")
+        self.assertEqual(result, {'result': u'Hallo\nWelt !\n\n'})
         self.assertTrue(time < 1)
 
     def test_safely_exec_harmful_code(self):
@@ -49,13 +49,13 @@ class TestSandbox(TestCase):
     def test_return_statement(self):
         code = """return 'abc'"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, u'abc\n')
+        self.assertEqual(result, {'result': u'abc\n'})
         self.assertTrue(time < 1)
 
     def test_safely_exec_variable_assignment(self):
         code = "string = 'Hallo Welt.'\nreturn string"
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, "Hallo Welt.\n")
+        self.assertEqual(result, {'result': u"Hallo Welt.\n"})
         self.assertTrue(time < 1)
 
     def test_safely_exec_db_access(self):
@@ -71,7 +71,7 @@ return response
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
         self.assertEqual(
             result,
-            "[1, 1]\n")
+            {'result': u"[1, 1]\n"})
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_contains(self):
@@ -83,7 +83,7 @@ if soup.contains([{'tag': 'div'}]):
 else:
     return 0"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, "1\n")
+        self.assertEqual(result, {'result': u"1\n"})
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_find_element_and_get_attribute_value(self):
@@ -92,7 +92,7 @@ html += '<table><tr><td>A</td><td>3</td></tr></table></body></html>'
 soup = factory.create('ParseHtml', html)
 return soup.find_element_and_get_attribute_value([{'tag': 'div'}], 'style')"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, "width: 100px;\n")
+        self.assertEqual(result, {'result': u"width: 100px;\n"})
         self.assertTrue(time < 1)
 
     def test_safely_exec_parsehtml_find_element_and_collect_table_like_information(self):
@@ -103,14 +103,14 @@ return soup.find_element_and_collect_table_like_information(
     [{'tag': 'table'}, {'tag': 'tr'}],
     {'a': {'search tag': 'td', 'captions': ['A'], 'content tag': 'td'}})"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, "{u'a': u'3'}\n")
+        self.assertEqual(result, {'result': u"{u'a': u'3'}\n"})
         self.assertTrue(time < 1)
 
     def test_connect_to_twitter(self):
         code = """https = factory.create('Https')
 return len(str(https.get('twitter.com', '/')))"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertGreater(int(result), 0)
+        self.assertGreater(int(result['result']), 0)
         self.assertTrue(time < 1)
 
     def test_request_body(self):
@@ -120,7 +120,7 @@ return len(str(https.get('twitter.com', '/')))"""
             json.dumps({'a': '123'}),
             content_type='application/json'
         ), self.collection_wrapper)
-        self.assertEqual(json.loads(result), {"a": "123"})
+        self.assertEqual(json.loads(result['result']), {"a": "123"})
         self.assertTrue(time < 1)
 
     def test_request_get_param(self):
@@ -129,11 +129,11 @@ return len(str(https.get('twitter.com', '/')))"""
             '/',
             {'a': '123'}
         ), self.collection_wrapper)
-        self.assertEqual(result, "123\n")
+        self.assertEqual(result, {'result': u"123\n"})
         self.assertTrue(time < 1)
 
     def test_json_dumps(self):
         code = """return json.dumps({'a': 42})"""
         result, time = safely_exec(code, self.factory.post('/', content_type='application/json'), self.collection_wrapper)
-        self.assertEqual(result, u'{"a": 42}\n')
+        self.assertEqual(result, {'result': u'{"a": 42}\n'})
         self.assertTrue(time < 1)
