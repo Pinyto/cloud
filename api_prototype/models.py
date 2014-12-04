@@ -133,7 +133,7 @@ class SandboxCollectionWrapper(object):
 
 class SandboxRequestPost(object):
     """
-    This wrapper is user to expose Django's request object to the users assemblies.
+    This wrapper is used to expose Django's request object to the users assemblies.
     This class implements the most used methods of the request object.
 
     This class is used to emulate request.POST
@@ -155,6 +155,24 @@ class SandboxRequestPost(object):
         return piped_command(self.child, {'request.post.get': {'param': param}})
 
 
+class SandboxRequestBody(object):
+    """
+    This wrapper is used to expose Django's request object to the users assemblies.
+    This class returns the request.data.
+    """
+    def __init__(self, child_pipe):
+        self.child = child_pipe
+
+    def __get__(self):
+        return piped_command(self.child, {'request.body': {}})
+
+    def __unicode__(self):
+        return piped_command(self.child, {'request.body': {}})
+
+    def __str__(self):
+        return piped_command(self.child, {'request.body': {}})
+
+
 class SandboxRequest(object):
     """
     This wrapper is user to expose Django's request object to the users assemblies.
@@ -164,6 +182,7 @@ class SandboxRequest(object):
     def __init__(self, child_pipe):
         self.child = child_pipe
         self.POST = SandboxRequestPost(child_pipe)
+        self.body = SandboxRequestBody(child_pipe)
 
 
 class CanNotCreateNewInstanceInTheSandbox(Exception):

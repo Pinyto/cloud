@@ -267,11 +267,11 @@ class TestBBorsalinoSandbox(TestCase):
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if 'ean' in data:
-    books = db.find({'type': 'book', 'data.ean': data['ean']}, skip=0, limit=42)
+    books = db.find({'type': 'book', 'data.ean': data['ean']}, 0, 42)
 elif 'isbn' in data:
-    books = db.find({'type': 'book', 'data.isbn': data['isbn']}, skip=0, limit=42)
+    books = db.find({'type': 'book', 'data.isbn': data['isbn']}, 0, 42)
 else:
-    books = db.find({'type': 'book'}, skip=0, limit=42)
+    books = db.find({'type': 'book'}, 0, 42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_index.save()
         self.librarian_search = ApiFunction(name='search', code="""try:
@@ -289,7 +289,7 @@ books = db.find({'type': 'book',
                      {'data.year': {'$regex': search_string, '$options': 'i'}},
                      {'data.category': {'$regex': search_string, '$options': 'i'}},
                      {'data.author': {'$regex': search_string, '$options': 'i'}}
-                 ]}, skip=0, limit=42)
+                 ]}, 0, 42)
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_search.save()
         self.librarian_update = ApiFunction(name='update', code="""try:
@@ -352,7 +352,7 @@ if book_data['type'] != 'book':
 if '_id' not in book_data:
     return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
 book = db.find_document_for_id(book_data['_id'])
-if not book:  # there was an error
+if not book:
     return json.dumps({'error': 'There is no book with this ID which could be updated.'})
 for key in book_data['data']:
     book['data'][key] = book_data['data'][key]
@@ -583,6 +583,7 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, 'blubb')
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find(
             {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}

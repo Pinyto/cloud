@@ -251,6 +251,8 @@ class SecureHost(object):
                     response['https.post']['domain'],
                     response['https.post']['path'])
                 write_to_pipe(self.host, {'response': b64encode(return_value)})
+            elif 'request.body' in response:
+                write_to_pipe(self.host, {'response': request.body})
             elif 'request.post.get' in response:
                 return_value = request.POST.get(
                     response['request.post.get']['param'])

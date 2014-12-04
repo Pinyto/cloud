@@ -9,6 +9,7 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from api_prototype.sandbox import safely_exec
+import json
 
 
 class TestSandbox(TestCase):
@@ -112,14 +113,27 @@ return len(str(https.get('twitter.com', '/')))"""
         self.assertGreater(int(result), 0)
         self.assertTrue(time < 1)
 
+    def test_request_body(self):
+        code = """return request.body"""
+        result, time = safely_exec(code, self.factory.post(
+            '/',
+            json.dumps({'a': '123'}),
+            content_type='application/json'
+        ), self.collection_wrapper)
+        self.assertEqual(json.loads(result), {"a": "123"})
+        self.assertTrue(time < 1)
+
     def test_request_get_param(self):
         code = """return request.POST.get('a')"""
-        result, time = safely_exec(code, self.factory.post('/', {'a': '123'}), self.collection_wrapper)
+        result, time = safely_exec(code, self.factory.post(
+            '/',
+            {'a': '123'}
+        ), self.collection_wrapper)
         self.assertEqual(result, "123\n")
         self.assertTrue(time < 1)
 
     def test_json_dumps(self):
         code = """return json.dumps({'a': 42})"""
-        result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
+        result, time = safely_exec(code, self.factory.post('/', content_type='application/json'), self.collection_wrapper)
         self.assertEqual(result, u'{"a": 42}\n')
         self.assertTrue(time < 1)
