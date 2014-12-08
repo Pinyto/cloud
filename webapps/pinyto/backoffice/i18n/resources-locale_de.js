@@ -96,7 +96,7 @@
     },
     {
         "key"        : "_development_menu_",
-        "value"      : "Pinyto Entwickeln",
+        "value"      : "Pinyto entwickeln",
         "description": "Menu entry for the Development category"
     },
     {
