@@ -167,6 +167,20 @@ class KeyserverTest(TestCase):
         self.assertIn('token', res)
         self.assertTrue(len(res['token']) > 10)
 
+    def test_authentication_real_request_Klaus_Merkert(self):
+        jonny = Account.create(u'KlausMerkert', u'2P4#a$w7/9P2', 2)
+        key_data = {'N': unicode(jonny.N), 'e': unicode(jonny.e)}
+        cloud_register('KlausMerkert', key_data)
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'name': 'KlausMerkert', 'password': '2P4#a$w7/9P2'}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertIn('token', res)
+        self.assertTrue(len(res['token']) > 10)
+
     def mock_cloud_register_success(self, param):
         return {'success': True}
 
@@ -199,6 +213,25 @@ class KeyserverTest(TestCase):
         res = json.loads(response.content)
         self.assertEqual(Account.objects.filter(name='jonny').count(), 1)
         created_account = Account.objects.filter(name='jonny').all()[0]
+        hash_string = u'1234' + created_account.salt
+        for i in range(created_account.hash_iterations):
+            hasher = sha256()
+            hasher.update(hash_string)
+            hash_string = hasher.hexdigest()
+        self.assertEqual(created_account.hash, hash_string)
+        self.assertNotIn('error', res)
+        self.assertIn('success', res)
+        self.assertTrue(res['success'])
+
+    def test_register_successful_real_request_Klaus_Merkert(self):
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({'name': 'KlausMerkert', 'password': '1234'}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertEqual(Account.objects.filter(name='KlausMerkert').count(), 1)
+        created_account = Account.objects.filter(name='KlausMerkert').all()[0]
         hash_string = u'1234' + created_account.salt
         for i in range(created_account.hash_iterations):
             hasher = sha256()
