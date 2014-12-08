@@ -140,3 +140,11 @@ class NoResponseFromHostException(Exception):
     """
     This is a custom exception which gets returned if no valid response is returned.
     """
+
+
+class EmptyRequest():
+    """
+    This class is used for processing jobs. They need request.body but it can be empty.
+    """
+    def __init__(self):
+        self.body = ""

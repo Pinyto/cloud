@@ -10,12 +10,12 @@ from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
 from service.response import json_response
-from models import Factory as SandboxFactory
 from service.models import Factory as DirectFactory
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
 from pinytoCloud.models import User
 from sandbox import safely_exec
+from sandbox_helpers import EmptyRequest
 from inspect import getmembers, isfunction
 import time
 import json
@@ -133,13 +133,13 @@ def check_for_jobs(sender, **kwargs):
     for user in User.objects.all():
         collection = Collection(MongoClient().pinyto, user.name)
         for job in collection.find({'type': 'job'}):
-            if not job['data'] or not job['data']['assembly_user'] or not job['data']['assembly_name'] or \
-               not job['data']['job_name']:
+            if 'data' not in job or 'assembly_user' not in job['data'] or 'assembly_name' not in job['data'] or \
+               'job_name' not in job['data']:
                 continue
             try:
                 api_class = getattr(
                     __import__(
-                        'api.' + job['data']['assembly_user'],
+                        'api.' + job['data']['assembly_user'] + '_' + job['data']['assembly_name'] + '.assembly',
                         fromlist=[job['data']['assembly_name']]),
                     job['data']['assembly_name'])
             except ImportError:
@@ -169,7 +169,7 @@ def check_for_jobs(sender, **kwargs):
                                   job['data']['job_name'] + '" defined.'}
                     )
                 collection_wrapper = CollectionWrapper(collection)
-                response_data, elapsed_time = safely_exec(api_function.code, None, collection_wrapper)
+                response_data, elapsed_time = safely_exec(api_function.code, EmptyRequest(), collection_wrapper)
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
                     elapsed_time,

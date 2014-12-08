@@ -660,7 +660,7 @@ for book in incomplete_books:
         completed = False
         while not completed:
             iterations += 1
-            if iterations > 2:  # 100:
+            if iterations > 100:
                 self.fail("Maximum iterations reached. The data was not completed.")
             response = test_client.post(
                 '/bborsalinosandbox/Librarian/index',
