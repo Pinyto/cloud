@@ -226,13 +226,13 @@ class KeyserverTest(TestCase):
     def test_register_successful_real_request_Klaus_Merkert(self):
         response = self.client.post(
             reverse('register'),
-            json.dumps({'name': 'KlausMerkert', 'password': '1234'}),
+            json.dumps({'name': 'KlausMerkert', 'password': '123456'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertEqual(Account.objects.filter(name='KlausMerkert').count(), 1)
         created_account = Account.objects.filter(name='KlausMerkert').all()[0]
-        hash_string = u'1234' + created_account.salt
+        hash_string = u'123456' + created_account.salt
         for i in range(created_account.hash_iterations):
             hasher = sha256()
             hasher.update(hash_string)
