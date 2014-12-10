@@ -177,7 +177,7 @@ def delete_key(request):
     session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if 'key_hash' not in request.POST:
+        if 'key_hash' not in request_data:
             return json_response({'error': "You have to supply a key_hash."})
         if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
             return json_response(
@@ -491,7 +491,7 @@ def install_assembly(request):
     session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        if 'author' in request.POST:
+        if 'author' in request_data:
             try:
                 author = User.objects.filter(name=request_data['author']).all()[0]
             except IndexError:
