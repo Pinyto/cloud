@@ -26,7 +26,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     url: '/keyserver/authenticate',
                     method: "POST",
-                    data: {'name': username, 'password': password},
+                    data: angular.toJson({'name': username, 'password': password}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -34,7 +34,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     url: '/keyserver/logout',
                     method: "POST",
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -42,7 +42,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     url: '/keyserver/register',
                     method: "POST",
-                    data: {'name': username, 'password': password},
+                    data: angular.toJson({'name': username, 'password': password}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -50,7 +50,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/statistics',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -58,7 +58,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/keyserver/change_password',
-                    data: {'token': token, 'password': password},
+                    data: angular.toJson({'token': token, 'password': password}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -66,7 +66,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/list_keys',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -74,7 +74,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/set_key_active',
-                    data: {'token': token, 'key_hash': keyHash, 'active_state': activeState},
+                    data: angular.toJson({'token': token, 'key_hash': keyHash, 'active_state': activeState}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -82,7 +82,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/delete_key',
-                    data: {'token': token, 'key_hash': keyHash},
+                    data: angular.toJson({'token': token, 'key_hash': keyHash}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -90,7 +90,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/list_own_assemblies',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -98,7 +98,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/save_assembly',
-                    data: {'token': token, 'original_name': originalName, 'data': assemblyJson},
+                    data: angular.toJson({'token': token, 'original_name': originalName, 'data': assemblyJson}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -106,7 +106,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/delete_assembly',
-                    data: {'token': token, 'name': name},
+                    data: angular.toJson({'token': token, 'name': name}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -114,7 +114,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/list_installed_assemblies',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -122,7 +122,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/list_all_assemblies',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -130,7 +130,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/install_assembly',
-                    data: {'token': token, 'author': author, 'name': name},
+                    data: angular.toJson({'token': token, 'author': author, 'name': name}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -138,7 +138,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/uninstall_assembly',
-                    data: {'token': token, 'author': author, 'name': name},
+                    data: angular.toJson({'token': token, 'author': author, 'name': name}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -146,7 +146,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/get_assembly_source',
-                    data: {'token': token, 'author': author, 'name': name},
+                    data: angular.toJson({'token': token, 'author': author, 'name': name}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -164,7 +164,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/pinyto/DocumentsAdmin/search',
-                    data: data,
+                    data: angular.toJson(data),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -172,7 +172,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/pinyto/DocumentsAdmin/save',
-                    data: {'token': token, 'document': document},
+                    data: angular.toJson({'token': token, 'document': document}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -180,7 +180,7 @@ angular.module('PinytoWebServices', [])
                 return $http({
                     method: "POST",
                     url: '/pinyto/DocumentsAdmin/delete',
-                    data: {'token': token, 'document': document},
+                    data: angular.toJson({'token': token, 'document': document}),
                     headers: {'Content-Type': 'application/json'}
                 });
             }

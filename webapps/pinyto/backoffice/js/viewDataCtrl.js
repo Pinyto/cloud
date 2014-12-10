@@ -94,7 +94,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             } else {
                 document['data'] = {};
             }
-            Backend.saveDocument(Authenticate.getToken(), angular.toJson(document)).success(function (data) {
+            Backend.saveDocument(Authenticate.getToken(), document).success(function (data) {
                 var response = angular.fromJson(data);
                 if (response['success']) {
                     localDocument['_id'] = response['_id'];
@@ -107,7 +107,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             if (localDocument['_id']) {
                 Backend.searchDocuments(
                     Authenticate.getToken(),
-                    angular.toJson({'_id': localDocument['_id']}),
+                    {'_id': localDocument['_id']},
                     0,
                     1
                 ).success(function (data) {
@@ -117,14 +117,14 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     newLocalDocument['type'] = documentData['type'];
                     newLocalDocument['time'] = documentData['time'];
                     newLocalDocument['tags'] = angular.copy(documentData['tags']);
+                    var dataType = 'simple';
                     if (angular.isObject(documentData['data'])) {
-                        newLocalDocument['dataType'] = 'object';
+                        dataType = 'object';
                     }
                     if (angular.isArray(documentData['data'])) {
-                        newLocalDocument['dataType'] = 'array';
-                    } else {
-                        newLocalDocument['dataType'] = 'simple';
+                        dataType = 'array';
                     }
+                    newLocalDocument['dataType'] = dataType;
                     newLocalDocument['data'] = $scope.createLocalDocumentStructure(documentData['data']);
                     if ($scope.localDocuments) {
                         for (var i = 0; i < $scope.localDocuments.length; i++) {
@@ -232,7 +232,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             if ($scope.validQuery()) {
                 Backend.searchDocuments(
                     Authenticate.getToken(),
-                    $scope.query,
+                    angular.fromJson($scope.query),
                     $scope.offset,
                     $scope.limit
                 ).success(function (data) {
@@ -277,7 +277,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             if (localDocument['_id']) {
                 Backend.deleteDocument(
                     Authenticate.getToken(),
-                    angular.toJson({'_id': localDocument['_id']})
+                    {'_id': localDocument['_id']}
                 ).success(function (data) {
                     if (angular.fromJson(data)['success']) {
                         $scope.documents.splice(index, 1);

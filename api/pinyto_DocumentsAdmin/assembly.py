@@ -44,10 +44,7 @@ class DocumentsAdmin():
         else:
             count = 42
         if 'query' in request_data:
-            try:
-                query = json.loads(request_data['query'])
-            except ValueError:
-                return json.dumps({'error': 'The search param is not in valid JSON format.'})
+            query = request_data['query']
         else:
             query = {}
         return json.dumps({'result': db.find(query=query, skip=skip, limit=count)})
