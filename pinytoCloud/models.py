@@ -9,8 +9,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16encode
 from hashlib import sha256
-from datetime import datetime
-from dateutil.tz import tzlocal
+from django.utils import timezone
 from pinytoCloud.helpers import create_token
 
 
@@ -39,12 +38,12 @@ class User(models.Model):
         try:
             session = self.sessions.filter(key=key_db_object).all()[0]
             session.token = create_token()
-            session.timestamp = datetime.now(tzlocal())
+            session.timestamp = timezone.now()
             session.save()
         except IndexError:
             session = Session(
                 token=create_token(),
-                timestamp=datetime.now(tzlocal()),
+                timestamp=timezone.now(),
                 key=key_db_object,
                 user=self)
             session.save()
@@ -58,7 +57,7 @@ class User(models.Model):
         @param added_time: time
         @param new_storage: int
         """
-        now = datetime.now(tzlocal())
+        now = timezone.now()
         self.time_budget = self.time_budget + added_time
         self.storage_budget += self.current_storage * (now - self.last_calculation_time).total_seconds()
         self.last_calculation_time = now
@@ -82,7 +81,7 @@ def initialize_budgets(sender, instance, **kwargs):
     if not instance.current_storage:
         instance.current_storage = 0
     if not instance.last_calculation_time:
-        instance.last_calculation_time = datetime.now(tzlocal())
+        instance.last_calculation_time = timezone.now()
 
 
 class StoredPublicKey(models.Model):
@@ -209,4 +208,4 @@ class Job(models.Model):
 
     def __str__(self):
         return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
-               ' Scheduled: ' + str(self.schedule)
+            ' Scheduled: ' + str(self.schedule)

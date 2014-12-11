@@ -12,7 +12,7 @@ from pinytoCloud.models import Session, Assembly
 from datetime import datetime
 from database.helpers import get_tags, get_str_or_discard
 import json
-import pytz
+import time
 
 
 @csrf_exempt
@@ -85,9 +85,13 @@ def statistics(request):
             'time_budget': session.user.time_budget,
             'storage_budget': session.user.storage_budget,
             'current_storage': session.user.current_storage,
-            'last_calculation': (
-                session.user.last_calculation_time - datetime.fromtimestamp(0, pytz.utc)
-            ).total_seconds() * 1000,
+            'last_calculation': time.mktime((session.user.last_calculation_time.year,
+                                             session.user.last_calculation_time.month,
+                                             session.user.last_calculation_time.day,
+                                             session.user.last_calculation_time.hour,
+                                             session.user.last_calculation_time.minute,
+                                             session.user.last_calculation_time.second,
+                                             -1, -1, -1)) + session.user.last_calculation_time.microsecond,
             'assembly_count': session.user.assemblies.count(),
             'installed_assemblies_count': session.user.installed_assemblies.count(),
             'all_assemblies_count': Assembly.objects.count()
