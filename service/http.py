@@ -42,7 +42,7 @@ class Https():
         return content
 
     @staticmethod
-    def post(domain, path="", params={}):
+    def post(domain, path="", params=None):
         """
         This issues a http request to the supplied url and returns
         the response as a string. If the request fails an empty
@@ -55,6 +55,8 @@ class Https():
         @param params: dict
         @return: string
         """
+        if not params:
+            params = {}
         params = urlencode(params)
         headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
         connection = HTTPSConnection(domain)
