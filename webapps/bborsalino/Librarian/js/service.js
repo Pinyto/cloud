@@ -89,14 +89,14 @@ angular.module('BibServices', [])
                             var savePromise;
                             if (ean) {
                                 savePromise = $http({
-                                    url: '/store',
+                                    url: '/bborsalino/Librarian/store',
                                     method: "POST",
                                     data: {'token': token, 'type': 'book', 'data': {'ean': ean, 'place': place}},
                                     headers: {'Content-Type': 'application/json'}
                                 });
                             } else { //must be isbn
                                 savePromise = $http({
-                                    url: '/store',
+                                    url: '/bborsalino/Librarian/store',
                                     method: "POST",
                                     data: {'token': token, 'type': 'book', 'data': {'isbn': isbn, 'place': place}},
                                     headers: {'Content-Type': 'application/json'}
@@ -109,7 +109,7 @@ angular.module('BibServices', [])
                             });
                             // Save the job to complete the data
                             var jobCreatePromise = $http({
-                                    url: '/store',
+                                    url: '/bborsalino/Librarian/store',
                                     method: "POST",
                                     data: {'token': token, 'type': 'job', 'data': {
                                         'assembly_user': 'bborsalino',

@@ -16,6 +16,28 @@ import datetime
 import time
 
 
+class StoreTest(TestCase):
+    def test_no_JSON(self):
+        response = self.client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            "Didelidi",
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Please supply the token as JSON.")
+
+    def test_no_token(self):
+        response = self.client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({'x': 1234}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Please supply JSON with a token key.")
+
+
 class StatisticsTest(TestCase):
     def test_no_JSON(self):
         response = self.client.post(

@@ -16,12 +16,14 @@ import time
 
 
 @csrf_exempt
-def store(request):
+def store(request, user_name, assembly_name):
     """
-    Store document in any format. The date of creation and request.user will be
+    Store document in any format. The assembly, date of creation and request.user will be
     added automatically to the document
 
     @param request: Django request
+    @param user_name: string
+    @param assembly_name: string
     @return JSON
     """
     try:
@@ -50,6 +52,7 @@ def store(request):
             document = {'type': data_type,
                         'time': datetime.utcnow(),
                         'tags': tags,
+                        'assembly': user_name + '/' + assembly_name,
                         'data': data}
             db.insert(document)
             return json_response({'success': True})

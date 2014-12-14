@@ -32,7 +32,7 @@ urlpatterns += patterns(
 urlpatterns += patterns(
     'database.views',
 
-    url(r'^store$', 'store', name='store'),
+    url(r'^(?P<user_name>\w+)/(?P<assembly_name>\w+)/store$', 'store', name='store'),
     url(r'^statistics$', 'statistics', name='statistics'),
 )
 
