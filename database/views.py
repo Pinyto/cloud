@@ -55,7 +55,7 @@ def store(request):
             return json_response({'success': True})
         else:
             return json_response({'error': "If you want to store data you have to send your " +
-                                           "data as json string in a POST request in the parameter 'data'. " +
+                                           "data as json string in the parameter 'data'. " +
                                            "You also have to supply a type string for the data. " +
                                            "Supplying tags in the parameter 'tags' is optional " +
                                            "but strongly recommended."})
