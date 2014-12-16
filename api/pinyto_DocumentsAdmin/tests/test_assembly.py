@@ -19,19 +19,8 @@ class TestDocumentsAdmin(TestCase):
         self.pinyto = User(name='pinyto')
         self.pinyto.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in self.collection.find():
-            backup_collection.insert(doc)
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection)
-
-    def tearDown(self):
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in backup_collection.find():
-            self.collection.insert(doc)
 
     def mock_check_token(self):
         """

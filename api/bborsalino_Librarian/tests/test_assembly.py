@@ -19,19 +19,8 @@ class TestBBorsalino(TestCase):
         self.bborsalino = User(name='bborsalino')
         self.bborsalino.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in self.collection.find():
-            backup_collection.insert(doc)
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection)
-
-    def tearDown(self):
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in backup_collection.find():
-            self.collection.insert(doc)
 
     def mock_check_token(self):
         """
@@ -197,7 +186,7 @@ class TestBBorsalino(TestCase):
     def test_job_complete_data_by_asking_dnb(self):
         test_client = Client()
         response = test_client.post(
-            '/store',
+            '/bborsalino/Librarian/store',
             json.dumps({
                 'token': 'fake',
                 'type': 'book',
@@ -210,7 +199,7 @@ class TestBBorsalino(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
-            '/store',
+            '/bborsalino/Librarian/store',
             json.dumps({
                 'token': 'fake',
                 'type': 'job',
@@ -448,19 +437,8 @@ for book in incomplete_books:
         self.librarian_complete.save()
 
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in self.collection.find():
-            backup_collection.insert(doc)
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection)
-
-    def tearDown(self):
-        self.collection.drop()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
-        backup_collection = Collection(MongoClient().pinyto, 'Hugo_backup')
-        for doc in backup_collection.find():
-            self.collection.insert(doc)
 
     def mock_check_token(self):
         """
@@ -627,14 +605,14 @@ for book in incomplete_books:
     def test_job_complete_data_by_asking_dnb(self):
         test_client = Client()
         response = test_client.post(
-            '/store',
+            '/bborsalinosandbox/Librarian/store',
             json.dumps({'token': 'fake', 'type': 'book', 'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
-            '/store',
+            '/bborsalinosandbox/Librarian/store',
             json.dumps({
                 'token': 'fake',
                 'type': 'job',
