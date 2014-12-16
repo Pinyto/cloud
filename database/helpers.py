@@ -4,30 +4,6 @@ This File is part of Pinyto
 """
 from __future__ import division, print_function, unicode_literals
 
-from django.contrib.auth.models import User, Group
-
-
-def create_user(username, mail="a@bc.de", password=None,
-                groups=()):
-    """
-    Convenience function to add users.
-
-    @param username: string
-    @param mail: string
-    @param password: string
-    @param groups: tuple
-    @return: User
-    """
-    if password:
-        new_user = User.objects.create_user(username, mail, password)
-    else:
-        new_user = User(username=username, email=mail)
-        new_user.save()
-    for group in groups:
-        Group.objects.get(name=group).user_set.add(new_user)
-
-    return new_user
-
 
 def get_str_or_discard(data):
     """

@@ -4,12 +4,10 @@ from __future__ import division, print_function, unicode_literals
 from django.test import TestCase
 from django.http.response import HttpResponse
 from service.response import json_response
-from database.helpers import create_user
 
 
 class TestResponse(TestCase):
     def setUp(self):
-        #self.hans = create_user('hans')
         pass
 
     def test_json_response(self):
