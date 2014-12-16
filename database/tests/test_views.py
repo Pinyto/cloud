@@ -129,6 +129,27 @@ class StoreTest(TestCase):
                                        "Supplying tags in the parameter 'tags' is optional " +
                                        "but strongly recommended.")
 
+    def test_no_data(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        test_client = Client()
+        response = test_client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({
+                'token': authentication_token,
+                'type': 'test',
+                'tags': ['a', 'b', 'c']
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "If you want to store data you have to send your " +
+                                       "data as json string in the parameter 'data'. " +
+                                       "You also have to supply a type string for the data. " +
+                                       "Supplying tags in the parameter 'tags' is optional " +
+                                       "but strongly recommended.")
+
 
 class StatisticsTest(TestCase):
     def test_no_JSON(self):

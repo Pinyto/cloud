@@ -36,7 +36,6 @@ def store(request, user_name, assembly_name):
     session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
-        data = request_data['data']
         if 'type' in request_data:
             data_type = get_str_or_discard(str(request_data['type']))
         else:
@@ -48,13 +47,13 @@ def store(request, user_name, assembly_name):
                 tags = []
         else:
             tags = []
-        if data and data_type:
+        if 'data' in request_data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
             document = {'type': data_type,
                         'time': timezone.now().astimezone(pytz.timezone('UTC')),
                         'tags': tags,
                         'assembly': user_name + '/' + assembly_name,
-                        'data': data}
+                        'data': request_data['data']}
             db.insert(document)
             return json_response({'success': True})
         else:
