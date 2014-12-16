@@ -173,3 +173,33 @@ class TestSaveAssembly(TestCase):
         res = json.loads(response.content)
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
+
+    def test_no_original_name(self):
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({'token': self.authentication_token}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "You have to supply an original_name and the data of the new or changed assembly.")
+
+    def test_no_description(self):
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({
+                'token': self.authentication_token,
+                'original_name': 'test',
+                'data': {
+                    'name': 'test'
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "The assembly data lacks a name or description. Both attributes must be present.")
