@@ -5,7 +5,7 @@ This File is part of Pinyto
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from pinytoCloud.models import User, StoredPublicKey
+from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
 from Crypto.Cipher import PKCS1_OAEP
 from keyserver.settings import PINYTO_PUBLICKEY
 from base64 import b16encode
@@ -62,3 +62,72 @@ class TestListOwnAssemblies(TestCase):
         res = json.loads(response.content)
         self.assertNotIn('error', res)
         self.assertListEqual(res, [])
+
+    def test_successful(self):
+        assembly1 = Assembly(
+            name='test1',
+            author=self.hugo,
+            description='test assembly no 1'
+        )
+        assembly1.save()
+        func1 = ApiFunction(
+            name='func1',
+            code='print("Hallo Welt!")',
+            assembly=assembly1
+        )
+        func1.save()
+        func2 = ApiFunction(
+            name='func2',
+            code='print("Hello World!")',
+            assembly=assembly1
+        )
+        func2.save()
+        job1 = Job(
+            name='job1',
+            code='print("Arbeit.")',
+            assembly=assembly1,
+            schedule=0
+        )
+        job1.save()
+        assembly2 = Assembly(
+            name='test2',
+            author=self.hugo,
+            description='test assembly no 2'
+        )
+        assembly2.save()
+        response = self.client.post(
+            reverse('list_own_assemblies'),
+            json.dumps({'token': self.authentication_token}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertListEqual(res, [
+            {
+                u'name': u'test1',
+                u'description': u'test assembly no 1',
+                u'api_functions': [
+                    {
+                        u'name': u'func1',
+                        u'code': u'print("Hallo Welt!")'
+                    },
+                    {
+                        u'name': u'func2',
+                        u'code': u'print("Hello World!")'
+                    }
+                ],
+                u'jobs': [
+                    {
+                        u'name': u'job1',
+                        u'code': u'print("Arbeit.")',
+                        u'schedule': 0
+                    }
+                ]
+            },
+            {
+                u'name': u'test2',
+                u'description': u'test assembly no 2',
+                u'api_functions': [],
+                u'jobs': []
+            }
+        ])
