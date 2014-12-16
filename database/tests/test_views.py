@@ -150,6 +150,82 @@ class StoreTest(TestCase):
                                        "Supplying tags in the parameter 'tags' is optional " +
                                        "but strongly recommended.")
 
+    def test_no_tags(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        hugo.last_calculation_time = timezone.now()
+        hugo.save()
+        test_client = Client()
+        before_request_time = timezone.now()
+        response = test_client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({
+                'token': authentication_token,
+                'type': 'test',
+                'data': {
+                    'foo': 'abc',
+                    'bar': 42
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertIn('success', res)
+        self.assertTrue(res['success'])
+        db = Collection(MongoClient().pinyto, hugo.name)
+        self.assertEqual(db.count(), 1)
+        for document in db.find({'type': 'test'}):
+            self.assertEqual(document['assembly'], 'test/bla')
+            self.assertGreaterEqual(
+                document['time'],
+                before_request_time.astimezone(pytz.timezone('UTC')).replace(tzinfo=None))
+            self.assertLessEqual(
+                document['time'],
+                timezone.now().astimezone(pytz.timezone('UTC')).replace(tzinfo=None))
+            self.assertEqual(document['data']['foo'], 'abc')
+            self.assertEqual(document['data']['bar'], 42)
+            self.assertListEqual(document['tags'], [])
+
+    def test_wrong_tags(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        for tags in [{'a': 1, 'b': 'c'}, {}, 12.3, 42, [{'a': 2}, {}]]:
+            self.clear_collection(hugo.name)
+            hugo.last_calculation_time = timezone.now()
+            hugo.save()
+            test_client = Client()
+            before_request_time = timezone.now()
+            response = test_client.post(
+                reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+                json.dumps({
+                    'token': authentication_token,
+                    'type': 'test',
+                    'tags': tags,
+                    'data': {
+                        'foo': 'abc',
+                        'bar': 42
+                    }
+                }),
+                content_type='application/json')
+            self.assertEqual(response.status_code, 200)
+            res = json.loads(response.content)
+            self.assertNotIn('error', res)
+            self.assertIn('success', res)
+            self.assertTrue(res['success'])
+            db = Collection(MongoClient().pinyto, hugo.name)
+            self.assertEqual(db.count(), 1)
+            for document in db.find({'type': 'test'}):
+                self.assertEqual(document['assembly'], 'test/bla')
+                self.assertGreaterEqual(
+                    document['time'],
+                    before_request_time.astimezone(pytz.timezone('UTC')).replace(tzinfo=None))
+                self.assertLessEqual(
+                    document['time'],
+                    timezone.now().astimezone(pytz.timezone('UTC')).replace(tzinfo=None))
+                self.assertEqual(document['data']['foo'], 'abc')
+                self.assertEqual(document['data']['bar'], 42)
+                self.assertListEqual(document['tags'], [])
+
 
 class StatisticsTest(TestCase):
     def test_no_JSON(self):

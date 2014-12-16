@@ -41,10 +41,7 @@ def store(request, user_name, assembly_name):
         else:
             data_type = ""
         if 'tags' in request_data:
-            try:
-                tags = get_tags(request_data['tags'])
-            except TypeError or ValueError:
-                tags = []
+            tags = get_tags(request_data['tags'])
         else:
             tags = []
         if 'data' in request_data and data_type:
