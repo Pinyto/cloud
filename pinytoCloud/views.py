@@ -320,7 +320,8 @@ def save_assembly(request):
                         if assembly_is_new:
                             assembly.delete()
                         return json_response(
-                            {'error': "The assembly data lacks a name or code attribute in a api function."}
+                            {'error': "The assembly data for changing an existing function " +
+                                      "lacks a name or code attribute."}
                         )
                     if api_function.name == loaded_function['name']:
                         api_function.code = loaded_function['code']
@@ -329,13 +330,20 @@ def save_assembly(request):
                 if not found:
                     api_function.delete()
             for loaded_function in assembly_data['api_functions']:
-                if not loaded_function['name'] in [x.name for x in assembly.api_functions.all()]:
-                    new_function = ApiFunction(
-                        assembly=assembly,
-                        name=loaded_function['name'],
-                        code=loaded_function['code']
+                if 'name' in loaded_function and 'code' in loaded_function:
+                    if not loaded_function['name'] in [x.name for x in assembly.api_functions.all()]:
+                        new_function = ApiFunction(
+                            assembly=assembly,
+                            name=loaded_function['name'],
+                            code=loaded_function['code']
+                        )
+                        new_function.save()
+                else:
+                    if assembly_is_new:
+                        assembly.delete()
+                    return json_response(
+                        {'error': "The assembly data lacks a name or code attribute in a api function."}
                     )
-                    new_function.save()
             for job in assembly.jobs.all():
                 found = False
                 for loaded_job in assembly_data['jobs']:
