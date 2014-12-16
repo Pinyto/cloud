@@ -9,10 +9,11 @@ from pymongo.collection import Collection
 from service.response import json_response
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session, Assembly
-from datetime import datetime
+from django.utils import timezone
 from database.helpers import get_tags, get_str_or_discard
 import json
 import time
+import pytz
 
 
 @csrf_exempt
@@ -50,7 +51,7 @@ def store(request, user_name, assembly_name):
         if data and data_type:
             db = Collection(MongoClient().pinyto, session.user.name)
             document = {'type': data_type,
-                        'time': datetime.utcnow(),
+                        'time': timezone.now().astimezone(pytz.timezone('UTC')),
                         'tags': tags,
                         'assembly': user_name + '/' + assembly_name,
                         'data': data}
