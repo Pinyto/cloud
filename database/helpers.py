@@ -13,7 +13,7 @@ def get_str_or_discard(data):
     @param data: str or float or int
     @return: str
     """
-    if type(data) in [str, float, int]:
+    if type(data) in [str, float, int, unicode]:
         return str(data)
     else:
         return ""

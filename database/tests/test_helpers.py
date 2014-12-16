@@ -27,6 +27,9 @@ class TestGetStrOrDiscard(TestCase):
     def test_datetime(self):
         self.assertEqual(get_str_or_discard(datetime.datetime.now()), '')
 
+    def test_unicode(self):
+        self.assertEqual(get_str_or_discard(u"abc"), 'abc')
+
 
 class TestGetTags(TestCase):
     def test_string(self):
