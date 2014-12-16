@@ -40,12 +40,9 @@ class StoreTest(TestCase):
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
-    def test_successful(self):
+    def create_user_session_and_token(self):
         hugo = User(name='Hugo')
         hugo.save()
-        db = Collection(MongoClient().pinyto, hugo.name)
-        db.remove({})
-        self.assertEqual(db.count(), 0)
         n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
             "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
             "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
@@ -62,6 +59,18 @@ class StoreTest(TestCase):
         hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
         authentication_token = b16encode(pinyto_cipher.encrypt(session.token))
+        return hugo, session, authentication_token
+
+    def clear_collection(self, username):
+        db = Collection(MongoClient().pinyto, username)
+        db.remove({})
+        self.assertEqual(db.count(), 0)
+
+    def test_successful(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        hugo.last_calculation_time = timezone.now()
+        hugo.save()
         test_client = Client()
         before_request_time = timezone.now()
         response = test_client.post(
@@ -81,6 +90,7 @@ class StoreTest(TestCase):
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
+        db = Collection(MongoClient().pinyto, hugo.name)
         self.assertEqual(db.count(), 1)
         for document in db.find({'type': 'test'}):
             self.assertEqual(document['assembly'], 'test/bla')
@@ -93,6 +103,31 @@ class StoreTest(TestCase):
             self.assertEqual(document['data']['foo'], 'abc')
             self.assertEqual(document['data']['bar'], 42)
             self.assertListEqual(document['tags'], ['a', 'b', 'c'])
+
+    def test_no_type(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        test_client = Client()
+        response = test_client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({
+                'token': authentication_token,
+                'type': '',
+                'tags': ['a', 'b', 'c'],
+                'data': {
+                    'foo': 'abc',
+                    'bar': 42
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "If you want to store data you have to send your " +
+                                       "data as json string in the parameter 'data'. " +
+                                       "You also have to supply a type string for the data. " +
+                                       "Supplying tags in the parameter 'tags' is optional " +
+                                       "but strongly recommended.")
 
 
 class StatisticsTest(TestCase):
