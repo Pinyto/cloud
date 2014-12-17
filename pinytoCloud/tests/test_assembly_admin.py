@@ -288,7 +288,7 @@ class TestSaveAssembly(TestCase):
     def test_incomplete_existing_job(self):
         test_assembly = Assembly(name='test', description='This is a test.', author=self.hugo)
         test_assembly.save()
-        job = Job(name='func', code='blubb', assembly=test_assembly, schedule=0)
+        job = Job(name='jobli', code='blubb', assembly=test_assembly, schedule=0)
         job.save()
         response = self.client.post(
             reverse('save_assembly'),
@@ -315,3 +315,52 @@ class TestSaveAssembly(TestCase):
         self.assertListEqual(list(Assembly.objects.filter(author=self.hugo).all()), [
             test_assembly
         ])
+
+    def test_extend_existing_assembly(self):
+        test_assembly = Assembly(name='test', description='This is a test.', author=self.hugo)
+        test_assembly.save()
+        api_function = ApiFunction(name='func', code='blubb', assembly=test_assembly)
+        api_function.save()
+        job = Job(name='jobli', code='bar', assembly=test_assembly, schedule=0)
+        job.save()
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({
+                'token': self.authentication_token,
+                'original_name': 'test',
+                'data': {
+                    'name': 'test',
+                    'description': 'This is a test.',
+                    'api_functions': [
+                        {
+                            'name': 'apili',
+                            'code': 'something'
+                        }
+                    ],
+                    'jobs': [
+                        {
+                            'name': 'arbeito',
+                            'code': 'foo'
+                        },
+                        {
+                            'name': 'didelidi',
+                            'code': 'bar'
+                        }
+                    ]
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertIn('success', res)
+        self.assertTrue(res['success'])
+        for assembly in Assembly.objects.filter(author=self.hugo).all():
+            self.assertEqual(assembly.api_functions.count(), 1)
+            self.assertEqual(assembly.api_functions.all()[0].name, 'apili')
+            self.assertEqual(assembly.api_functions.all()[0].code, 'something')
+            self.assertEqual(assembly.jobs.count(), 2)
+            self.assertEqual(assembly.jobs.all()[0].name, 'arbeito')
+            self.assertEqual(assembly.jobs.all()[0].code, 'foo')
+            self.assertEqual(assembly.jobs.all()[1].name, 'didelidi')
+            self.assertEqual(assembly.jobs.all()[1].code, 'bar')
