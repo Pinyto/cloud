@@ -228,3 +228,34 @@ class TestSaveAssembly(TestCase):
             res['error'],
             "The assembly data lacks a name or code attribute in a api function.")
         self.assertListEqual(list(Assembly.objects.filter(author=self.hugo).all()), [])
+
+    def test_incomplete_existing_api_function(self):
+        test_assembly = Assembly(name='test', description='This is a test.', author=self.hugo)
+        test_assembly.save()
+        api_function = ApiFunction(name='func', code='blubb', assembly=test_assembly)
+        api_function.save()
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({
+                'token': self.authentication_token,
+                'original_name': 'test',
+                'data': {
+                    'name': 'test',
+                    'description': 'This is a test.',
+                    'api_functions': [
+                        {
+                            'name': 'func'
+                        }
+                    ]
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "The assembly data for changing an existing function lacks a name or code attribute.")
+        self.assertListEqual(list(Assembly.objects.filter(author=self.hugo).all()), [
+            test_assembly
+        ])
