@@ -170,7 +170,7 @@ pinytoWebApp.controller('PinytoMyAssembliesCtrl',
             Backend.saveAssembly(
                 Authenticate.getToken(),
                 name,
-                angular.toJson(saveAssembly)
+                saveAssembly
             ).success(function (data) {
                 if (angular.fromJson(data)['success']) {
                     assembly.saveState = 'success';

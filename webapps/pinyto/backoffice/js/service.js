@@ -94,11 +94,11 @@ angular.module('PinytoWebServices', [])
                     headers: {'Content-Type': 'application/json'}
                 });
             },
-            saveAssembly: function (token, originalName, assemblyJson) {
+            saveAssembly: function (token, originalName, assembly) {
                 return $http({
                     method: "POST",
                     url: '/save_assembly',
-                    data: angular.toJson({'token': token, 'original_name': originalName, 'data': assemblyJson}),
+                    data: angular.toJson({'token': token, 'original_name': originalName, 'data': assembly}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
