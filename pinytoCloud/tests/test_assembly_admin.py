@@ -364,3 +364,46 @@ class TestSaveAssembly(TestCase):
             self.assertEqual(assembly.jobs.all()[0].code, 'foo')
             self.assertEqual(assembly.jobs.all()[1].name, 'didelidi')
             self.assertEqual(assembly.jobs.all()[1].code, 'bar')
+
+    def test_new_assembly(self):
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({
+                'token': self.authentication_token,
+                'original_name': 'test',
+                'data': {
+                    'name': 'test',
+                    'description': 'This is a test.',
+                    'api_functions': [
+                        {
+                            'name': 'apili',
+                            'code': 'something'
+                        }
+                    ],
+                    'jobs': [
+                        {
+                            'name': 'arbeito',
+                            'code': 'foo'
+                        },
+                        {
+                            'name': 'didelidi',
+                            'code': 'bar'
+                        }
+                    ]
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertIn('success', res)
+        self.assertTrue(res['success'])
+        for assembly in Assembly.objects.filter(author=self.hugo).all():
+            self.assertEqual(assembly.api_functions.count(), 1)
+            self.assertEqual(assembly.api_functions.all()[0].name, 'apili')
+            self.assertEqual(assembly.api_functions.all()[0].code, 'something')
+            self.assertEqual(assembly.jobs.count(), 2)
+            self.assertEqual(assembly.jobs.all()[0].name, 'arbeito')
+            self.assertEqual(assembly.jobs.all()[0].code, 'foo')
+            self.assertEqual(assembly.jobs.all()[1].name, 'didelidi')
+            self.assertEqual(assembly.jobs.all()[1].code, 'bar')
