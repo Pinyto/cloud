@@ -351,7 +351,7 @@ def save_assembly(request):
                         if assembly_is_new:
                             assembly.delete()
                         return json_response(
-                            {'error': "The assembly data lacks a name or code attribute in a job."}
+                            {'error': "The assembly data for changing an existing job lacks a name or code attribute."}
                         )
                     if 'schedule' in loaded_job:
                         schedule = loaded_job['schedule']
@@ -365,18 +365,25 @@ def save_assembly(request):
                 if not found:
                     job.delete()
             for loaded_job in assembly_data['jobs']:
-                if not loaded_job['name'] in [x.name for x in assembly.jobs.all()]:
-                    if 'schedule' in loaded_job:
-                        schedule = loaded_job['schedule']
-                    else:
-                        schedule = 0
-                    new_job = Job(
-                        assembly=assembly,
-                        name=loaded_job['name'],
-                        code=loaded_job['code'],
-                        schedule=schedule
+                if 'name' in loaded_job and 'code' in loaded_job:
+                    if not loaded_job['name'] in [x.name for x in assembly.jobs.all()]:
+                        if 'schedule' in loaded_job:
+                            schedule = loaded_job['schedule']
+                        else:
+                            schedule = 0
+                        new_job = Job(
+                            assembly=assembly,
+                            name=loaded_job['name'],
+                            code=loaded_job['code'],
+                            schedule=schedule
+                        )
+                        new_job.save()
+                else:
+                    if assembly_is_new:
+                        assembly.delete()
+                    return json_response(
+                        {'error': "The assembly data lacks a name or code attribute in a job."}
                     )
-                    new_job.save()
             assembly.save()
             return json_response({'success': True})
         else:

@@ -259,3 +259,28 @@ class TestSaveAssembly(TestCase):
         self.assertListEqual(list(Assembly.objects.filter(author=self.hugo).all()), [
             test_assembly
         ])
+
+    def test_incomplete_job(self):
+        response = self.client.post(
+            reverse('save_assembly'),
+            json.dumps({
+                'token': self.authentication_token,
+                'original_name': 'test',
+                'data': {
+                    'name': 'test',
+                    'description': 'This is a test.',
+                    'jobs': [
+                        {
+                            'name': 'arbeito'
+                        }
+                    ]
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "The assembly data lacks a name or code attribute in a job.")
+        self.assertListEqual(list(Assembly.objects.filter(author=self.hugo).all()), [])
