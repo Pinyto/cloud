@@ -425,18 +425,19 @@ class TestSaveAssembly(TestCase):
                     'description': 'This is a test.',
                     'api_functions': [
                         {
-                            'name': 'apili',
+                            'name': 'func',
                             'code': 'something'
                         }
                     ],
                     'jobs': [
                         {
                             'name': 'arbeito',
-                            'code': 'foo'
+                            'code': 'foo',
+                            'schedule': 12
                         },
                         {
-                            'name': 'didelidi',
-                            'code': 'bar'
+                            'name': 'jobli',
+                            'code': 'dudeldei'
                         }
                     ]
                 }
@@ -450,10 +451,10 @@ class TestSaveAssembly(TestCase):
         for assembly in Assembly.objects.filter(author=self.hugo).all():
             self.assertEqual(assembly.name, 'test2')
             self.assertEqual(assembly.api_functions.count(), 1)
-            self.assertEqual(assembly.api_functions.all()[0].name, 'apili')
+            self.assertEqual(assembly.api_functions.all()[0].name, 'func')
             self.assertEqual(assembly.api_functions.all()[0].code, 'something')
             self.assertEqual(assembly.jobs.count(), 2)
-            self.assertEqual(assembly.jobs.all()[0].name, 'arbeito')
-            self.assertEqual(assembly.jobs.all()[0].code, 'foo')
-            self.assertEqual(assembly.jobs.all()[1].name, 'didelidi')
-            self.assertEqual(assembly.jobs.all()[1].code, 'bar')
+            self.assertEqual(assembly.jobs.all()[0].name, 'jobli')
+            self.assertEqual(assembly.jobs.all()[0].code, 'dudeldei')
+            self.assertEqual(assembly.jobs.all()[1].name, 'arbeito')
+            self.assertEqual(assembly.jobs.all()[1].code, 'foo')

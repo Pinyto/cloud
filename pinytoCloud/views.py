@@ -317,8 +317,6 @@ def save_assembly(request):
                 found = False
                 for loaded_function in assembly_data['api_functions']:
                     if 'name' not in loaded_function or 'code' not in loaded_function:
-                        if assembly_is_new:
-                            assembly.delete()
                         return json_response(
                             {'error': "The assembly data for changing an existing function " +
                                       "lacks a name or code attribute."}
@@ -348,8 +346,6 @@ def save_assembly(request):
                 found = False
                 for loaded_job in assembly_data['jobs']:
                     if 'name' not in loaded_job or 'code' not in loaded_job:
-                        if assembly_is_new:
-                            assembly.delete()
                         return json_response(
                             {'error': "The assembly data for changing an existing job lacks a name or code attribute."}
                         )
