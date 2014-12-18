@@ -493,5 +493,10 @@
         "key"        : "_registeringInProgress_",
         "value"      : "Registrierung läuft...",
         "description": "This message gets displayed instead of the Register button"
+    },
+    {
+        "key"        : "_savingDocument_",
+        "value"      : "Dokument wird gespeichert...",
+        "description": "This message gets displayed while the saving of a changed document is in progress"
     }
 ]

@@ -94,7 +94,9 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             } else {
                 document['data'] = {};
             }
+            $scope.saving = true;
             Backend.saveDocument(Authenticate.getToken(), document).success(function (data) {
+                $scope.saving = undefined;
                 var response = angular.fromJson(data);
                 if (response['success']) {
                     localDocument['_id'] = response['_id'];
