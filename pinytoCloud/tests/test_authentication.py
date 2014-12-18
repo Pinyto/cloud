@@ -65,7 +65,7 @@ class TestAuthenticate(TestCase):
 
     def test_unknown_user_returns_error(self):
         response = self.client.post(
-            '/authenticate',
+            reverse('authenticate'),
             json.dumps({'username': 'Max', 'key_hash': 'wrong'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -75,7 +75,7 @@ class TestAuthenticate(TestCase):
 
     def test_wrong_hash_returns_error(self):
         response = self.client.post(
-            '/authenticate',
+            reverse('authenticate'),
             json.dumps({'username': 'hugo', 'key_hash': 'wrong'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -89,7 +89,7 @@ class TestAuthenticate(TestCase):
     def test_successful_response(self, cipher_mock):
         cipher_mock.new.return_value = MockCypher()
         response = self.client.post(
-            '/authenticate',
+            reverse('authenticate'),
             json.dumps({'username': 'hugo', 'key_hash': 'b44c98daa8'}),
             content_type='application/json'
         )
