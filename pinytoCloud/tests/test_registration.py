@@ -61,7 +61,10 @@ class RegisterTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "Factor N in the public key is not a number. It has to be a long integer.")
+        self.assertEqual(
+            res['error'],
+            "Factor N in the public key is not a number. It has to be a long integer transferred as a string."
+        )
 
     def test_e_not_a_number(self):
         response = self.client.post(
