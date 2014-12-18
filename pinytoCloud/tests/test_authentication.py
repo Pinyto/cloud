@@ -63,6 +63,27 @@ class TestAuthenticate(TestCase):
             long(65537)
         )
 
+    def test_no_JSON(self):
+        response = self.client.post(
+            reverse('authenticate'),
+            "Didelidi",
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Your request contained no valid JSON data. " +
+                                       "You have to supply a username and a key_hash to authenticate.")
+
+    def test_no_token(self):
+        response = self.client.post(
+            reverse('authenticate'),
+            json.dumps({'x': 1234}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "You have to supply a username and a key_hash to authenticate.")
+
     def test_unknown_user_returns_error(self):
         response = self.client.post(
             reverse('authenticate'),
