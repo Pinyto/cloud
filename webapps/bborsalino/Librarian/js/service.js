@@ -47,9 +47,9 @@ angular.module('BibServices', [])
                 return $http({
                     url: '/keyserver/authenticate',
                     method: "POST",
-                    data: 'name='+username+'&password='+password,
+                    data: angular.toJson({'name': username, 'password': password}),
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json'
                     }
                 });
             },
@@ -57,8 +57,8 @@ angular.module('BibServices', [])
                 return $http({
                     url: '/keyserver/logout',
                     method: "POST",
-                    data: 'token=' + token,
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                    data: angular.toJson({'token': token}),
+                    headers: {'Content-Type': 'application/json'}
                 });
             },
             searchOrStore: function (token, searchString, place) {
@@ -71,14 +71,14 @@ angular.module('BibServices', [])
                         promise = $http({
                             method: 'POST',
                             url: '/bborsalino/Librarian/index',
-                            data: {'token': token, 'ean': ean},
+                            data: angular.toJson({'token': token, 'ean': ean}),
                             headers: {'Content-Type': 'application/json'}
                         });
                     } else { //must be isbn
                         promise = $http({
                             method: 'POST',
                             url: '/bborsalino/Librarian/index',
-                            data: {'token': token, 'isbn': isbn},
+                            data: angular.toJson({'token': token, 'isbn': isbn}),
                             headers: {'Content-Type': 'application/json'}
                         });
                     }
@@ -91,14 +91,20 @@ angular.module('BibServices', [])
                                 savePromise = $http({
                                     url: '/bborsalino/Librarian/store',
                                     method: "POST",
-                                    data: {'token': token, 'type': 'book', 'data': {'ean': ean, 'place': place}},
+                                    data: angular.toJson({'token': token, 'type': 'book', 'data': {
+                                        'ean': ean,
+                                        'place': place
+                                    }}),
                                     headers: {'Content-Type': 'application/json'}
                                 });
                             } else { //must be isbn
                                 savePromise = $http({
                                     url: '/bborsalino/Librarian/store',
                                     method: "POST",
-                                    data: {'token': token, 'type': 'book', 'data': {'isbn': isbn, 'place': place}},
+                                    data: angular.toJson({'token': token, 'type': 'book', 'data': {
+                                        'isbn': isbn,
+                                        'place': place
+                                    }}),
                                     headers: {'Content-Type': 'application/json'}
                                 });
                             }
@@ -111,11 +117,11 @@ angular.module('BibServices', [])
                             var jobCreatePromise = $http({
                                     url: '/bborsalino/Librarian/store',
                                     method: "POST",
-                                    data: {'token': token, 'type': 'job', 'data': {
+                                    data: angular.toJson({'token': token, 'type': 'job', 'data': {
                                         'assembly_user': 'bborsalino',
                                         'assembly_name': 'Librarian',
                                         'job_name': 'job_complete_data_by_asking_dnb'
-                                    }},
+                                    }}),
                                     headers: {'Content-Type': 'application/json'}
                                 });
                             jobCreatePromise.success(function (data) {
@@ -133,7 +139,7 @@ angular.module('BibServices', [])
                     promise = $http({
                         method: 'POST',
                         url: '/bborsalino/Librarian/search',
-                        data: {'token': token, 'searchstring': searchString},
+                        data: angular.toJson({'token': token, 'searchstring': searchString}),
                         headers: {'Content-Type': 'application/json'}
                     });
                 }
@@ -143,7 +149,7 @@ angular.module('BibServices', [])
                 return $http({
                     method: "POST",
                     url: '/bborsalino/Librarian/update',
-                    data: {'token': token, 'book': book},
+                    data: angular.toJson({'token': token, 'book': book}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -151,7 +157,7 @@ angular.module('BibServices', [])
                 return $http({
                     method: "POST",
                     url: '/bborsalino/Librarian/duplicate',
-                    data: {'token': token, 'book': book},
+                    data: angular.toJson({'token': token, 'book': book}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -159,7 +165,7 @@ angular.module('BibServices', [])
                 return $http({
                     method: "POST",
                     url: '/bborsalino/Librarian/remove',
-                    data: {'token': token, 'book': book},
+                    data: angular.toJson({'token': token, 'book': book}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
@@ -167,7 +173,7 @@ angular.module('BibServices', [])
                 return $http({
                     method: "POST",
                     url: '/bborsalino/Librarian/statistics',
-                    data: {'token': token},
+                    data: angular.toJson({'token': token}),
                     headers: {'Content-Type': 'application/json'}
                 });
             }
