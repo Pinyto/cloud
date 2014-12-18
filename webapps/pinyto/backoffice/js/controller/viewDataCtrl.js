@@ -78,6 +78,11 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             } else {
                 document['type'] = "";
             }
+            if (localDocument['assembly']) {
+                document['assembly'] = localDocument['assembly'];
+            } else {
+                document['assembly'] = "";
+            }
             if (localDocument['time']) {
                 document['time'] = localDocument['time'];
             }
@@ -117,6 +122,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     var newLocalDocument = {};
                     newLocalDocument['_id'] = documentData['_id'];
                     newLocalDocument['type'] = documentData['type'];
+                    newLocalDocument['assembly'] = documentData['assembly'];
                     newLocalDocument['time'] = documentData['time'];
                     newLocalDocument['tags'] = angular.copy(documentData['tags']);
                     var dataType = 'simple';
@@ -146,6 +152,8 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                      ($scope.documents[index]['_id'] != $scope.localDocuments[index]['_id'])) ||
                     (($scope.documents[index]['type']) &&
                      ($scope.documents[index]['type'] != $scope.localDocuments[index]['type'])) ||
+                    (($scope.documents[index]['assembly']) &&
+                     ($scope.documents[index]['assembly'] != $scope.localDocuments[index]['assembly'])) ||
                     (($scope.documents[index]['time']) &&
                     ($scope.documents[index]['time'] != $scope.localDocuments[index]['time']))) {
                     return true;
@@ -184,6 +192,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                 {
                     'type': "",
                     'tags': [],
+                    'assembly': "",
                     'data': "",
                     'dataType': 'simple',
                     'validFormat': true
@@ -254,6 +263,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                             '_id': $scope.documents[i]['_id'],
                             'time': $scope.documents[i]['time'],
                             'type': $scope.documents[i]['type'],
+                            'assembly': $scope.documents[i]['assembly'],
                             'tags': [],
                             'data': $scope.createLocalDocumentStructure($scope.documents[i]['data']),
                             'dataType': dataType,
@@ -305,6 +315,7 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             $scope.localDocuments[index]['time'] = angular.copy($scope.documents[index]['time']);
             $scope.localDocuments[index]['type'] = angular.copy($scope.documents[index]['type']);
             $scope.localDocuments[index]['tags'] = angular.copy($scope.documents[index]['tags']);
+            $scope.localDocuments[index]['assembly'] = angular.copy($scope.documents[index]['assembly']);
             $scope.localDocuments[index]['data'] = $scope.createLocalDocumentStructure(
                 $scope.documents[index]['data']
             );

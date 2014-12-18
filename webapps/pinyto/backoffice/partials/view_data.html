@@ -21,6 +21,10 @@
                     <input type="text" id="document{{ $index }}TypeInput" ng-model="localDocument.type" />
                 </div>
                 <div>
+                    <label for="document{{ $index }}AssemblyInput" data-i18n="_assemblyLabel_"></label>
+                    <input type="text" id="document{{ $index }}AssemblyInput" ng-model="localDocument.assembly" />
+                </div>
+                <div>
                     tags:
                     <div style="padding-left: 1em;">
                         <div ng-repeat="tag in localDocument.tags track by $index">

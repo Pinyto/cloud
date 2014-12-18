@@ -435,6 +435,11 @@
         "description": "This is a fixed data field. Do not translate!"
     },
     {
+        "key"        : "_assemblyLabel_",
+        "value"      : "assembly:",
+        "description": "This is a fixed data field. Do not translate!"
+    },
+    {
         "key"        : "_timeLabel_",
         "value"      : "time:",
         "description": "This is a fixed data field. Do not translate!"
