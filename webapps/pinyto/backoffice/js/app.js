@@ -82,9 +82,7 @@ pinytoWebApp.run(function ($timeout, $http, $templateCache) {
             '/webapps/pinyto/backoffice/partials/backoffice_tabs.html'
         ];
         angular.forEach(prefetchingTemplates, function (templateUrl) {
-            console.log("prefetching: " + templateUrl);
             $http.get(templateUrl).success(function (templateData) {
-                console.log(templateUrl + " fetched.");
                 $templateCache.put(templateUrl, templateData);
             });
         });
