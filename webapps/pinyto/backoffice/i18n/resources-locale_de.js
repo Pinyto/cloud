@@ -471,7 +471,7 @@
     },
     {
         "key"        : "_viewDataQueryExplanation_",
-        "value"      : "Im Nachfolgenden Textfeld kann eine Query als JSON Struktur definiert werden. Die genaue Syntax kann in der Dokumentation von PyMongo nachgelesen werden. Wenn du nicht weißt, was du hier eintragen sollst, solltest du nichts auf dieser Seite abändern.",
+        "value"      : "Im nachfolgenden Textfeld kann eine Query als JSON Struktur definiert werden. Die genaue Syntax kann in der Dokumentation von PyMongo nachgelesen werden. Wenn du nicht weißt, was du hier eintragen sollst, solltest du nichts auf dieser Seite abändern.",
         "description": "Explanation paragraph about how to use the query"
     },
     {
