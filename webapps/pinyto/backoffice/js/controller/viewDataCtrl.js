@@ -99,9 +99,12 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             } else {
                 document['data'] = {};
             }
-            $scope.saving = true;
+            if (!$scope.saving) {
+                $scope.saving = {};
+            }
+            $scope.saving[localDocument['_id']] = true;
             Backend.saveDocument(Authenticate.getToken(), document).success(function (data) {
-                $scope.saving = undefined;
+                delete $scope.saving[localDocument['_id']];
                 var response = angular.fromJson(data);
                 if (response['success']) {
                     localDocument['_id'] = response['_id'];
@@ -110,16 +113,29 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             });
         };
 
+        $scope.isSaving = function (localDocument) {
+            if (!$scope.saving) {
+                return false;
+            }
+            if (localDocument['_id'] in $scope.saving) {
+                return $scope.saving[localDocument['_id']];
+            }
+            return false;
+        };
+
         $scope.updateDocument = function (localDocument) {
             if (localDocument['_id']) {
-                $scope.updating = true;
+                if (!$scope.updating) {
+                    $scope.updating = {};
+                }
+                $scope.updating[localDocument['_id']] = true;
                 Backend.searchDocuments(
                     Authenticate.getToken(),
                     {'_id': localDocument['_id']},
                     0,
                     1
                 ).success(function (data) {
-                    $scope.updating = undefined;
+                    delete $scope.updating[localDocument['_id']];
                     var documentData = angular.fromJson(data)['result'][0];
                     var newLocalDocument = {};
                     newLocalDocument['_id'] = documentData['_id'];
@@ -146,6 +162,16 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
                     }
                 });
             }
+        };
+
+        $scope.isUpdating = function (localDocument) {
+            if (!$scope.updating) {
+                return false;
+            }
+            if (localDocument['_id'] in $scope.updating) {
+                return $scope.updating[localDocument['_id']];
+            }
+            return false;
         };
 
         $scope.documentChanged = function (index) {
