@@ -12,7 +12,8 @@
             </div>
         </div>
         <div>
-            <input type="submit" value="{{ '_loginBtn_'|i18n }}"/>
+            <input type="submit" ng-hide="submitting" value="{{ '_loginBtn_'|i18n }}"/>
+            <span data-i18n="_submittingLogin_" ng-show="submitting"></span>
         </div>
         <div>
             <p>{{error}}</p>

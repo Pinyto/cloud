@@ -483,5 +483,10 @@
         "key"        : "_thenRegister_",
         "value"      : "Then create one right away!",
         "description": "Propose to register an account"
+    },
+    {
+        "key"        : "_submittingLogin_",
+        "value"      : "Authenticating...",
+        "description": "This message gets displayed instead of the Login button"
     }
 ]

@@ -483,5 +483,10 @@
         "key"        : "_thenRegister_",
         "value"      : "Dann erstelle hier deinen neuen Account.",
         "description": "Propose to register an account"
+    },
+    {
+        "key"        : "_submittingLogin_",
+        "value"      : "Authentifizierung läuft...",
+        "description": "This message gets displayed instead of the Login button"
     }
 ]
