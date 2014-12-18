@@ -44,7 +44,7 @@ class KeyserverTest(TestCase):
 
     def test_missing_account_returns_error(self):
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'Max', 'password': '123a'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -54,7 +54,7 @@ class KeyserverTest(TestCase):
 
     def test_wrong_password_returns_error(self):
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'Hugo', 'password': '123a'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -69,7 +69,7 @@ class KeyserverTest(TestCase):
     @mock.patch('keyserver.views.cloud_authenticate', mock_wrong_signature_cloud_authenticate)
     def test_wrong_signature_pinyto_cloud_returns_error(self):
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'Hugo', 'password': 'b123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -135,7 +135,7 @@ class KeyserverTest(TestCase):
         cloud_register('Hugo', key_data)
         # do the response
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'Hugo', 'password': 'b123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -158,7 +158,7 @@ class KeyserverTest(TestCase):
         key_data = {'N': unicode(jonny.N), 'e': unicode(jonny.e)}
         cloud_register('jonny', key_data)
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'jonny', 'password': '1234'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -172,7 +172,7 @@ class KeyserverTest(TestCase):
         key_data = {'N': unicode(jonny.N), 'e': unicode(jonny.e)}
         cloud_register('KlausMerkert', key_data)
         response = self.client.post(
-            reverse('authenticate'),
+            reverse('keyserver_authenticate'),
             json.dumps({'name': 'KlausMerkert', 'password': '2P4#a$w7/9P2'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -187,7 +187,7 @@ class KeyserverTest(TestCase):
     @mock.patch('keyserver.views.cloud_register', mock_cloud_register_success)
     def test_register_successful(self):
         response = self.client.post(
-            reverse('register'),
+            reverse('keyserver_register'),
             json.dumps({'name': 'Jaal', 'password': 'abc'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -206,7 +206,7 @@ class KeyserverTest(TestCase):
 
     def test_register_successful_real_request(self):
         response = self.client.post(
-            reverse('register'),
+            reverse('keyserver_register'),
             json.dumps({'name': 'jonny', 'password': '1234'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -225,7 +225,7 @@ class KeyserverTest(TestCase):
 
     def test_register_successful_real_request_Klaus_Merkert(self):
         response = self.client.post(
-            reverse('register'),
+            reverse('keyserver_register'),
             json.dumps({'name': 'KlausMerkert', 'password': '123456'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
