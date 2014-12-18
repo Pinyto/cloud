@@ -232,12 +232,14 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
 
         $scope.searchDocuments = function () {
             if ($scope.validQuery()) {
+                $scope.searchingInProgress = true;
                 Backend.searchDocuments(
                     Authenticate.getToken(),
                     angular.fromJson($scope.query),
                     $scope.offset,
                     $scope.limit
                 ).success(function (data) {
+                    $scope.searchingInProgress = undefined;
                     $scope.localDocuments = [];
                     $scope.documents = angular.fromJson(data)['result'];
                     for (var i = 0; i < $scope.documents.length; i++) {

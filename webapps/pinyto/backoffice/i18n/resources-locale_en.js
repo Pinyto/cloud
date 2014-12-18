@@ -498,5 +498,10 @@
         "key"        : "_savingDocument_",
         "value"      : "Saving the document...",
         "description": "This message gets displayed while the saving of a changed document is in progress"
+    },
+    {
+        "key"        : "_searchingInProgress_",
+        "value"      : "Searching...",
+        "description": "This message gets displayed while the search query is executed"
     }
 ]
