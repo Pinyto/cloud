@@ -62,7 +62,10 @@ def api_call(request, user_name, assembly_name, function_name):
         return load_api(request, session, assembly_user, assembly_name, function_name)
     for name, function in getmembers(api_class, predicate=isfunction):
         if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
-            collection = Collection(MongoClient().pinyto, session.user.name)
+            if session.user.name in MongoClient().pinyto.collection_names():
+                collection = Collection(MongoClient().pinyto, session.user.name)
+            else:
+                collection = Collection(MongoClient().pinyto, session.user.name, create=True)
             collection_wrapper = CollectionWrapper(collection)
             start_time = time.clock()
             response = function(request, collection_wrapper, DirectFactory())
