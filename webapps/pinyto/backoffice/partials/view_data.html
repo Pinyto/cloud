@@ -67,6 +67,9 @@
                         ng-class="{'disabled': !documentIsValid(localDocument)}"
                         style="float: right;"
                         data-i18n="_saveDocument_"></button>
+                <button ng-click="revertDocument($index)" ng-show="documentChanged($index) && !saving"
+                        style="float: right; margin-right: 1em;" class="red"
+                        data-i18n="_revertDocument_"></button>
                 <span ng-show="saving" style="float: right;" data-i18n="_savingDocument_"></span>
                 <div style="clear: both;"></div>
             </li>

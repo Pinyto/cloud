@@ -293,6 +293,25 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
             }
         };
 
+        $scope.revertDocument = function (index) {
+            var dataType = 'simple';
+            if (angular.isObject($scope.documents[index]['data'])) {
+                dataType = 'object';
+            }
+            if (angular.isArray($scope.documents[index]['data'])) {
+                dataType = 'array';
+            }
+            $scope.localDocuments[index]['_id'] = angular.copy($scope.documents[index]['_id']);
+            $scope.localDocuments[index]['time'] = angular.copy($scope.documents[index]['time']);
+            $scope.localDocuments[index]['type'] = angular.copy($scope.documents[index]['type']);
+            $scope.localDocuments[index]['tags'] = angular.copy($scope.documents[index]['tags']);
+            $scope.localDocuments[index]['data'] = $scope.createLocalDocumentStructure(
+                $scope.documents[index]['data']
+            );
+            $scope.localDocuments[index]['dataType'] = dataType;
+            $scope.localDocuments[index]['validFormat'] = true;
+        };
+
         $scope.getInitialValue = function (type) {
             if (type == 'object') {
                 return [];

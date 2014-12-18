@@ -425,6 +425,11 @@
         "description": "Caption of the save document button"
     },
     {
+        "key"        : "_revertDocument_",
+        "value"      : "Revert changes",
+        "description": "Caption of the revert document button"
+    },
+    {
         "key"        : "_typeLabel_",
         "value"      : "type:",
         "description": "This is a fixed data field. Do not translate!"
