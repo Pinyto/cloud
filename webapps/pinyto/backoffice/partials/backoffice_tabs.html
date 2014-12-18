@@ -1,0 +1,37 @@
+<ul class="tabs">
+    <li ng-class="{'active': activeTab == '/'}">
+        <span class="start"></span>
+        <a class="content" ng-href="/backoffice/" data-i18n="_backofficeDashboard_">
+            Dashboard
+        </a>
+        <span class="end"></span>
+    </li>
+    <li ng-class="{'active': activeTab == '/assemblies/'}">
+        <span class="start"></span>
+        <a class="content" ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">
+            Assemblies
+        </a>
+        <span class="end"></span>
+    </li>
+    <li ng-class="{'active': activeTab == '/assemblies/mine/'}">
+        <span class="start"></span>
+        <a class="content" ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">
+            My Assemblies
+        </a>
+        <span class="end"></span>
+    </li>
+    <li ng-class="{'active': activeTab == '/data/'}">
+        <span class="start"></span>
+        <a class="content" ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">
+            My Data
+        </a>
+        <span class="end"></span>
+    </li>
+    <li ng-class="{'active': activeTab == '/account/settings/'}">
+        <span class="start"></span>
+        <a class="content" ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">
+            Account Settings
+        </a>
+        <span class="end"></span>
+    </li>
+</ul>

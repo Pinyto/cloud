@@ -1,41 +1,6 @@
 <div class="content" style="padding-right: 0; padding-bottom: 0;">
-    <ul class="tabs">
-        <li>
-            <span class="start"></span>
-            <a class="content" ng-href="/backoffice/" data-i18n="_backofficeDashboard_">
-                Dashboard
-            </a>
-            <span class="end"></span>
-        </li>
-        <li>
-            <span class="start"></span>
-            <a class="content" ng-href="/backoffice/assemblies/" data-i18n="_backofficeAllAssemblies_">
-                Assemblies
-            </a>
-            <span class="end"></span>
-        </li>
-        <li>
-            <span class="start"></span>
-            <a class="content" ng-href="/backoffice/assemblies/mine/" data-i18n="_backofficeMyAssemblies_">
-                My Assemblies
-            </a>
-            <span class="end"></span>
-        </li>
-        <li class="active">
-            <span class="start"></span>
-            <a class="content" ng-href="/backoffice/data/" data-i18n="_backofficeMyData_">
-                My Data
-            </a>
-            <span class="end"></span>
-        </li>
-        <li>
-            <span class="start"></span>
-            <a class="content" ng-href="/backoffice/account/settings/" data-i18n="_backofficeAccountSettings_">
-                Account Settings
-            </a>
-            <span class="end"></span>
-        </li>
-    </ul>
+    <div ng-init="activeTab = '/data/'"
+         ng-include="'/webapps/pinyto/backoffice/partials/backoffice_tabs.html'"></div>
     <div class="backofficePane">
         <h1 data-i18n="_backofficeViewDataHeading_">View My Data</h1>
         <p data-i18n="_viewDataIntroductionAndWarning_"></p>
