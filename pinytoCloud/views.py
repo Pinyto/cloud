@@ -90,6 +90,7 @@ def logout(request):
     # check_token will return an error response if the token is not found or can not be verified.
     if isinstance(session, Session):
         session.delete()
+        return json_response({'success': True})
     else:
         # session is not a session so it has to be response object with an error message
         return session
