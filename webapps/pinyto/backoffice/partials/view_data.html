@@ -67,14 +67,17 @@
                              ng-repeat="data in [localDocument.data]"></div>
                     </div>
                 </div>
-                <button ng-click="saveDocument(localDocument)" ng-show="documentChanged($index) && !saving"
+                <button ng-click="saveDocument(localDocument)"
+                        ng-show="documentChanged($index) && !(saving || updating)"
                         ng-class="{'disabled': !documentIsValid(localDocument)}"
                         style="float: right;"
                         data-i18n="_saveDocument_"></button>
-                <button ng-click="revertDocument($index)" ng-show="documentChanged($index) && !saving"
+                <button ng-click="revertDocument($index)"
+                        ng-show="documentChanged($index) && !(saving || updating)"
                         style="float: right; margin-right: 1em;" class="red"
                         data-i18n="_revertDocument_"></button>
                 <span ng-show="saving" style="float: right;" data-i18n="_savingDocument_"></span>
+                <span ng-show="updating" style="float: right;" data-i18n="_updatingDocument_"></span>
                 <div style="clear: both;"></div>
             </li>
         </ul>

@@ -112,12 +112,14 @@ pinytoWebApp.controller('PinytoViewDataCtrl',
 
         $scope.updateDocument = function (localDocument) {
             if (localDocument['_id']) {
+                $scope.updating = true;
                 Backend.searchDocuments(
                     Authenticate.getToken(),
                     {'_id': localDocument['_id']},
                     0,
                     1
                 ).success(function (data) {
+                    $scope.updating = undefined;
                     var documentData = angular.fromJson(data)['result'][0];
                     var newLocalDocument = {};
                     newLocalDocument['_id'] = documentData['_id'];

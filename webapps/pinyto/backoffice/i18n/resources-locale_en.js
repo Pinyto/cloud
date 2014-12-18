@@ -510,6 +510,11 @@
         "description": "This message gets displayed while the saving of a changed document is in progress"
     },
     {
+        "key"        : "_updatingDocument_",
+        "value"      : "Updating the document...",
+        "description": "This message gets displayed while the updating document is in progress"
+    },
+    {
         "key"        : "_searchingInProgress_",
         "value"      : "Searching...",
         "description": "This message gets displayed while the search query is executed"
