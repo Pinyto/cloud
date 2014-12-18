@@ -74,17 +74,19 @@ pinytoWebApp.run(function ($rootScope, $window, $document, localize) {
     }
 });
 
-pinytoWebApp.run(function ($http, $templateCache) {
-    // Template prefetching
-    var prefetchingTemplates = [
-        '/webapps/pinyto/backoffice/partials/login.html',
-        '/webapps/pinyto/backoffice/partials/backoffice_tabs.html'
-    ];
-    angular.forEach(prefetchingTemplates, function (templateUrl) {
-        console.log("prefetching: "+templateUrl);
-        $http.get(templateUrl).success(function (templateData) {
-            console.log(templateUrl+" fetched.");
-            $templateCache.put(templateUrl, templateData);
+pinytoWebApp.run(function ($timeout, $http, $templateCache) {
+    $timeout(function () {
+        // Template prefetching
+        var prefetchingTemplates = [
+            '/webapps/pinyto/backoffice/partials/login.html',
+            '/webapps/pinyto/backoffice/partials/backoffice_tabs.html'
+        ];
+        angular.forEach(prefetchingTemplates, function (templateUrl) {
+            console.log("prefetching: " + templateUrl);
+            $http.get(templateUrl).success(function (templateData) {
+                console.log(templateUrl + " fetched.");
+                $templateCache.put(templateUrl, templateData);
+            });
         });
-    });
+    }, 0);
 });
