@@ -488,5 +488,10 @@
         "key"        : "_submittingLogin_",
         "value"      : "Authenticating...",
         "description": "This message gets displayed instead of the Login button"
+    },
+    {
+        "key"        : "_registeringInProgress_",
+        "value"      : "Registering...",
+        "description": "This message gets displayed instead of the Register button"
     }
 ]

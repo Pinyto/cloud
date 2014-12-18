@@ -6,8 +6,10 @@ pinytoWebApp.controller('PinytoRegisterCtrl',
     $scope.register = function () {
         if ($scope.password && ($scope.password.length >= 6)) {
             if ($scope.password == $scope.passwordRepeat) {
+                $scope.registering = true;
                 Backend.register($scope.username, $scope.password).success(function (data) {
                     var response = angular.fromJson(data);
+                    $scope.registering = undefined;
                     if (('success' in response) && (response['success'])) {
                         $scope.success = true;
                     } else {

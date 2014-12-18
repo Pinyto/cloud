@@ -19,7 +19,8 @@
             <p data-i18n="_choosePasswordHint_"></p>
         </div>
         <div>
-            <input type="submit" value="{{ '_registerBtn_'|i18n }}"/>
+            <input type="submit" ng-hide="registering" value="{{ '_registerBtn_'|i18n }}"/>
+            <span ng-show="registering" data-i18n="_registeringInProgress_"></span>
         </div>
         <div>
             <p ng-show="error">{{error}}</p>
@@ -27,7 +28,9 @@
     </form>
     <div ng-show="success">
         <p>
-            <span data-i18n="_registerSuccessBeforeLoginLink_">You successfully created a new account. Please go ahead and </span>
+            <span data-i18n="_registerSuccessBeforeLoginLink_">
+                You successfully created a new account. Please go ahead and
+            </span>
             <a ng-href="/login/" data-i18n="_registerSuccessLoginLink_">login</a>
             <span data-i18n="_registerSuccessAfterLoginLink_"> with your new username and password.</span>
         </p>
