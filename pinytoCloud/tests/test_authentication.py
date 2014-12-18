@@ -162,3 +162,158 @@ class TestLogout(TestCase):
         self.assertIn('success', res)
         self.assertTrue(res['success'])
         self.assertEqual(self.hugo.sessions.count(), 0)
+
+
+class TestRegister(TestCase):
+    def test_no_JSON(self):
+        response = self.client.post(
+            reverse('register'),
+            "Didelidi",
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Please supply the username and public_key as JSON.")
+
+    def test_no_username(self):
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({'x': 1234}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
+
+    def test_username_already_taken(self):
+        self.hugo = User(name='Hugo')
+        self.hugo.save()
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': 'fake'
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Username Hugo is already taken. Try another username.")
+
+    def test_key_wrong_format(self):
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': {
+                    'N': '123'
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "The public_key is in the wrong format. The key data must consist of an N and an e."
+        )
+
+    def test_N_no_number(self):
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': {
+                    'N': 'foo',
+                    'e': 1234
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "Factor N in the public key is not a number. It has to be a long integer transferred as a string."
+        )
+
+    def test_small_N(self):
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': {
+                    'N': '123',
+                    'e': 1234
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "Factor N in the public key is too small. Please use at least 3072 bit."
+        )
+
+    def test_e_no_number(self):
+        n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
+            "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
+            "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
+            "0894364256604860146232603404588092435482734374812471361593625543917217088490113148478038251561381" + \
+            "8672330898366008493547872891602227800340728106862543870889614647176014952843513826946064902193374" + \
+            "5442573561655969372352609568579364393649500357127004050087969117303304927939643892730600997930439" + \
+            "1147195261326440509804663056089132784514383110912100463888066750648282272016554512713401644905102" + \
+            "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
+            "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
+            "0939464832253228468472307931284129162453821959698949"
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': {
+                    'N': n,
+                    'e': 'bar'
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(
+            res['error'],
+            "Factor e in the public key is not a number. It has to be a long integer."
+        )
+
+    def test_successful(self):
+        self.assertEqual(User.objects.filter(name='Hugo').count(), 0)
+        n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
+            "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
+            "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
+            "0894364256604860146232603404588092435482734374812471361593625543917217088490113148478038251561381" + \
+            "8672330898366008493547872891602227800340728106862543870889614647176014952843513826946064902193374" + \
+            "5442573561655969372352609568579364393649500357127004050087969117303304927939643892730600997930439" + \
+            "1147195261326440509804663056089132784514383110912100463888066750648282272016554512713401644905102" + \
+            "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
+            "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
+            "0939464832253228468472307931284129162453821959698949"
+        e = long(65537)
+        response = self.client.post(
+            reverse('register'),
+            json.dumps({
+                'username': 'Hugo',
+                'public_key': {
+                    'N': n,
+                    'e': e
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertNotIn('error', res)
+        self.assertIn('success', res)
+        self.assertTrue(res['success'])
+        self.assertEqual(User.objects.filter(name='Hugo').count(), 1)
+        self.assertEqual(User.objects.filter(name='Hugo').all()[0].keys.count(), 1)
+        self.assertEqual(User.objects.filter(name='Hugo').all()[0].keys.all()[0].N, n)
+        self.assertEqual(User.objects.filter(name='Hugo').all()[0].keys.all()[0].e, e)

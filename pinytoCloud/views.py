@@ -228,7 +228,8 @@ def register(username, key_data):
         if n < pow(2, 3071):
             return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
     except ValueError:
-        return {'error': "Factor N in the public key is not a number. It has to be a long integer."}
+        return {'error': "Factor N in the public key is not a number. " +
+                         "It has to be a long integer transferred as a string."}
     try:
         e = long(key_data['e'])
     except ValueError:
