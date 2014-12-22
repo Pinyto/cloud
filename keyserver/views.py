@@ -62,7 +62,7 @@ def authenticate(request):
             json.dumps({'error': "Cloud Error: " + response['error'] + " Authentication failed."}),
             content_type='application/json'
         )
-    if 'encrypted_token' not in response:
+    if 'encrypted_token' not in response or 'signature' not in response:
         return HttpResponse(
             json.dumps({'error': "Malformatted Response of the Pinyto-Cloud. Authentication failed."}),
             content_type='application/json'
