@@ -32,15 +32,14 @@ def authenticate(request):
                                  "This is not valid JSON. Authentication failed."}),
             content_type='application/json'
         )
-    try:
-        name = request_data['name']
-        password = request_data['password']
-    except IndexError:
+    if 'name' not in request_data or 'password' not in request_data:
         return HttpResponse(
             json.dumps(
                 {'error': "Please supply username and password in the JSON request data. Authentication failed."}),
             content_type='application/json'
         )
+    name = request_data['name']
+    password = request_data['password']
     try:
         account = Account.objects.filter(name=name).all()[0]
     except IndexError:

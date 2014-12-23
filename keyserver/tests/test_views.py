@@ -42,6 +42,16 @@ class KeyserverTest(TestCase):
     def setUp(self):
         self.hugo = Account.create(u'Hugo', u'b123', 2)
 
+    def test_no_name(self):
+        response = self.client.post(
+            reverse('keyserver_authenticate'),
+            json.dumps({'password': '123a'}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "Please supply username and password in the JSON request data. Authentication failed.")
+
     def test_missing_account_returns_error(self):
         response = self.client.post(
             reverse('keyserver_authenticate'),
