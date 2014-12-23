@@ -12,6 +12,7 @@ urlpatterns = patterns(
     url(r'^list_keys$', 'list_keys', name='list_keys'),
     url(r'^set_key_active$', 'set_key_active', name='set_key_active'),
     url(r'^delete_key$', 'delete_key', name='delete_key'),
+    url(r'^register_new_key$', 'register_new_key', name='register_new_key'),
     url(r'^register$', 'register_request', name='register'),
     url(r'^list_own_assemblies$', 'list_own_assemblies', name='list_own_assemblies'),
     url(r'^save_assembly$', 'save_assembly', name='save_assembly'),

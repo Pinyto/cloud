@@ -241,6 +241,46 @@ def register(username, key_data):
 
 
 @csrf_exempt
+def register_new_key(request):
+    """
+    Adds another public key to an existing account.
+
+    @param request:
+    @return: json
+    """
+    try:
+        request_data = json.loads(request.body)
+    except ValueError:
+        return json_response({'error': "Please supply the token and public_key as JSON."})
+    if 'token' not in request_data or 'public_key' not in request_data:
+        return json_response({'error': "Please supply JSON with a token and the new public_key."})
+    session = check_token(request_data['token'])
+    # check_token will return an error response if the token is not found or can not be verified.
+    if isinstance(session, Session):
+        key_data = request_data['public_key']
+        if 'N' not in key_data or 'e' not in key_data:
+            return json_response(
+                {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."})
+        try:
+            n = long(key_data['N'])
+            if n < pow(2, 3071):
+                return json_response({
+                    'error': "Factor N in the public key is too small. Please use at least 3072 bit."})
+        except ValueError:
+            return json_response({'error': "Factor N in the public key is not a number. " +
+                                           "It has to be a long integer transferred as a string."})
+        try:
+            e = long(key_data['e'])
+        except ValueError:
+            return json_response({'error': "Factor e in the public key is not a number. It has to be a long integer."})
+        StoredPublicKey.create(session.user, unicode(key_data['N']), e)
+        return json_response({'success': True})
+    else:
+        # session is not a session so it has to be response object with an error message
+        return session
+
+
+@csrf_exempt
 def list_own_assemblies(request):
     """
     Returns a list of the assemblies of the user specified through the token.
