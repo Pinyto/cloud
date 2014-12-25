@@ -14,7 +14,7 @@
         "pk": 1,
         "fields": {
             "name": "get_list",
-            "code": "",
+            "code": "return json.dumps({'result': db.find(\n    query={'type': 'todo'},\n    skip=0,\n    limit=10000,\n    sorting='time',\n    sort_direction='desc')})",
             "assembly": 2
         }
     },
@@ -23,7 +23,7 @@
         "pk": 2,
         "fields": {
             "name": "save",
-            "code": "",
+            "code": "try:\n    request_data = json.loads(request.body)\nexcept ValueError:\n    return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})\nif 'document' not in request_data:\n    return json.dumps({'error': 'You have to supply a document to save.'})\ndocument = request_data['document']\nif not isinstance(document, dict): \n    return json.dumps({'error': 'The document you supplied is not a single document. ' +\n                                'Only one document at a time will be saved.'})\nif not ('_id' in document and db.count({'_id': document['_id']}) > 0): \n    str_id = db.insert(document)\nelse:\n    str_id = db.save(document)\nreturn json.dumps({'success': True, '_id': str_id})",
             "assembly": 2
         }
     },
@@ -32,7 +32,7 @@
         "pk": 3,
         "fields": {
             "name": "delete",
-            "code": "",
+            "code": "try:\n    request_data = json.loads(request.body)\nexcept ValueError:\n    return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})\nif 'document' not in request_data:\n    return json.dumps({'error': 'You have to supply a document to delete.'})\ndocument = request_data['document']\nif '_id' not in document:\n    return json.dumps({'error': 'You have to specify an _id to identify the document you want to delete.'})\nif not db.count({'_id': document['_id']}) > 0:\n    return json.dumps({'error': 'There is no document with this ID. The document could not be deleted.'})\ndb.remove(document)\nreturn json.dumps({'success': True})",
             "assembly": 2
         }
     }
