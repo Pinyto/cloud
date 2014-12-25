@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'api_prototype',
     'service',
     'api.pinyto_DocumentsAdmin',
+    'api.pinyto_Todo',
     'api.bborsalino_Librarian'
 )
 

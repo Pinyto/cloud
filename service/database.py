@@ -4,6 +4,7 @@ This File is part of Pinyto
 """
 
 from pymongo.son_manipulator import ObjectId
+from pymongo.errors import InvalidId
 from pymongo import ASCENDING, DESCENDING
 from datetime import datetime
 
@@ -43,7 +44,11 @@ class CollectionWrapper(object):
         @param query: json string
         @return: dict
         """
-        return self.db.find(inject_object_id(query)).count()
+        try:
+            count = self.db.find(inject_object_id(query)).count()
+        except InvalidId:
+            count = -1
+        return count
 
     def find_documents(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """

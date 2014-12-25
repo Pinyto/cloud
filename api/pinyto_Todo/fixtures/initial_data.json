@@ -1,0 +1,39 @@
+[
+    {
+        "model": "pinytoCloud.Assembly",
+        "pk": 2,
+        "fields": {
+            "name": "Todo",
+            "author": "pinyto",
+            "description": "This is the assembly for the Pinyto todo apps.",
+            "installed_at": []
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 1,
+        "fields": {
+            "name": "get_list",
+            "code": "",
+            "assembly": 2
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 2,
+        "fields": {
+            "name": "save",
+            "code": "",
+            "assembly": 2
+        }
+    },
+    {
+        "model": "pinytoCloud.ApiFunction",
+        "pk": 3,
+        "fields": {
+            "name": "delete",
+            "code": "",
+            "assembly": 2
+        }
+    }
+]
