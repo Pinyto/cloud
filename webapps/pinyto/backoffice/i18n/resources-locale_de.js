@@ -85,6 +85,11 @@
         "description": "Menu entry for the Backoffice"
     },
     {
+        "key"        : "_apps_menu_",
+        "value"      : "Apps",
+        "description": "Menu entry for the Apps"
+    },
+    {
         "key"        : "_explanation_menu_",
         "value"      : "Tutorials & Anleitungen",
         "description": "Menu entry for the Explanation category"

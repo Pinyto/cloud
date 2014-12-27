@@ -34,6 +34,9 @@ var pinytoWebApp = angular.module(
             when('/backoffice/account/settings/', {
                 templateUrl: '/webapps/pinyto/backoffice/partials/account_settings.html',
                 controller: 'PinytoAccountSettingsCtrl'}).
+            when('/apps/', {
+                templateUrl: '/webapps/pinyto/backoffice/partials/apps.html',
+                controller: 'PinytoAppsCtrl'}).
             when('/explanation/', {
                 templateUrl: '/webapps/pinyto/backoffice/partials/explanation.html',
                 controller: 'PinytoExplanationCtrl'}).

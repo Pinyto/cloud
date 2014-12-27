@@ -1,14 +1,11 @@
 'use strict';
 
-pinytoWebApp.controller('PinytoWelcomeCtrl',
-    function ($scope, $rootScope, Backend, Authenticate) {
+pinytoWebApp.controller('PinytoAppsCtrl',
+    function ($scope, $rootScope, Backend, Authenticate, $routeParams) {
     // Function Definitions
-    $scope.foo = function () {
 
-    };
 
     // Initialization
-    $scope.bar = true;
     $scope.lang = $rootScope.language;
 
     // Event handlers

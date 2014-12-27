@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" lang="de" ng-show="lang == 'de'">
     <h1>Pinyto</h1>
     <p>
         Du hast Kontakte bei Google, Konversationen bei Facebook und Dokumente in deiner Dropbox und obwohl all
@@ -22,7 +22,8 @@
     <p>
         Pinyto bietet uns eine gesicherte, private Datenbank, bei der wir genau bestimmen können welche Daten für
         welche Anwendung genutzt werden und wie die Daten verarbeitet werden, bevor sie zur Anwendung gelangen.
-        Erreicht wird das über eine dokumentenbasierte Datenbank (MongoDB), die unsere Daten so speichert, wie wir
+        Erreicht wird das über eine dokumentenbasierte Datenbank (<a href="http://www.mongodb.org/">MongoDB</a>),
+        die unsere Daten so speichert, wie wir
         sie strukturieren wollen und unsere persönliche Auswahl an Assemblies, die die Daten vorverarbeiten können,
         bevor sie zu unseren Apps auf unseren Devices kommen. Assemblies sind so etwas wie kleine serverseitige
         Apps, in die wir all die Ideen integreieren können, die unsere Devices smart wirken lassen. Und da die in
@@ -32,8 +33,50 @@
 
     <p>
         Pinyto ist in erster Linie als Framework gedacht, um unsere Vision einer persönlichen Cloud möglich zu
-        machen. Wir bieten aber auch einige Webapps und Applikationen für verschiedene Betriebssysteme an, um
-        sowohl nützliche Anwendungen für die persönliche Cloud direkt verfügbar zu machen, als auch um zu zeigen,
-        wie Pinyto genutzt werden kann, um deine Probleme zu lösen.
+        machen. Wir bieten aber auch einige <a ng-href="/apps/">Webapps und Applikationen</a> für verschiedene
+        Betriebssysteme an, um sowohl nützliche Anwendungen für die persönliche Cloud direkt verfügbar zu machen,
+        als auch um zu zeigen, wie Pinyto genutzt werden kann, um deine Probleme zu lösen.
+    </p>
+</div>
+
+<div class="content" lang="en" ng-show="lang == 'en'">
+    <h1>Pinyto</h1>
+    <p>
+        Your contacts are at Google, your conversations at Facebook and your documents in a Dropbox. But although
+        those big corporations earn a lot of money with your data it does not work well together?
+    </p>
+
+    <p>
+        Instead of working productively you fiddle with USB cables, sync data with providers you do not trust and
+        in the end you type the details of your next meeting from one device to the next because this method still
+        works best.
+    </p>
+
+    <p>
+        Pinyto could solve all those problems for you because Pinyto is not about earning money but the idea.
+        If you want to access the same personal data from different devices you need your own private cloud.
+        And because the data we produce in our every day work tells a lot about us we need total control over this
+        data and when and by whom it is accessed. At the same time we want smart devices which access our data and
+        learn from it to help us - every day.
+    </p>
+
+    <p>
+        Pinyto offers you your own private and secure database. You decide which data is used for which application
+        and how the data is processed even before it reaches the device. It achieves that with a document based
+        database (<a href="http://www.mongodb.org/">MongoDB</a>) which saves your data in the structure you want it
+        to have. You can access your data
+        through Assemblies which process and prepare your data at the server before it gets transferred to an
+        app on a device. It is up to you which Assemblies you want to install and you can even create your own
+        Assemblies by programming them in Python. This structure lets you expose the minimum of your data to
+        achieve just what you want. Assemblies can also do things on their own like searching for data on the
+        internet to complete your saved datasets computationally on the server. This structure lets your apps
+        feel smart because they can access the information they need while keeping your data in your control.
+        Assemblies are always OpenSource and you can read their sourcecode if you want to know what they are doing.
+    </p>
+
+    <p>
+        Pinyto is designed as a framework to make our vision of a personal cloud accessible for you. We provide
+        some <a ng-href="/apps/">webapps and applications</a> for your devices to show how Pinyto is meant to be
+        used and what it is capable of. They may also be useful as they are.
     </p>
 </div>

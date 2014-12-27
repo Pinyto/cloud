@@ -1,0 +1,108 @@
+<div class="content" lang="de" ng-show="lang == 'de'">
+    <h1>Webapps</h1>
+    <p>
+        Webapps haben den Nachteil, dass man sich über den Pinyto Keyserver mit Benutzernamen und Passwort
+        authentifizieren muss. Benutzername und Passwort können weniger sicher sein, als die
+        public-key-Authentifizierung, die native clients benutzen können. Der Vorteil ist, dass die Webapps ohne
+        Installation mit beliebigen aktuellen Browsern genutzt werden können.</p>
+    <ul>
+        <li>
+            <h3><a href="https://pinyto.de/webapps/pinyto/todo/index.html">Pinyto - Todo</a></h3>
+            <p>
+                Diese App zeigt deine ToDo-Liste an und erlaubt dir die ToDo-Punkte zu editieren.
+            </p>
+        </li>
+        <li>
+            <h3><a href="https://pinyto.de/webapps/bborsalino/Librarian/index.html">BBorsalino - Librarian</a></h3>
+            <p>
+                Diese App ermöglicht es Bücher zu speichern, indem die ISBN oder EAN eingegeben oder gescannt wird.
+                Das passende Assembly ergänzt automatisch die fehlenden Daten zu den Büchern, indem Informationen aus
+                der Datenbank der deutschen Nationalbibliothek geladen werden. Die App erlaubt es nach beliebigen
+                Suchbergiffen aus Titel, Autorenfeld, etc. zu suchen und zusätzliche Daten wie den Standort oder
+                an wen ein Buch verliehen wurde zu ergänzen.
+            </p>
+        </li>
+    </ul>
+
+    <h1>Linux Desktop</h1>
+    <p>
+        Für Linux gibt es einen Dämon im Userspace, der alle Verbindungen zu deiner persönlichen Cloud übernimmt. Der
+        Dämon übernimmt die Authentifizierung und ermöglicht den Zugriff auf die Assembiles über ein DBus-Interface.
+        Dadurch kann der Netzwerkzugriff für alle Programme die das Interface benutzen per AppArmour unterbunden
+        werden.</p>
+    <ul>
+        <li>
+            <h3>Pinyto - Todo</h3>
+            <p>
+                Dieses Programm zeigt deine ToDo-Liste an und erlaubt dir die ToDo-Punkte zu editieren. Das Interface
+                is in GTK+, passend für Ubuntu und GNOME desktops.
+            </p>
+        </li>
+    </ul>
+
+    <h1>Android</h1>
+    <p>
+        Ähnlich wie unter Linux sollte es eine Pinyto-Connect App geben, die Authentifizierung und die Verbindungen
+        zur Cloud handhabt. Leider gibt es eine solche App noch nicht, also sind alle Android-Apps bisher ohne
+        Verbindung zur Cloud.
+    </p>
+    <ul>
+        <li>
+            <h3><a href="https://github.com/Yonjuni/ExaltedDicer">Exalted Dicer</a></h3>
+            <p>
+                Tool zum Würfeln von Erfolgs- und Schadenswürfen für das Pen&Paper-Rollenspiel Exalted.
+            </p>
+        </li>
+    </ul>
+
+</div>
+<div class="content" lang="en" ng-show="lang == 'en'">
+    <h1>Webapps</h1>
+    <p>Webapps have the disadvantage that you need to authenticate through the Pinyto Keyserver using username and
+    password which may be less secure than the public key authentication the desktop clients use. The advantage is
+    that Websites can be used from most devices without installation.</p>
+    <ul>
+        <li>
+            <h3><a href="https://pinyto.de/webapps/pinyto/todo/index.html">Pinyto - Todo</a></h3>
+            <p>
+                This app lists all your ToDo tasks in your database and lets you edit or remove them.
+            </p>
+        </li>
+        <li>
+            <h3><a href="https://pinyto.de/webapps/bborsalino/Librarian/index.html">BBorsalino - Librarian</a></h3>
+            <p>
+                This app lets you save books specified by either a single ISBN or EAN. The matching assembly collects
+                the rest of the data about the book by asking the german national library service over the internet.
+                You can query your books with free text search and specify where in your home they are kept and to
+                whom you have them lent.
+            </p>
+        </li>
+    </ul>
+
+    <h1>Linux Desktop</h1>
+    <p>For Linux there is a Pinyto-Daemon which runs in userspace and handles all connections for your personal cloud.
+    This daemon exposes a handy interface over DBus for desktop applications to connect to it. If properly used you
+    can forbid direct network access via AppArmour for the applications to make sure they do not load your data to
+    leak it at some point.</p>
+    <ul>
+        <li>
+            <h3>Pinyto - Todo</h3>
+            <p>
+                This app lists all your ToDo tasks in your database and lets you edit or remove them. The interface
+                is in GTK+ suitable for Ubuntu and GNOME desktops.
+            </p>
+        </li>
+    </ul>
+
+    <h1>Android</h1>
+    <p>Similar to Linux there should be a Pinyto-Connect app to handle authentication and all connections to the
+    cloud. Sadly we do not have one yet. So all Android apps are without connection to the cloud.</p>
+    <ul>
+        <li>
+            <h3><a href="https://github.com/Yonjuni/ExaltedDicer">Exalted Dicer</a></h3>
+            <p>
+                Pool and Damage Dicer for the Pen and Paper RPG Exalted.
+            </p>
+        </li>
+    </ul>
+</div>
