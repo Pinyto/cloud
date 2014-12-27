@@ -1,0 +1,20 @@
+<div class="box login">
+    <form ng-submit="login(username, password)" class="center">
+        <div style="display: table; margin: auto;">
+            <div style="display: table-row;">
+                <label for="username" data-i18n="_username_" style="display: table-cell; text-align: right;"></label>
+                <input type="text" name="username" id="username" ng-model="username" style="display: table-cell;"/>
+            </div>
+            <div style="display: table-row;">
+                <label for="password" data-i18n="_password_" style="display: table-cell; text-align: right;"></label>
+                <input type="password" name="password" id="password" ng-model="password" style="display: table-cell;"/>
+            </div>
+        </div>
+        <div>
+            <input type="submit" value="{{ '_loginBtn_'|i18n }}"/>
+        </div>
+        <div>
+            <p>{{error}}</p>
+        </div>
+    </form>
+</div>
