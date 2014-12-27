@@ -77,6 +77,7 @@ pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
             '/register/':'',
             '/':'',
             '/impressum/':'',
+            '/apps/':'',
             '/explanation/':'',
             '/hardware/':'',
             '/development/':''})) {
