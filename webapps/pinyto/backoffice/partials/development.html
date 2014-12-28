@@ -40,6 +40,48 @@
         <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 oder neuer</li>
         <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
     </ul>
+    <h2>Bei Pinyto mithelfen</h2>
+    <p>
+        Die Grundstruktur von Pinyto steht und es gibt auch einige automatische Tests, die immerhin über 80% des
+        Codes abdecken. Da Pinyto aber als sichere Umgebung für persönliche und wertvolle Daten gedacht ist, muss
+        sowohl die Testabdeckung als auch die sonstige Qualität des Codes noch weiter verbessert werden. Qualität
+        und Wartbarkeit des Codes nehmen wir ernster als möglichst schnell neue Features zu entwickeln.
+    </p>
+    <p>
+        Pinyto wird version 1.0 erreichen, wenn folgende Features funktionieren:
+        (<del>diese Features sind fertig</del>)
+    </p>
+    <ul>
+        <li><del>Abspeichern beliebiger Daten der Nutzer in schemafreier, durchsuchbarer und
+            verarbeitbarer Form</del></li>
+        <li><del>Nutzer können eigenen Code für die Verarbeitung ihrer Daten in einer abgesicherten Sandbox schreiben
+            und auf dem server ausführen</del></li>
+        <li><del>Assemblies mit fertigem Code für bestimmte Anwendungsfälle können einfach installiert und auch
+            einfach entfernt werden</del></li>
+        <li><del>Einfache übersicht über den verwendeten Speicherplatz und die verbrauchte Rechenzeit</del></li>
+        <li><del>Sichere authentifizierung für Webapps und Programme (hier ohne Passwort)</del></li>
+        <li>Rechtekontrolle, die es Nutzern ermöglicht bestimmte Daten für andere Nutzer freizugeben und bearbeitbar
+            zu machen</li>
+        <li>Eine synchronisierte ToDo-Liste für mehrer Geräte (Desktop, Smartphone, Web)</li>
+        <li>Kontakte (besonders die auf Android Smartphones) können mit Pinyto verwaltet werden</li>
+        <li>Ein synchronisierter Kalender mit rechtzeitigen Benachrichtigungen für Termine</li>
+        <li>Ein synchronisierter Messenger, der Kurznachrichten mit E-Mail in einer Oberfläche verbindet</li>
+    </ul>
+    <p>
+        Jedes dieser Projekte kann deine Unterstützung gebrauchen. Wir planen Linux desktops und Android
+        Smartphones bei den oben erwähnten Apps zu unterstützen aber es wäre wunderbar, wenn jemand Pinyto auch auf
+        Windows, Mac or iOS bringen würde. Auch wenn das Backend open-source ist, müssen die Apps nicht zwingend
+        freie Software sein. Der Dämon, der die Verbindung zur Cloud unterhält, sollte allerdings open-source sein,
+        um das Vertrauen in das Gesamtsystem nicht zu belasten.
+    </p>
+    <p>
+        Bitte <a href="mailto:jonny@pinyto.de">kontaktiere uns</a>, wenn du eine App für Pinyto entwickelst. Wir
+        setzen gerne einen Link auf die Projektseite.
+    </p>
+    <p>
+        Wenn du bei der Entwicklung des Backends oder einer existierenden App helfen willst, solltest du dich am
+        Besten auf der <a href="http://lists.pinyto.de/mailman/listinfo/pinyto">Mailingliste</a> anmelden.
+    </p>
 </div>
 <div class="content" lang="en" ng-show="lang == 'en'">
     <h1>Developing Pinyto</h1>
@@ -52,10 +94,12 @@
         <a href="https://angularjs.org/">Angular</a> which proved itself very handy for developing webapps
         using Pinyto.</p>
     <h2>Installation</h2>
-    <p>For installing Pinyto you need a server which runs Python and Django. There are some hosters which offer
-    webspace where this is possible but mostly you will need your own virtual- or root-server. We recommend
-    using a debian-based system for this server like <a href="http://www.ubuntu.com/">Ubuntu</a> but it can
-    run on any systems which meets the requirements:</p>
+    <p>
+        For installing Pinyto you need a server which runs Python and Django. There are some hosters which offer
+        webspace where this is possible but mostly you will need your own virtual- or root-server. We recommend
+        using a debian-based system for this server like <a href="http://www.ubuntu.com/">Ubuntu</a> but it can
+        run on any systems which meets the requirements:
+    </p>
     <ul>
         <li>You will need <a href="https://en.wikipedia.org/wiki/Seccomp">seccomp</a>-support in your kernel.
             Linux has that since 2009 but BSD and Windows-Kernel probably do not have this feature and will not
@@ -75,4 +119,39 @@
         <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 or newer</li>
         <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
     </ul>
+    <h2>Contributing</h2>
+    <p>
+        The core functionality is working and there are some automatic tests which cover more than 80% of the code.
+        Since Pinyto is meant to be a safe place to store precious personal data additional efforts to improve test
+        coverage and overall code quality should be made.
+    </p>
+    <p>
+        Pinyto will reach version 1.0 if the following features are all working: (<del>those are done</del>)
+    </p>
+    <ul>
+        <li><del>Saving of user data in a schema-free, easily queryable form</del></li>
+        <li><del>Users can write own code in a secure sandbox which is executed at the server</del></li>
+        <li><del>Assemblies with pre-packaged code for certain use cases can easily be installed and removed</del></li>
+        <li><del>Monitoring of used disk space and computation time</del></li>
+        <li><del>Secure authentication for webapps and apps for devices (on the device without password)</del></li>
+        <li>Permission management enabling users to make data accessible and editable for others</li>
+        <li>A cloud synced ToDo-list for different devices (desktop, phone, web)</li>
+        <li>Contacts (especially the ones on Android phones) can be managed through Pinyto</li>
+        <li>A cloud synced calendar which notifies the user on time for dates</li>
+        <li>A synced messenger which combines instant messages with mail in one place</li>
+    </ul>
+    <p>
+        Feel free to contribute to any of these projects. We are planning to support Linux desktops and Android
+        smartphones but it would be great if somebody brought Pinyto to Windows, Mac or iOS. Even if the backend
+        is open-source the apps for the devices do not need to be free. However the daemon handling the connections
+        to the cloud should propably be open-source so users can trust that they do not do something funny.
+    </p>
+    <p>
+        Please <a href="mailto:jonny@pinyto.de">contact us</a> if you are developing an app using Pinyto. We would
+        like to link to your project page.
+    </p>
+    <p>
+        If you want to help with the backend or any of the existing apps please subscribe to the
+        <a href="http://lists.pinyto.de/mailman/listinfo/pinyto">mailing-list</a>.
+    </p>
 </div>
