@@ -7,18 +7,26 @@ var todoApp = angular.module(
             'ngRoute',
             'localization'
         ]
-    )
-    .config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+    );
+
+todoApp.config([
+    '$routeProvider',
+    '$locationProvider',
+    function ($routeProvider, $locationProvider) {
         $routeProvider.
             when('/webapps/pinyto/todo/', {
                 templateUrl: '/webapps/pinyto/todo/partials/list.html',
-                controller: 'todoCtrl'}).
+                controller: 'todoCtrl'
+            }).
             when('/webapps/pinyto/todo/login/', {
                 templateUrl: '/webapps/pinyto/todo/partials/login.html',
-                controller: 'loginCtrl'}).
+                controller: 'loginCtrl'
+            }).
             otherwise({
                 templateUrl: '/webapps/pinyto/todo/partials/list.html',
-                controller: 'todoCtrl'});
+                controller: 'todoCtrl'
+            });
         // use the HTML5 History API
-		$locationProvider.html5Mode(true).hashPrefix('!');
-    }]);
+        $locationProvider.html5Mode(true).hashPrefix('!');
+    }
+]);
