@@ -23,6 +23,14 @@ angular.module('TodoServices', [])
                     headers: {'Content-Type': 'application/json'}
                 });
             },
+            getList: function(token) {
+                return $http({
+                    method: "POST",
+                    url: '/pinyto/Todo/get_list',
+                    data: angular.toJson({'token': token}),
+                    headers: {'Content-Type': 'application/json'}
+                })
+            },
             update: function(token, book) {
                 return $http({
                     method: "POST",

@@ -8,7 +8,7 @@ todoApp.controller('todoCtrl',
         };
 
         $scope.addTodo = function () {
-            $scope.unfinishedTodo.splice(0, 0, {'_id': undefined, text: ''});
+            $scope.unfinishedTodo.splice(0, 0, {data: {text: ''}});
         };
 
         $scope.moveToFinished = function (index) {
@@ -29,8 +29,21 @@ todoApp.controller('todoCtrl',
             $scope.finishedTodo.splice(index, 1);
         };
 
+        $scope.loadList = function () {
+            Backend.getList(Authenticate.getToken()).success(function (data) {
+                angular.forEach(data['result'], function (item) {
+                    if (item.data.finished) {
+                        $scope.finishedTodo.push(item);
+                    } else {
+                        $scope.unfinishedTodo.push(item);
+                    }
+                })
+            });
+        };
+
         // Initialization
         $scope.unfinishedTodo = [];
         $scope.finishedTodo = [];
+        $scope.loadList();
     }
 );
