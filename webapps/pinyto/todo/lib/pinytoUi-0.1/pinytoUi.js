@@ -64,9 +64,13 @@ ui.directive('pinytoButton', function () {
             });
             element.bind('mousedown', function ($event) {
                 $event.preventDefault();
+                var posX = $event.offsetX;
+                if (!posX) { posX = $event.layerX; }
+                var posY = $event.offsetY;
+                if (!posY) { posY = $event.layerY; }
                 var blob = {
                     element: document.createElement('DIV'),
-                    position: [$event.layerX, $event.layerY],
+                    position: [posX, posY],
                     size: 0
                 };
                 blob.element.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
