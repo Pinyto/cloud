@@ -5,7 +5,8 @@ var todoApp = angular.module(
         [
             'TodoServices',
             'ngRoute',
-            'localization'
+            'localization',
+            'pinytoUi'
         ]
     );
 

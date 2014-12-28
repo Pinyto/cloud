@@ -10,8 +10,10 @@
                 <input type="password" name="password" id="password" ng-model="password" style="display: table-cell;"/>
             </div>
         </div>
-        <div>
-            <input type="submit" value="{{ '_loginBtn_'|i18n }}"/>
+        <div style="padding-top: 1em;">
+            <pinyto-button ng-click="login(username, password)" color="rgb(50, 160, 20)">
+                {{ '_loginBtn_'|i18n }}
+            </pinyto-button>
         </div>
         <div>
             <p>{{error}}</p>
