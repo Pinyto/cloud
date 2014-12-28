@@ -1,0 +1,109 @@
+<div class="content" lang="de" ng-show="lang == 'de'">
+    <h1>Registrieren, Anmelden und Assemblies installieren</h1>
+    <p>
+        Alle Verwaltungsaufgaben bei Pinyto werden im <a ng-href="/backoffice/">Backoffice</a> durchgeführt. Damit
+        wir das Benutzen können müssen wir uns zunächst einen Account anlegen. Den Link zur Registrierung gibt es
+        unterhalb des Login-Felds oder direkt <a ng-href="/register/">hier</a>.
+    </p>
+    <p>
+        Bei der Registrierung musst du einen Benutzernamen und ein Passwort festlegen. Der Benutzername darf noch
+        nicht vergeben sein und sollte aus Groß- und Kleinbuchstaben und möglicherweise Zahlen bestehen. "Hans",
+        "hans", "KarlHugo", "karl_hugo" oder "max123" wären mögliche Beispiele. Pinyto erlaubt eine anonyme Nutzung
+        also kann, falls das gewünscht ist ein Name gewählt werden, der keinen Rückschluss auf eine lebende Person
+        zulässt. Man sollte jedoch bedenken, dass der Benutzername teil des Namens der eigenen Assemblies wird und
+        andere Benutzer den Namen also sehen können. Hinweise zum Passwort werden direkt bei der Registrierung
+        angezeigt.
+    </p>
+    <p>
+        Wird die Registrierung abgeschickt, kann es einen kurzen Moment dauern, bis man zum Login weiter
+        gehen kann. Die Verzögerung liegt daran, dass der Server bei der Registrierung ein neues Schlüsselpaar
+        erzeugt und das Passwort mehrfach hasht. Pinyto speichert Passwörter nicht im Klartext sondern lediglich
+        gesalzene Hashes. Dennoch sollte man kein bestehendes Passwort für Pinyto wiederverwenden. Nach Abschluss
+        der Registrierung kann man über den angezeigten Link direkt zur Anmeldung weiter gehen.
+    </p>
+    <p>
+        Die Anmeldung erfolgt mit dem kurz vorher festgelegten Benutzernamen und dem Passwort. Ist sie erfolgreich,
+        wird man direkt zur Übersichtsseite des <a ng-href="/backoffice/">Backoffice</a> weiter geletet. Dort gibt es
+        Statistiken zum eigenen Account und Links zu weiteren Teilen des Backoffice. Pinyto zählt die Rechenzeit und
+        den Speicherverbrauch absolut genau. Der Speicherverbrauch ist daher auch in der ungewöhnlichen Einheit
+        Bytes mal Sekunden, da ja nicht nur die aktuell belegte Menge an Speicher gemessen werden muss, sondern
+        wichtig ist wie viel Speicher über die Zeit verbraucht wurde. Betreibt man keinen eigenen Pinyto-Server kann
+        der anbieter diese beiden Werte für eine gerechte Abrechnung benutzen.
+    </p>
+    <p>
+        Die Navigation im Backoffice erfolgt über die Reiter oberhalb des Inhalts. Dort gibt es die
+        <a ng-href="/backoffice/">Übersicht</a> mit den Statistiken,
+        <a ng-href="/backoffice/assemblies/">Assemblies</a> mit der Liste der installierten und verfügbaren Assemblies,
+        <a ng-href="/backoffice/assemblies/mine/">Meine Assemblies</a> mit Assemblies, die man selbst erstellt hat,
+        <a ng-href="/backoffice/data/">Meine Daten</a> mit der Möglichkeit alle Datensätze anzuzeigen und zu bearbeiten
+        (praktisch zum Debugging, falls man eigene Assemblies schreibt) und letztlich
+        <a ng-href="/backoffice/account/settings/">Account Einstellungen</a>, wo man das Passwort ändern kann und,
+        falls man Pinyto mit zusätzlichen Geräten nutzt, die Zugangsschlüssel der Geräte aus- und einschalten kann.
+    </p>
+    <p>
+        Im <a ng-href="/backoffice/assemblies/">Assemblies</a>-Reiter kann jetzt das erste Assembly aktiviert werden.
+        Gehen wir für das Tutorial mal davon as, dass wir die ToDo-App auf allen Geräten nutzen möchten. Wenn die App
+        auf unserem Gerät installiert wird, hat sie zunächst keinen Zugriff auf unsere Daten. Das ist gut, da wir immer
+        volle Kontrolle darüber haben möchten, welche Apps zugriff auf unsere Daten bekommen. Diesen Zugriff regeln wir
+        mit Assemblies. Sind Assemblies installiert, können Apps sie nutzen, um Daten zu speichern, zu verändern und
+        Queries auf den Daten auszuführen.
+        Da wir die ToDo-App nutzen wollen, installieren wir nun das passende Assembly, indem wir es in der Liste der
+        verfügbaren Assemblies suchen und auf installieren klicken. Dadurch verschwindet es aus dieser Liste und taucht
+        oben bei den installierten Assemblies wieder auf.
+    </p>
+    <p>
+        Wir sind jetzt bereit die ToDo-App zu nutzen. Ein Assembly schaltet die Funktionalität für alle ToDo-Apps auf
+        allen Devices frei. Wir können also jetzt direkt unsere ToDo-Punkte über mehrer Devices hinweg benutzen.
+    </p>
+</div>
+<div class="content" lang="en" ng-show="lang == 'en'">
+    <h1>Register, Authenticate and Install Assemblies</h1>
+    <p>
+        All tasks about the system itself are done in the <a ng-href="/backoffice/">backoffice</a>.
+        We need a valid account to use the backoffice. The link to the registration is below the login fields or
+        you can <a ng-href="/register/">go there directly</a>.
+    </p>
+    <p>
+        For the registration you have to choose a username and a password. The username must be unique and it must
+        contain of big and small letters and numbers. Whitespaces in the username are not allowed. Valid examples
+        are "Hans", "hans", "KarlHugo", "karl_hugo" or "max123". Anonymous usage of Pinyto is possible so you may
+        choose a username with no connection to your real name. Please consider that the username gets to be a part
+        of the name of your assemblies so do not use an embarassing name. Hints for valid passwords are displayed
+        at the registration form.
+    </p>
+    <p>
+        An issued registration may take a moment to process because the server has to create a new key pair for
+        the user and the password needs to be hashed. Pinyto does not save passwords as plain text but only salted
+        hashes. Please do not reuse existing passwords for Pinyto. After the registration is finished you can go
+        straight to the login with the supplied link.
+    </p>
+    <p>
+        You can now authenticate with your new credentials. On success you reach the dashboard of the
+        <a ng-href="/backoffice/">Backoffice</a>. There you can see some statistics on your usage of storage space and
+        computation time. Pinyto is very exact about these values and consequently counts storage usage in the unusual
+        unit of bytes * seconds. If you do not run your own Pinyto-Server but use one from a supplier those values are
+        probably user for pricing.
+    </p>
+    <p>
+        You can navigate through the backoffice with the tabs above the content. There you find the
+        <a ng-href="/backoffice/">Dashboard</a> with the statistics,
+        <a ng-href="/backoffice/assemblies/">Assemblies</a> with the list of installed and available Assemblies,
+        <a ng-href="/backoffice/assemblies/mine/">My Assemblies</a> with Assemblies you created,
+        <a ng-href="/backoffice/data/">My Data</a> enabling you to query and edit all your datasets
+        (useful for debugging if you write your own assemblies) and
+        <a ng-href="/backoffice/account/settings/">Account Settings</a> where you can change your password. There you
+        also manage the keys of your devices.
+    </p>
+    <p>
+        In the <a ng-href="/backoffice/assemblies/">Assemblies</a>-tab you can install your first Assembly.
+        For the tutorial we imagine you want to use the ToDo-app on all your devices. If the app gets installed on
+        a device it gets at first no access to your data. You want to grant that access yourself, keeping control of
+        your data at all times. You can do that with one click. Just search the matching Assembly for the ToDo-app
+        in the list of available Assemblies and click on the install button. The Assembly moves to the top to the
+        installed Assemblies an can be used from this moment on.
+    </p>
+    <p>
+        We are now able to use the ToDo-app. One Assembly switches the functionality for all apps on all devices so
+        we are now able to edit and sync the ToDo-List on all our devices.
+    </p>
+</div>

@@ -40,6 +40,9 @@ var pinytoWebApp = angular.module(
             when('/explanation/', {
                 templateUrl: '/webapps/pinyto/backoffice/partials/explanation.html',
                 controller: 'PinytoExplanationCtrl'}).
+            when('/explanation/first_steps/', {
+                templateUrl: '/webapps/pinyto/backoffice/partials/explanation/first_steps.html',
+                controller: 'PinytoExplanationCtrl'}).
             when('/hardware/', {
                 templateUrl: '/webapps/pinyto/backoffice/partials/hardware.html',
                 controller: 'PinytoHardwareCtrl'}).

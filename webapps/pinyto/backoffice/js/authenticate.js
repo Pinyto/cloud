@@ -81,6 +81,7 @@ pinytoWebApp.run(function ($rootScope, $location, Authenticate) {
             '/webapps/bborsalino/Librarian/index.html':'',
             '/webapps/pinyto/todo/index.html':'',
             '/explanation/':'',
+            '/explanation/first_steps/':'',
             '/hardware/':'',
             '/development/':''})) {
             $location.path('/login/');
