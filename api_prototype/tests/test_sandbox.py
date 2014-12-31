@@ -15,7 +15,7 @@ import json
 class TestSandbox(TestCase):
     def setUp(self):
         self.collection = Collection(MongoClient().pinyto, 'hugo_test')
-        self.collection_wrapper = CollectionWrapper(self.collection)
+        self.collection_wrapper = CollectionWrapper(self.collection, 'some/assembly')
         self.factory = RequestFactory()
 
     def tearDown(self):

@@ -18,7 +18,7 @@ class TestCollectionWrapper(TestCase):
         self.collection.drop()
 
     def test_save(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         self.assertEqual(self.collection.find().count(), 0)
         document_prototype = {'a': 9, 'b': 'Test'}
         wrapper.insert(document_prototype)
@@ -31,7 +31,7 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(doc['b'], u'Test')
 
     def test_find(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(len(wrapper.find({'a': 1})), 1)
@@ -51,7 +51,7 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(type(doc['_id']), str)
 
     def test_find_documents(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(len(list(wrapper.find_documents({'a': 1}))), 1)
@@ -77,7 +77,7 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(type(doc['_id']), ObjectId)
 
     def test_find_document_for_id(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         original_document = wrapper.find({'a': 1})[0]
@@ -87,13 +87,13 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(str(original_document['_id']), str(retrieved_document['_id']))
 
     def test_find_distinct(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(wrapper.find_distinct({'b': 'Test'}, 'a'), [2, 1])
 
     def test_count(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         wrapper.insert({'a': 2, 'b': 'Test2'})
@@ -102,7 +102,7 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
 
     def test_insert(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(wrapper.count({'a': 1}), 1)
         document = wrapper.find({'a': 1})[0]
@@ -115,7 +115,7 @@ class TestCollectionWrapper(TestCase):
         self.assertNotEqual(str(document['_id']), str(document2['_id']))
 
     def test_remove(self):
-        wrapper = CollectionWrapper(self.collection)
+        wrapper = CollectionWrapper(self.collection, 'some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         document = wrapper.find({'a': 1})[0]
@@ -132,7 +132,6 @@ class TestDatabaseHelpers(TestCase):
         converted = encode_underscore_fields(data)
         self.assertEqual(converted['name'], "Test")
         self.assertEqual(converted['i_count'], 13)
-        #self.assertNotIn('_id', converted)
 
     def test_remove_underscore_fields_list(self):
         data = {'_id': 3825699854,

@@ -13,8 +13,9 @@ class CollectionWrapper(object):
     """
     This wrapper is user to expose the db to the users assemblies.
     """
-    def __init__(self, collection):
+    def __init__(self, collection, assembly_name):
         self.db = collection
+        self.assembly_name = assembly_name
 
     def find(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
@@ -100,6 +101,7 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
+        document['assembly'] = self.assembly_name
         if not isinstance(document['_id'], ObjectId):
             document['_id'] = ObjectId(document['_id'])
         return str(self.db.save(document))
@@ -116,6 +118,7 @@ class CollectionWrapper(object):
         if '_id' in document:
             del document['_id']
         document['time'] = datetime.utcnow()
+        document['assembly'] = self.assembly_name
         return str(self.db.insert(document))
 
     def remove(self, document):

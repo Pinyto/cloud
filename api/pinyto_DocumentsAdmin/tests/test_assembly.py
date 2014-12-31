@@ -20,7 +20,7 @@ class TestDocumentsAdmin(TestCase):
         self.pinyto.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
-        self.collection_wrapper = CollectionWrapper(self.collection)
+        self.collection_wrapper = CollectionWrapper(self.collection, 'pinyto/DocumentsAdmin')
 
     def mock_check_token(self):
         """

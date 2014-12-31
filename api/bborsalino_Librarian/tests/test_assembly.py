@@ -20,7 +20,7 @@ class TestBBorsalino(TestCase):
         self.bborsalino.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
-        self.collection_wrapper = CollectionWrapper(self.collection)
+        self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
     def mock_check_token(self):
         """
@@ -438,7 +438,7 @@ for book in incomplete_books:
 
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
-        self.collection_wrapper = CollectionWrapper(self.collection)
+        self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
     def mock_check_token(self):
         """

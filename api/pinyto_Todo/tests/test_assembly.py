@@ -22,7 +22,7 @@ class TestTodo(TestCase):
         self.pinyto.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
-        self.collection_wrapper = CollectionWrapper(self.collection)
+        self.collection_wrapper = CollectionWrapper(self.collection, 'pinyto/Todo')
         self.hugo = User(name='Hugo')
         self.hugo.save()
         n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
