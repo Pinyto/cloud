@@ -1,7 +1,7 @@
 'use strict';
 
 todoApp.controller('todoCtrl',
-    function ($scope, Backend, Authenticate, $timeout, $rootScope) {
+    function ($scope, Backend, Authenticate, $interval, $rootScope) {
         // Function Definitions
         $scope.hasID = function (document) {
             return !!document['_id'];
@@ -215,5 +215,7 @@ todoApp.controller('todoCtrl',
         $scope.unfinishedTodo = [];
         $scope.finishedTodo = [];
         $scope.loadList();
+
+        $interval($scope.loadList, 30000);
     }
 );
