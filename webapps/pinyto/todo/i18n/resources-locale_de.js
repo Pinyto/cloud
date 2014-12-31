@@ -6,27 +6,27 @@
     },
     {
         "key"        : "_username_",
-        "value"      : "Username:",
+        "value"      : "Benutzername:",
         "description": "Label for the input field"
     },
     {
         "key"        : "_password_",
-        "value"      : "Password:",
+        "value"      : "Passwort:",
         "description": "Label for the input field"
     },
     {
         "key"        : "_loginBtn_",
-        "value"      : "Login",
+        "value"      : "Einloggen",
         "description": "Value on the submit button when logging in"
     },
     {
         "key"        : "_errors_",
-        "value"      : "Errors",
+        "value"      : "Fehler",
         "description": "Heading for a list of errors"
     },
     {
         "key"        : "_logout_",
-        "value"      : "Logout",
+        "value"      : "Abmelden",
         "description": "Heading for a list of errors"
     }
 ]

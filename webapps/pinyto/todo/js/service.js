@@ -31,19 +31,20 @@ angular.module('TodoServices', [])
                     headers: {'Content-Type': 'application/json'}
                 })
             },
-            update: function(token, book) {
+            save: function(token, document) {
+                document['type'] = 'todo';
                 return $http({
                     method: "POST",
-                    url: '/pinyto/Todo/update',
-                    data: angular.toJson({'token': token, 'book': book}),
+                    url: '/pinyto/Todo/save',
+                    data: angular.toJson({'token': token, 'document': document}),
                     headers: {'Content-Type': 'application/json'}
                 });
             },
-            remove: function(token, book) {
+            delete: function(token, document) {
                 return $http({
                     method: "POST",
-                    url: '/pinyto/Todo/remove',
-                    data: angular.toJson({'token': token, 'book': book}),
+                    url: '/pinyto/Todo/delete',
+                    data: angular.toJson({'token': token, 'document': document}),
                     headers: {'Content-Type': 'application/json'}
                 });
             }

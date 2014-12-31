@@ -1,11 +1,13 @@
 <div>
+    <a ng-click="logout()" style="cursor: pointer; float: right;" data-i18n="_logout_"></a>
     <pinyto-button color="rgb(50, 160, 20)" ng-mousedown="addTodo()">
         <img src="/webapps/pinyto/todo/img/Plus-Icon.svg" style="position: relative; top: 2px;" />
     </pinyto-button>
     <div ng-repeat="item in unfinishedTodo">
         <input type="checkbox" ng-click="moveToFinished($index)"
                style="position: relative; top: -5px; cursor: pointer;" />
-        <textarea ng-model="item.text" style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
+        <textarea ng-model="item.data.text" ng-change="checkForUnsaved()"
+                  style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
         <pinyto-button color="rgb(190, 50, 20)" style="position: relative; top: 4px;"
                        ng-mouseup="deleteUnfinishedTodo($index)">
             <img src="/webapps/pinyto/todo/img/Trash-Icon.svg" style="position: relative; top: 2px;" />
@@ -14,7 +16,8 @@
     <div ng-repeat="item in finishedTodo">
         <input type="checkbox" checked ng-click="moveToUnfinished($index)"
                style="position: relative; top: -5px; cursor: pointer;" />
-        <textarea ng-model="item.text" style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
+        <textarea ng-model="item.data.text" ng-change="checkForUnsaved()"
+                  style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
         <pinyto-button color="rgb(190, 50, 20)" style="position: relative; top: 4px;"
                        ng-mouseup="deleteFinishedTodo($index)">
             <img src="/webapps/pinyto/todo/img/Trash-Icon.svg" style="position: relative; top: 2px;" />
