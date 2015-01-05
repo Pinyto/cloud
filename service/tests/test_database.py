@@ -178,10 +178,30 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(type(doc['_id']), ObjectId)
 
     def test_find_document_for_id(self):
-        wrapper = CollectionWrapper(self.collection, 'some/assembly')
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         original_document = wrapper.find({'a': 1})[0]
+        retrieved_document = wrapper.find_document_for_id(original_document['_id'])
+        self.assertEqual(original_document['a'], retrieved_document['a'])
+        self.assertEqual(original_document['b'], retrieved_document['b'])
+        self.assertEqual(str(original_document['_id']), str(retrieved_document['_id']))
+
+    def test_find_document_for_id_do_not_find_foreign_document(self):
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly', only_own_data=True)
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        original_document = wrapper.find({'a': 1})[0]
+        wrapper = CollectionWrapper(self.collection, 'another/assembly')
+        retrieved_document = wrapper.find_document_for_id(original_document['_id'])
+        self.assertEqual(retrieved_document, None)
+
+    def test_find_document_for_id_foreign_allowed(self):
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        original_document = wrapper.find({'a': 1})[0]
+        wrapper = CollectionWrapper(self.collection, assembly_name='another/assembly', only_own_data=False)
         retrieved_document = wrapper.find_document_for_id(original_document['_id'])
         self.assertEqual(original_document['a'], retrieved_document['a'])
         self.assertEqual(original_document['b'], retrieved_document['b'])
