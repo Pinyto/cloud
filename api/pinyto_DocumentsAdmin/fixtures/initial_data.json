@@ -16,7 +16,8 @@
             "name": "DocumentsAdmin",
             "author": "pinyto",
             "description": "Dieses Assembly gewährt dem Admin-Interface vollen zugriff auf alle Dokumente in der Datenbank. Da dieses Assembly auf alle Daten zugreifen kann, sollte es nur mit großer Vorsicht eingesetzt werden. Ist es nicht installiert, können jedoch über das Admin-Interface keine Daten in der Datenbank manipuliert werden.",
-            "installed_at": []
+            "installed_at": [],
+            "only_own_data": false
         }
     },
     {

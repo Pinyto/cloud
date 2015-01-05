@@ -158,6 +158,7 @@ class Assembly(models.Model):
     author = models.ForeignKey(User, related_name='assemblies')
     description = models.TextField()
     installed_at = models.ManyToManyField(User, related_name='installed_assemblies')
+    only_own_data = models.BooleanField(default=True)
 
     class Meta:
         unique_together = (("author", "name"),)

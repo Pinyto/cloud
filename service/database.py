@@ -13,9 +13,10 @@ class CollectionWrapper(object):
     """
     This wrapper is user to expose the db to the users assemblies.
     """
-    def __init__(self, collection, assembly_name):
+    def __init__(self, collection, assembly_name, only_own_data=True):
         self.db = collection
         self.assembly_name = assembly_name
+        self.only_own_data = only_own_data
 
     def find(self, query, skip=0, limit=0, sorting=None, sort_direction='asc'):
         """
@@ -30,6 +31,8 @@ class CollectionWrapper(object):
         @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
+        if self.only_own_data:
+            query['assembly'] = self.assembly_name
         return encode_underscore_fields_list(self.find_documents(
             inject_object_id(query),
             skip=skip,
@@ -45,6 +48,8 @@ class CollectionWrapper(object):
         @param query: json string
         @return: dict
         """
+        if self.only_own_data:
+            query['assembly'] = self.assembly_name
         try:
             count = self.db.find(inject_object_id(query)).count()
         except InvalidId:
@@ -64,6 +69,8 @@ class CollectionWrapper(object):
         @param sort_direction: 'asc' or 'desc'
         @return: dict
         """
+        if self.only_own_data:
+            query['assembly'] = self.assembly_name
         if sort_direction == 'desc':
             sort_direction = DESCENDING
         else:
@@ -81,7 +88,10 @@ class CollectionWrapper(object):
         @param document_id: string
         @return: dict
         """
-        return self.db.find_one(inject_object_id({'_id': document_id}))
+        if self.only_own_data:
+            return self.db.find_one(inject_object_id({'_id': document_id, 'assembly': self.assembly_name}))
+        else:
+            return self.db.find_one(inject_object_id({'_id': document_id}))
 
     def find_distinct(self, query, attribute):
         """
@@ -92,6 +102,8 @@ class CollectionWrapper(object):
         @param attribute: string
         @return:
         """
+        if self.only_own_data:
+            query['assembly'] = self.assembly_name
         return self.db.find(inject_object_id(query)).distinct(attribute)
 
     def save(self, document):
@@ -128,7 +140,10 @@ class CollectionWrapper(object):
         @param document:
         @return:
         """
-        self.db.remove(spec_or_id=inject_object_id({"_id": document['_id']}))
+        if self.only_own_data:
+            self.db.remove(spec_or_id=inject_object_id({"_id": document['_id'], 'assembly': self.assembly_name}))
+        else:
+            self.db.remove(spec_or_id=inject_object_id({"_id": document['_id']}))
 
 
 def encode_underscore_fields(data):

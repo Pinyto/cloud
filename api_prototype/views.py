@@ -78,7 +78,10 @@ def api_call(request, user_name, assembly_name, function_name):
                 collection = Collection(MongoClient().pinyto, session.user.name)
             else:
                 collection = Collection(MongoClient().pinyto, session.user.name, create=True)
-            collection_wrapper = CollectionWrapper(collection, user_name + '/' + assembly_name)
+            collection_wrapper = CollectionWrapper(
+                collection,
+                assembly_name=user_name + '/' + assembly_name,
+                only_own_data=assembly.only_own_data)
             start_time = time.clock()
             response = function(request, collection_wrapper, DirectFactory())
             end_time = time.clock()
@@ -114,7 +117,10 @@ def load_api(request, session, assembly, function_name):
         collection = Collection(MongoClient().pinyto, session.user.name)
     else:
         collection = Collection(MongoClient().pinyto, session.user.name, create=True)
-    collection_wrapper = CollectionWrapper(collection, assembly.author.name + '/' + assembly.name)
+    collection_wrapper = CollectionWrapper(
+        collection,
+        assembly_name=assembly.author.name + '/' + assembly.name,
+        only_own_data=assembly.only_own_data)
     response_data, elapsed_time = safely_exec(api_function.code, request, collection_wrapper)
     if 'result' in response_data:
         response_data = response_data['result']
@@ -175,7 +181,8 @@ def check_for_jobs(sender, **kwargs):
                     )
                 collection_wrapper = CollectionWrapper(
                     collection,
-                    job['data']['assembly_user'] + '/' + job['data']['assembly_name'])
+                    assembly_name=job['data']['assembly_user'] + '/' + job['data']['assembly_name'],
+                    only_own_data=assembly.only_own_data)
                 response_data, elapsed_time = safely_exec(api_function.code, EmptyRequest(), collection_wrapper)
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
@@ -187,7 +194,8 @@ def check_for_jobs(sender, **kwargs):
                 if unicode(name).startswith(u'job_') and unicode(name) == unicode(job['data']['job_name']):
                     collection_wrapper = CollectionWrapper(
                         collection,
-                        job['data']['assembly_user'] + '/' + job['data']['assembly_name'])
+                        assembly_name=job['data']['assembly_user'] + '/' + job['data']['assembly_name'],
+                        only_own_data=assembly.only_own_data)
                     start_time = time.clock()
                     function(collection_wrapper, DirectFactory())
                     collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
