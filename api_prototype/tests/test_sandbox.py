@@ -120,6 +120,7 @@ return len(str(https.get('pinyto.de', '/')))"""
             json.dumps({'a': '123'}),
             content_type='application/json'
         ), self.collection_wrapper)
+        self.assertIn('result', result)
         self.assertEqual(json.loads(result['result']), {"a": "123"})
         self.assertTrue(time < 1)
 
@@ -134,6 +135,9 @@ return len(str(https.get('pinyto.de', '/')))"""
 
     def test_json_dumps(self):
         code = """return json.dumps({'a': 42})"""
-        result, time = safely_exec(code, self.factory.post('/', content_type='application/json'), self.collection_wrapper)
+        result, time = safely_exec(
+            code,
+            self.factory.post('/', content_type='application/json'),
+            self.collection_wrapper)
         self.assertEqual(result, {'result': u'{"a": 42}\n'})
         self.assertTrue(time < 1)
