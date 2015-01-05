@@ -92,7 +92,8 @@ class TestListOwnAssemblies(TestCase):
         assembly2 = Assembly(
             name='test2',
             author=self.hugo,
-            description='test assembly no 2'
+            description='test assembly no 2',
+            only_own_data=False
         )
         assembly2.save()
         response = self.client.post(
@@ -122,13 +123,15 @@ class TestListOwnAssemblies(TestCase):
                         u'code': u'print("Arbeit.")',
                         u'schedule': 0
                     }
-                ]
+                ],
+                u'only_own_data': True
             },
             {
                 u'name': u'test2',
                 u'description': u'test assembly no 2',
                 u'api_functions': [],
-                u'jobs': []
+                u'jobs': [],
+                u'only_own_data': False
             }
         ])
 

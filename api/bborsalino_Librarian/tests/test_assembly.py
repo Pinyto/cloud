@@ -50,7 +50,11 @@ class TestBBorsalino(TestCase):
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
     def test_index(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7"}
+        })
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/index',
@@ -74,30 +78,36 @@ class TestBBorsalino(TestCase):
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
     def test_search(self):
-        self.collection.insert({"type": "book",
-                                "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
-                                         "ean": "9783943176247", "languages": "Deutsch (ger)",
-                                         "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
-                                         "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
-        self.collection.insert({"type": "book",
-                                "data": {"category": "S Schulbücher",
-                                         "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
-                                         "isbn": "978-3-8085-3004-7",
-                                         "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
-                                                  " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
-                                                  " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
-                                         "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
-                                                   "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
-                                         "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
-                                         "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
-        self.collection.insert({"type": "book",
-                                "data": {"category": "004 Informatik",
-                                         "publisher": "München : Addison Wesley in Pearson Education Deutschland",
-                                         "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
-                                         "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
-                                                  " Johannes Magenheim ; Thomas Müller",
-                                         "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
-                                         "place": "Arbeitszimmer", "year": 2009}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
+                     "ean": "9783943176247", "languages": "Deutsch (ger)",
+                     "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
+                     "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"category": "S Schulbücher",
+                     "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
+                     "isbn": "978-3-8085-3004-7",
+                     "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
+                              " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
+                              " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
+                     "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
+                               "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
+                     "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
+                     "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"category": "004 Informatik",
+                     "publisher": "München : Addison Wesley in Pearson Education Deutschland",
+                     "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
+                     "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
+                              " Johannes Magenheim ; Thomas Müller",
+                     "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
+                     "place": "Arbeitszimmer", "year": 2009}})
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/search',
@@ -109,7 +119,11 @@ class TestBBorsalino(TestCase):
         self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
     def test_update(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}
+        })
         book = self.collection.find_one()
         book['data']['place'] = "B"
         book['_id'] = str(book['_id'])
@@ -124,8 +138,14 @@ class TestBBorsalino(TestCase):
         self.assertEqual(book_test['data']['place'], u'B')
 
     def test_update_all(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/update_all',
@@ -143,7 +163,11 @@ class TestBBorsalino(TestCase):
             self.assertEqual(book['data']['place'], u'C')
 
     def test_duplicate(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}
+        })
         book = self.collection.find_one()
         del book['data']['author']
         self.assertFalse('author' in book['data'])
@@ -163,7 +187,11 @@ class TestBBorsalino(TestCase):
             self.assertEqual(book['data']['author'], u'Max Mustermann')
 
     def test_remove(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}
+        })
         self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
         book = self.collection.find_one()
         book['_id'] = str(book['_id'])
@@ -177,10 +205,22 @@ class TestBBorsalino(TestCase):
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalino/Librarian",
+            "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/statistics',
@@ -471,7 +511,10 @@ for book in incomplete_books:
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
     def test_index(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7"}})
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
@@ -495,30 +538,36 @@ for book in incomplete_books:
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
     def test_search(self):
-        self.collection.insert({"type": "book",
-                                "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
-                                         "ean": "9783943176247", "languages": "Deutsch (ger)",
-                                         "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
-                                         "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
-        self.collection.insert({"type": "book",
-                                "data": {"category": "S Schulbücher",
-                                         "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
-                                         "isbn": "978-3-8085-3004-7",
-                                         "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
-                                                  " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
-                                                  " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
-                                         "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
-                                                   "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
-                                         "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
-                                         "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
-        self.collection.insert({"type": "book",
-                                "data": {"category": "004 Informatik",
-                                         "publisher": "München : Addison Wesley in Pearson Education Deutschland",
-                                         "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
-                                         "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
-                                                  " Johannes Magenheim ; Thomas Müller",
-                                         "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
-                                         "place": "Arbeitszimmer", "year": 2009}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
+                     "ean": "9783943176247", "languages": "Deutsch (ger)",
+                     "edition": "6. Aufl., Ausg. 2012", "place": "Schlafzimmer", "year": 2012,
+                     "title": "Fettnäpfchenführer. - Meerbusch : Conbook-Verl."}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"category": "S Schulbücher",
+                     "publisher": "Haan-Gruiten : Verl. Europa-Lehrmittel Nourney, Vollmer",
+                     "isbn": "978-3-8085-3004-7",
+                     "title": "Informatik und Informationstechnik an beruflichen Gymnasien /" +
+                              " bearb. von Lehrern und Ingenieuren an beruflichen Schulen und" +
+                              " berufspädagogischen Seminaren. [Autoren: Ralf Bär ...]",
+                     "author": "Bär, Ralf ; Schiemann, Bernd ; Dehler, Elmar ; " +
+                               "Bischofberger, Gerhard ; Wolf, Thomas ; Hammer, Nikolai",
+                     "languages": "Deutsch (ger)", "edition": "1. aufl., 1. Dr.",
+                     "ean": "9783808530047", "place": "Arbeitszimmer", "year": 2011}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"category": "004 Informatik",
+                     "publisher": "München : Addison Wesley in Pearson Education Deutschland",
+                     "isbn": "978-3-8273-7337-3", "author": "Magenheim, Johannes ; Müller, Thomas",
+                     "title": "Informatik macchiato : Cartoon-Kurs für Schüler und Studenten /" +
+                              " Johannes Magenheim ; Thomas Müller",
+                     "languages": "Deutsch (ger)", "edition": "1. Aufl.", "ean": "9783827373373",
+                     "place": "Arbeitszimmer", "year": 2009}})
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/search',
@@ -530,7 +579,11 @@ for book in incomplete_books:
         self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
     def test_update(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}
+        })
         book = self.collection.find_one()
         book['data']['place'] = "B"
         book['_id'] = str(book['_id'])
@@ -545,8 +598,16 @@ for book in incomplete_books:
         self.assertEqual(book_test['data']['place'], u'B')
 
     def test_update_all(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}
+        })
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "B"}
+        })
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/update_all',
@@ -564,7 +625,11 @@ for book in incomplete_books:
             self.assertEqual(book['data']['place'], u'C')
 
     def test_duplicate(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}
+        })
         book = self.collection.find_one()
         del book['data']['author']
         self.assertFalse('author' in book['data'])
@@ -585,7 +650,11 @@ for book in incomplete_books:
             self.assertEqual(book['data']['author'], u'Max Mustermann')
 
     def test_remove(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}
+        })
         self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
         book = self.collection.find_one()
         book['_id'] = str(book['_id'])
@@ -599,10 +668,26 @@ for book in incomplete_books:
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8085-3004-7", "place": "C"}})
-        self.collection.insert({"type": "book", "data": {"isbn": "978-3-8273-7337-3", "place": "B"}})
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "A"}
+        })
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}
+        })
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-8085-3004-7", "place": "C"}
+        })
+        self.collection.insert({
+            "type": "book",
+            "assembly": "bborsalinosandbox/Librarian",
+            "data": {"isbn": "978-3-8273-7337-3", "place": "B"}
+        })
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/statistics',
@@ -618,7 +703,10 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/store',
-            json.dumps({'token': self.authentication_token, 'type': 'book', 'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
+            json.dumps({
+                'token': self.authentication_token,
+                'type': 'book',
+                'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)

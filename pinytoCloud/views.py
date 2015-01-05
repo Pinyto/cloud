@@ -310,7 +310,8 @@ def list_own_assemblies(request):
                     'name': job.name,
                     'code': job.code,
                     'schedule': job.schedule
-                } for job in assembly.jobs.all()]
+                } for job in assembly.jobs.all()],
+                'only_own_data': assembly.only_own_data
             })
         return json_response(own_assemblies)
     else:
@@ -422,6 +423,10 @@ def save_assembly(request):
                     return json_response(
                         {'error': "The assembly data lacks a name or code attribute in a job."}
                     )
+            if 'only_own_data' in assembly_data:
+                assembly.only_own_data = assembly_data['only_own_data']
+            else:
+                assembly.only_own_data = True
             assembly.save()
             return json_response({'success': True})
         else:

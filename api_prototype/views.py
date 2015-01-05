@@ -148,6 +148,15 @@ def check_for_jobs(sender, **kwargs):
                'job_name' not in job['data']:
                 continue
             try:
+                assembly = User.objects.filter(
+                    name=job['data']['assembly_user']
+                ).all()[0].assemblies.filter(name=job['data']['assembly_name']).all()[0]
+            except IndexError:
+                return json_response(
+                    {'error': "Assembly not found. Does " + job['data']['assembly_user'] +
+                              " have an Assembly named " + job['data']['assembly_name'] + "?"}
+                )
+            try:
                 api_class = getattr(
                     __import__(
                         'api.' + job['data']['assembly_user'] + '_' + job['data']['assembly_name'] + '.assembly',
@@ -156,21 +165,6 @@ def check_for_jobs(sender, **kwargs):
             except ImportError:
                 # There is no statically defined api function for this call. Proceed to
                 # loading the code from the database and executing it in the sandbox.
-                try:
-                    assemblies = User.objects.filter(
-                        name=job['data']['assembly_user']
-                    ).all()[0].assemblies.filter(name=job['data']['assembly_name']).all()
-                    if len(assemblies) > 1:
-                        return json_response(
-                            {'error': "The user has more than one assembly of this name. " +
-                                      "That does not make any sense."}
-                        )
-                    assembly = assemblies[0]
-                except IndexError:
-                    return json_response(
-                        {'error': "Assembly not found. Does " + job['data']['assembly_user'] +
-                                  " have an Assembly named " + job['data']['assembly_name'] + "?"}
-                    )
                 try:
                     api_function = assembly.jobs.filter(name=job['data']['job_name']).all()[0]
                 except IndexError:
