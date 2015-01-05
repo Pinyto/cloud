@@ -35,33 +35,32 @@ def store(request, user_name, assembly_name):
         return json_response({'error': "Please supply JSON with a token key."})
     session = check_token(request_data['token'])
     # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'type' in request_data:
-            data_type = get_str_or_discard(str(request_data['type']))
-        else:
-            data_type = ""
-        if 'tags' in request_data:
-            tags = get_tags(request_data['tags'])
-        else:
-            tags = []
-        if 'data' in request_data and data_type:
-            db = Collection(MongoClient().pinyto, session.user.name)
-            document = {'type': data_type,
-                        'time': timezone.now().astimezone(pytz.timezone('UTC')),
-                        'tags': tags,
-                        'assembly': user_name + '/' + assembly_name,
-                        'data': request_data['data']}
-            db.insert(document)
-            return json_response({'success': True})
-        else:
-            return json_response({'error': "If you want to store data you have to send your " +
-                                           "data as json string in the parameter 'data'. " +
-                                           "You also have to supply a type string for the data. " +
-                                           "Supplying tags in the parameter 'tags' is optional " +
-                                           "but strongly recommended."})
-    else:
-        # session is not a session so it has to be response object with an error message
+    if not isinstance(session, Session):
         return session
+    # we are authenticated now
+    if 'type' in request_data:
+        data_type = get_str_or_discard(str(request_data['type']))
+    else:
+        data_type = ""
+    if 'tags' in request_data:
+        tags = get_tags(request_data['tags'])
+    else:
+        tags = []
+    if 'data' in request_data and data_type:
+        db = Collection(MongoClient().pinyto, session.user.name)
+        document = {'type': data_type,
+                    'time': timezone.now().astimezone(pytz.timezone('UTC')),
+                    'tags': tags,
+                    'assembly': user_name + '/' + assembly_name,
+                    'data': request_data['data']}
+        db.insert(document)
+        return json_response({'success': True})
+    else:
+        return json_response({'error': "If you want to store data you have to send your " +
+                                       "data as json string in the parameter 'data'. " +
+                                       "You also have to supply a type string for the data. " +
+                                       "Supplying tags in the parameter 'tags' is optional " +
+                                       "but strongly recommended."})
 
 
 @csrf_exempt
