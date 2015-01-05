@@ -259,7 +259,7 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(wrapper.count({'b': 'Test'}), 3)
 
     def test_insert(self):
-        wrapper = CollectionWrapper(self.collection, 'some/assembly')
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(wrapper.count({'a': 1}), 1)
         document = wrapper.find({'a': 1})[0]
@@ -272,13 +272,33 @@ class TestCollectionWrapper(TestCase):
         self.assertNotEqual(str(document['_id']), str(document2['_id']))
 
     def test_remove(self):
-        wrapper = CollectionWrapper(self.collection, 'some/assembly')
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         document = wrapper.find({'a': 1})[0]
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
         wrapper.remove(document)
         self.assertEqual(wrapper.count({'b': 'Test'}), 1)
+
+    def test_remove_only_own(self):
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        document = wrapper.find({'a': 1})[0]
+        self.assertEqual(self.collection.find({'b': 'Test'}).count(), 2)
+        wrapper = CollectionWrapper(self.collection, assembly_name='another/assembly', only_own_data=True)
+        wrapper.remove(document)
+        self.assertEqual(self.collection.find({'b': 'Test'}).count(), 2)
+
+    def test_remove_not_only_own(self):
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        document = wrapper.find({'a': 1})[0]
+        self.assertEqual(self.collection.find({'b': 'Test'}).count(), 2)
+        wrapper = CollectionWrapper(self.collection, assembly_name='another/assembly', only_own_data=False)
+        wrapper.remove(document)
+        self.assertEqual(self.collection.find({'b': 'Test'}).count(), 1)
 
 
 class TestDatabaseHelpers(TestCase):
