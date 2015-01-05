@@ -228,13 +228,35 @@ class TestCollectionWrapper(TestCase):
         self.assertEqual(wrapper.find_distinct({'b': 'Test'}, 'a'), [3, 2, 1])
 
     def test_count(self):
-        wrapper = CollectionWrapper(self.collection, 'some/assembly')
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         wrapper.insert({'a': 2, 'b': 'Test2'})
         self.assertEqual(wrapper.count({'a': 1}), 1)
         self.assertEqual(wrapper.count({'a': 2}), 2)
         self.assertEqual(wrapper.count({'b': 'Test'}), 2)
+
+    def test_count_only_own(self):
+        self.collection.save({'a': 3, 'b': 'Test'})
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly', only_own_data=True)
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test2'})
+        self.assertEqual(wrapper.count({'a': 1}), 1)
+        self.assertEqual(wrapper.count({'a': 2}), 2)
+        self.assertEqual(wrapper.count({'a': 3}), 0)
+        self.assertEqual(wrapper.count({'b': 'Test'}), 2)
+
+    def test_count_not_only_own(self):
+        self.collection.save({'a': 3, 'b': 'Test'})
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly', only_own_data=False)
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        wrapper.insert({'a': 2, 'b': 'Test2'})
+        self.assertEqual(wrapper.count({'a': 1}), 1)
+        self.assertEqual(wrapper.count({'a': 2}), 2)
+        self.assertEqual(wrapper.count({'a': 3}), 1)
+        self.assertEqual(wrapper.count({'b': 'Test'}), 3)
 
     def test_insert(self):
         wrapper = CollectionWrapper(self.collection, 'some/assembly')
