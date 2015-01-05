@@ -96,7 +96,7 @@ class TestCollectionWrapper(TestCase):
             self.assertEqual(type(doc['_id']), str)
 
     def test_find_documents(self):
-        wrapper = CollectionWrapper(self.collection, 'some/assembly')
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly')
         wrapper.insert({'a': 2, 'b': 'Test'})
         wrapper.insert({'a': 1, 'b': 'Test'})
         self.assertEqual(len(list(wrapper.find_documents({'a': 1}))), 1)
@@ -118,6 +118,62 @@ class TestCollectionWrapper(TestCase):
         )
         for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')):
             self.assertEqual(doc['a'], 2 - i)
+            self.assertIn('_id', doc)
+            self.assertEqual(type(doc['_id']), ObjectId)
+
+    def test_find_documents_only_own(self):
+        self.collection.save({'a': 3, 'b': 'Test'})
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly', only_own_data=True)
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        self.assertEqual(len(list(wrapper.find_documents({'a': 1}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'a': 2}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'a': 3}))), 0)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}))), 2)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, skip=1))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, limit=1))), 1)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc'))),
+            2
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc')):
+            self.assertEqual(doc['a'], i + 1)
+            self.assertIn('_id', doc)
+            self.assertEqual(type(doc['_id']), ObjectId)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc'))),
+            2
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')):
+            self.assertEqual(doc['a'], 2 - i)
+            self.assertIn('_id', doc)
+            self.assertEqual(type(doc['_id']), ObjectId)
+
+    def test_find_documents_not_only_own(self):
+        self.collection.save({'a': 3, 'b': 'Test'})
+        wrapper = CollectionWrapper(self.collection, assembly_name='some/assembly', only_own_data=False)
+        wrapper.insert({'a': 2, 'b': 'Test'})
+        wrapper.insert({'a': 1, 'b': 'Test'})
+        self.assertEqual(len(list(wrapper.find_documents({'a': 1}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'a': 2}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'a': 3}))), 1)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}))), 3)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, skip=1))), 2)
+        self.assertEqual(len(list(wrapper.find_documents({'b': 'Test'}, limit=1))), 1)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc'))),
+            3
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='asc')):
+            self.assertEqual(doc['a'], i + 1)
+            self.assertIn('_id', doc)
+            self.assertEqual(type(doc['_id']), ObjectId)
+        self.assertEqual(
+            len(list(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc'))),
+            3
+        )
+        for i, doc in enumerate(wrapper.find_documents({'b': 'Test'}, skip=0, sorting='a', sort_direction='desc')):
+            self.assertEqual(doc['a'], 3 - i)
             self.assertIn('_id', doc)
             self.assertEqual(type(doc['_id']), ObjectId)
 
