@@ -38,6 +38,12 @@ def store(request, user_name, assembly_name):
     if not isinstance(session, Session):
         return session
     # we are authenticated now
+    try:
+        assembly = Assembly.objects.filter(author__name=user_name).filter(name=assembly_name).all()[0]
+    except IndexError:
+        return json_response({'error': "The assembly " + user_name + "/" + assembly_name + " does not exist."})
+    if assembly not in session.user.installed_assemblies.all():
+        return json_response({'error': "The assembly " + user_name + "/" + assembly_name + " is not installed."})
     if 'type' in request_data:
         data_type = get_str_or_discard(str(request_data['type']))
     else:

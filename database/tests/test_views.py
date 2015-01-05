@@ -5,8 +5,7 @@ This File is part of Pinyto
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from django.test.client import Client
-from pinytoCloud.models import User, StoredPublicKey
+from pinytoCloud.models import User, StoredPublicKey, Assembly
 from Crypto.Cipher import PKCS1_OAEP
 from keyserver.settings import PINYTO_PUBLICKEY
 from base64 import b16encode
@@ -66,14 +65,66 @@ class StoreTest(TestCase):
         db.remove({})
         self.assertEqual(db.count(), 0)
 
-    def test_successful(self):
+    def test_assembly_does_not_exist(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
         self.clear_collection(hugo.name)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
-        test_client = Client()
+        response = self.client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({
+                'token': authentication_token,
+                'type': 'test',
+                'tags': ['a', 'b', 'c'],
+                'data': {
+                    'foo': 'abc',
+                    'bar': 42
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "The assembly test/bla does not exist.")
+
+    def test_assembly_not_installed(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.last_calculation_time = timezone.now()
+        hugo.save()
+        response = self.client.post(
+            reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
+            json.dumps({
+                'token': authentication_token,
+                'type': 'test',
+                'tags': ['a', 'b', 'c'],
+                'data': {
+                    'foo': 'abc',
+                    'bar': 42
+                }
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(response.content)
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "The assembly test/bla is not installed.")
+
+    def test_successful(self):
+        hugo, session, authentication_token = self.create_user_session_and_token()
+        self.clear_collection(hugo.name)
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.installed_assemblies.add(assembly)
+        hugo.last_calculation_time = timezone.now()
+        hugo.save()
         before_request_time = timezone.now()
-        response = test_client.post(
+        response = self.client.post(
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             json.dumps({
                 'token': authentication_token,
@@ -107,8 +158,12 @@ class StoreTest(TestCase):
     def test_no_type(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
         self.clear_collection(hugo.name)
-        test_client = Client()
-        response = test_client.post(
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.installed_assemblies.add(assembly)
+        response = self.client.post(
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             json.dumps({
                 'token': authentication_token,
@@ -132,8 +187,12 @@ class StoreTest(TestCase):
     def test_no_data(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
         self.clear_collection(hugo.name)
-        test_client = Client()
-        response = test_client.post(
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.installed_assemblies.add(assembly)
+        response = self.client.post(
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             json.dumps({
                 'token': authentication_token,
@@ -153,11 +212,15 @@ class StoreTest(TestCase):
     def test_no_tags(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
         self.clear_collection(hugo.name)
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.installed_assemblies.add(assembly)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
-        test_client = Client()
         before_request_time = timezone.now()
-        response = test_client.post(
+        response = self.client.post(
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             json.dumps({
                 'token': authentication_token,
@@ -189,13 +252,17 @@ class StoreTest(TestCase):
 
     def test_wrong_tags(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
+        test = User(name='test')
+        test.save()
+        assembly = Assembly(name='bla', author=test, description='')
+        assembly.save()
+        hugo.installed_assemblies.add(assembly)
         for tags in [{'a': 1, 'b': 'c'}, {}, 12.3, 42, [{'a': 2}, {}]]:
             self.clear_collection(hugo.name)
             hugo.last_calculation_time = timezone.now()
             hugo.save()
-            test_client = Client()
             before_request_time = timezone.now()
-            response = test_client.post(
+            response = self.client.post(
                 reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
                 json.dumps({
                     'token': authentication_token,
@@ -268,8 +335,7 @@ class StatisticsTest(TestCase):
         hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
         authentication_token = b16encode(pinyto_cipher.encrypt(session.token))
-        test_client = Client()
-        response = test_client.post(
+        response = self.client.post(
             reverse('statistics'),
             json.dumps({'token': authentication_token}),
             content_type='application/json')
