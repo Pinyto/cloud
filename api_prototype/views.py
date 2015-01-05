@@ -32,12 +32,12 @@ def api_call(request, user_name, assembly_name, function_name):
     @return: json response
     """
     try:
-        token = json.loads(request.body)['token']
+        json_data = json.loads(request.body)
     except ValueError:
         return json_response({'error': "All Pinyto API-calls have to use json. This is not valid JSON data."})
-    except IndexError:
+    if 'token' not in json_data:
         return json_response({'error': "Unauthenticated API-calls are not supported. Please supply a token."})
-    session = check_token(token)
+    session = check_token(json_data['token'])
     if not isinstance(session, Session):
         # session is not a session so it has to be response object with an error message
         return session
@@ -50,7 +50,7 @@ def api_call(request, user_name, assembly_name, function_name):
         )
     try:
         assemblies = assembly_user.assemblies.filter(name=assembly_name).all()
-        if len(assemblies) > 1:
+        if len(assemblies) > 1:  # This can't occur because assembly name + user are unique together
             return json_response(
                 {'error': "The user has more than one assembly of this name. That does not make any sense."}
             )
@@ -107,10 +107,13 @@ def load_api(request, session, assembly, function_name):
         api_function = assembly.api_functions.filter(name=function_name).all()[0]
     except IndexError:
         return json_response(
-            {'error': "The assembly " + assembly.author.name + "/" + assembly.name + ' exists but has no API function "' +
-                      function_name + '".'}
+            {'error': "The assembly " + assembly.author.name + "/" + assembly.name +
+                      ' exists but has no API function "' + function_name + '".'}
         )
-    collection = Collection(MongoClient().pinyto, session.user.name)
+    if session.user.name in MongoClient().pinyto.collection_names():
+        collection = Collection(MongoClient().pinyto, session.user.name)
+    else:
+        collection = Collection(MongoClient().pinyto, session.user.name, create=True)
     collection_wrapper = CollectionWrapper(collection, assembly.author.name + '/' + assembly.name)
     response_data, elapsed_time = safely_exec(api_function.code, request, collection_wrapper)
     if 'result' in response_data:
