@@ -4,12 +4,15 @@ This File is part of Pinyto
 """
 
 from django.test import TestCase
-from mock import patch
+from django.utils import timezone
 from django.test.client import Client
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
+from Crypto.Cipher import PKCS1_OAEP
+from keyserver.settings import PINYTO_PUBLICKEY
+from base64 import b16encode
 import json
 import time
 
@@ -18,46 +21,58 @@ class TestBBorsalino(TestCase):
     def setUp(self):
         self.bborsalino = User(name='bborsalino')
         self.bborsalino.save()
+        if Assembly.objects.filter(name='Librarian').filter(author=self.bborsalino).count() > 0:
+            self.assembly = Assembly.objects.filter(name='Librarian').filter(author=self.bborsalino).all()[0]
+        else:
+            self.assembly = Assembly(name='Librarian', author=self.bborsalino, description='')
+            self.assembly.save()
+        self.hugo = User(name='Hugo')
+        self.hugo.save()
+        self.hugo.installed_assemblies.add(self.assembly)
+        n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
+            "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
+            "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
+            "0894364256604860146232603404588092435482734374812471361593625543917217088490113148478038251561381" + \
+            "8672330898366008493547872891602227800340728106862543870889614647176014952843513826946064902193374" + \
+            "5442573561655969372352609568579364393649500357127004050087969117303304927939643892730600997930439" + \
+            "1147195261326440509804663056089132784514383110912100463888066750648282272016554512713401644905102" + \
+            "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
+            "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
+            "0939464832253228468472307931284129162453821959698949"
+        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.session = self.hugo.start_session(self.hugo_key)
+        self.hugo.last_calculation_time = timezone.now()
+        self.hugo.save()
+        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
+        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
-    def mock_check_token(self):
-        """
-        Mocks the token check.
-        @return: Session
-        """
-        hugo = User(name='Hugo')
-        hugo.save()
-        key = StoredPublicKey.create(hugo, '13', 5)
-        return hugo.start_session(key)
-
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_index(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/index',
-            json.dumps({'token': 'fake', 'ean': '1234567890123'}),
+            json.dumps({'token': self.authentication_token, 'ean': '1234567890123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['index'], [])
         response = test_client.post(
             '/bborsalino/Librarian/index',
-            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
         response = test_client.post(
             '/bborsalino/Librarian/index',
-            json.dumps({'token': 'fake'}),
+            json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_search(self):
         self.collection.insert({"type": "book",
                                 "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
@@ -86,14 +101,13 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/search',
-            json.dumps({'token': 'fake', 'searchstring': 'Informatik'}),
+            json.dumps({'token': self.authentication_token, 'searchstring': 'Informatik'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 2)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
         self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_update(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         book = self.collection.find_one()
@@ -102,14 +116,13 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/update',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         book_test = self.collection.find()[0]
         self.assertEqual(book_test['data']['place'], u'B')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_update_all(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
@@ -117,7 +130,7 @@ class TestBBorsalino(TestCase):
         response = test_client.post(
             '/bborsalino/Librarian/update_all',
             json.dumps({
-                'token': 'fake',
+                'token': self.authentication_token,
                 'book': {
                     "type": "book",
                     "data": {"isbn": "978-3-943176-24-7", "place": "C"}
@@ -129,7 +142,6 @@ class TestBBorsalino(TestCase):
         for book in self.collection.find():
             self.assertEqual(book['data']['place'], u'C')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_duplicate(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
         book = self.collection.find_one()
@@ -139,7 +151,7 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/duplicate',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
@@ -150,7 +162,6 @@ class TestBBorsalino(TestCase):
             self.assertEqual(book['data']['isbn'], u'978-3-943176-24-7')
             self.assertEqual(book['data']['author'], u'Max Mustermann')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_remove(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
         self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
@@ -159,13 +170,12 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/remove',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_statistics(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
@@ -174,21 +184,23 @@ class TestBBorsalino(TestCase):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/statistics',
-            json.dumps({'token': 'fake'}),
+            json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
+        self.assertIn('book_count', res)
         self.assertEqual(res['book_count'], 4)
+        self.assertIn('places_used', res)
         self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
+        self.assertIn('lent_count', res)
         self.assertEqual(res['lent_count'], 1)
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_job_complete_data_by_asking_dnb(self):
         test_client = Client()
         response = test_client.post(
             '/bborsalino/Librarian/store',
             json.dumps({
-                'token': 'fake',
+                'token': self.authentication_token,
                 'type': 'book',
                 'data': {
                     "isbn": "978-3-943176-24-7",
@@ -201,7 +213,7 @@ class TestBBorsalino(TestCase):
         response = test_client.post(
             '/bborsalino/Librarian/store',
             json.dumps({
-                'token': 'fake',
+                'token': self.authentication_token,
                 'type': 'job',
                 'data': {
                     "assembly_user": "bborsalino",
@@ -214,7 +226,7 @@ class TestBBorsalino(TestCase):
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/bborsalino/Librarian/index',
-            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
@@ -229,7 +241,7 @@ class TestBBorsalino(TestCase):
                 self.fail("Maximum iterations reached. The data was not completed.")
             response = test_client.post(
                 '/bborsalino/Librarian/index',
-                json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+                json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
                 content_type='application/json'
             )
             if len(json.loads(response.content)['index']) >= 1 and \
@@ -240,8 +252,8 @@ class TestBBorsalino(TestCase):
                 time.sleep(0.1)
         self.assertEqual(
             json.loads(response.content)['index'][0]['data']['title'],
-            u"Fettnäpfchenführer. - Meerbusch : Conbook-Verl. [Mehrteiliges Werk] " +
-            u"Teil: Japan : die Axt im Chrysanthemenwald / Kerstin und Andreas Fels"
+            u"Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / "
+            u"Kerstin Fels ; Andreas Fels"
         )
 
 
@@ -435,47 +447,53 @@ for book in incomplete_books:
             book['data'][key] = parsed[key]
     db.save(book)""", assembly=self.assembly, schedule=0)
         self.librarian_complete.save()
-
+        self.hugo = User(name='Hugo')
+        self.hugo.save()
+        self.hugo.installed_assemblies.add(self.assembly)
+        n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
+            "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
+            "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
+            "0894364256604860146232603404588092435482734374812471361593625543917217088490113148478038251561381" + \
+            "8672330898366008493547872891602227800340728106862543870889614647176014952843513826946064902193374" + \
+            "5442573561655969372352609568579364393649500357127004050087969117303304927939643892730600997930439" + \
+            "1147195261326440509804663056089132784514383110912100463888066750648282272016554512713401644905102" + \
+            "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
+            "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
+            "0939464832253228468472307931284129162453821959698949"
+        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.session = self.hugo.start_session(self.hugo_key)
+        self.hugo.last_calculation_time = timezone.now()
+        self.hugo.save()
+        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
+        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
-    def mock_check_token(self):
-        """
-        Mocks the token check.
-        @return: Session
-        """
-        hugo = User(name='Hugo')
-        hugo.save()
-        key = StoredPublicKey.create(hugo, '13', 5)
-        return hugo.start_session(key)
-
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_index(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7"}})
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
-            json.dumps({'token': 'fake', 'ean': '1234567890123'}),
+            json.dumps({'token': self.authentication_token, 'ean': '1234567890123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['index'], [])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
-            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
-            json.dumps({'token': 'fake'}),
+            json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 1)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_search(self):
         self.collection.insert({"type": "book",
                                 "data": {"isbn": "978-3-943176-24-7", "author": "Fels, Kerstin ; Fels, Andreas",
@@ -504,14 +522,13 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/search',
-            json.dumps({'token': 'fake', 'searchstring': 'Informatik'}),
+            json.dumps({'token': self.authentication_token, 'searchstring': 'Informatik'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(response.content)['index']), 2)
         self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
         self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_update(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         book = self.collection.find_one()
@@ -520,14 +537,13 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/update',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         book_test = self.collection.find()[0]
         self.assertEqual(book_test['data']['place'], u'B')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_update_all(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B"}})
@@ -535,7 +551,7 @@ for book in incomplete_books:
         response = test_client.post(
             '/bborsalinosandbox/Librarian/update_all',
             json.dumps({
-                'token': 'fake',
+                'token': self.authentication_token,
                 'book': {
                     "type": "book",
                     "data": {"isbn": "978-3-943176-24-7", "place": "C"}
@@ -547,7 +563,6 @@ for book in incomplete_books:
         for book in self.collection.find():
             self.assertEqual(book['data']['place'], u'C')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_duplicate(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
         book = self.collection.find_one()
@@ -557,7 +572,7 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/duplicate',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
@@ -569,7 +584,6 @@ for book in incomplete_books:
             self.assertEqual(book['data']['isbn'], u'978-3-943176-24-7')
             self.assertEqual(book['data']['author'], u'Max Mustermann')
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_remove(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "author": "Max Mustermann"}})
         self.assertEqual(self.collection.find({'type': "book"}).count(), 1)
@@ -578,13 +592,12 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/remove',
-            json.dumps({'token': 'fake', 'book': book}),
+            json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(json.loads(response.content)['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_statistics(self):
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "A"}})
         self.collection.insert({"type": "book", "data": {"isbn": "978-3-943176-24-7", "place": "B", "lent": "Hugo"}})
@@ -593,7 +606,7 @@ for book in incomplete_books:
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/statistics',
-            json.dumps({'token': 'fake'}),
+            json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(response.content)
@@ -601,12 +614,11 @@ for book in incomplete_books:
         self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
         self.assertEqual(res['lent_count'], 1)
 
-    @patch('pinytoCloud.checktoken.check_token', mock_check_token)
     def test_job_complete_data_by_asking_dnb(self):
         test_client = Client()
         response = test_client.post(
             '/bborsalinosandbox/Librarian/store',
-            json.dumps({'token': 'fake', 'type': 'book', 'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
+            json.dumps({'token': self.authentication_token, 'type': 'book', 'data': {"isbn": "978-3-943176-24-7", "place": ""}}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
@@ -614,7 +626,7 @@ for book in incomplete_books:
         response = test_client.post(
             '/bborsalinosandbox/Librarian/store',
             json.dumps({
-                'token': 'fake',
+                'token': self.authentication_token,
                 'type': 'job',
                 'data': {
                     "assembly_user": "bborsalinosandbox",
@@ -627,7 +639,7 @@ for book in incomplete_books:
         self.assertTrue(json.loads(response.content)['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
-            json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+            json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
@@ -642,7 +654,7 @@ for book in incomplete_books:
                 self.fail("Maximum iterations reached. The data was not completed.")
             response = test_client.post(
                 '/bborsalinosandbox/Librarian/index',
-                json.dumps({'token': 'fake', 'isbn': '978-3-943176-24-7'}),
+                json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
                 content_type='application/json'
             )
             if len(json.loads(response.content)['index']) >= 1 and \
@@ -653,6 +665,6 @@ for book in incomplete_books:
                 time.sleep(0.1)
         self.assertEqual(
             json.loads(response.content)['index'][0]['data']['title'],
-            u"Fettnäpfchenführer. - Meerbusch : Conbook-Verl. [Mehrteiliges Werk] " +
-            u"Teil: Japan : die Axt im Chrysanthemenwald / Kerstin und Andreas Fels"
+            u"Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / "
+            u"Kerstin Fels ; Andreas Fels"
         )

@@ -8,7 +8,7 @@ from django.utils import timezone
 from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
-from pinytoCloud.models import User, StoredPublicKey
+from pinytoCloud.models import User, StoredPublicKey, Assembly
 from Crypto.Cipher import PKCS1_OAEP
 from keyserver.settings import PINYTO_PUBLICKEY
 from base64 import b16encode
@@ -20,11 +20,17 @@ class TestTodo(TestCase):
     def setUp(self):
         self.pinyto = User(name='pinyto')
         self.pinyto.save()
+        if Assembly.objects.filter(name='Todo').filter(author=self.pinyto).count() > 0:
+            self.assembly = Assembly.objects.filter(name='Todo').filter(author=self.pinyto).all()[0]
+        else:
+            self.assembly = Assembly(name='Todo', author=self.pinyto, description='')
+            self.assembly.save()
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'pinyto/Todo')
         self.hugo = User(name='Hugo')
         self.hugo.save()
+        self.hugo.installed_assemblies.add(self.assembly)
         n = "4906219502681250223798809774327327904260276391419666181914677115202847435445452518005507304428444" + \
             "4742603016009120644035348330282759333360784030498937872562985999515117742892991032749465423946790" + \
             "9158556402591029134146090349452893554696956539933811963368734446853075386625683127394662795881747" + \
