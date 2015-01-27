@@ -8,6 +8,10 @@
                style="position: relative; top: -5px; cursor: pointer;" />
         <textarea ng-model="item.data.text" ng-change="checkForUnsaved()"
                   style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
+        <pinyto-button color="rgb(50, 160, 20)" ng-mousedown="moveUnfinishedUp($index)"
+                       style="position: relative; top: 4px;">
+            <img src="/webapps/pinyto/todo/img/Up-Icon.svg" style="position: relative; top: 2px;" />
+        </pinyto-button>
         <pinyto-button color="rgb(190, 50, 20)" style="position: relative; top: 4px;"
                        ng-mouseup="deleteUnfinishedTodo($index)">
             <img src="/webapps/pinyto/todo/img/Trash-Icon.svg" style="position: relative; top: 2px;" />
@@ -18,6 +22,10 @@
                style="position: relative; top: -5px; cursor: pointer;" />
         <textarea ng-model="item.data.text" ng-change="checkForUnsaved()"
                   style="height: 1.5em; width: calc(100% - 150px); max-width: 40em;"></textarea>
+        <pinyto-button color="rgb(50, 160, 20)" ng-mousedown="moveFinishedUp($index)"
+                       style="position: relative; top: 4px;">
+            <img src="/webapps/pinyto/todo/img/Up-Icon.svg" style="position: relative; top: 2px;" />
+        </pinyto-button>
         <pinyto-button color="rgb(190, 50, 20)" style="position: relative; top: 4px;"
                        ng-mouseup="deleteFinishedTodo($index)">
             <img src="/webapps/pinyto/todo/img/Trash-Icon.svg" style="position: relative; top: 2px;" />

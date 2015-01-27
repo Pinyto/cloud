@@ -128,6 +128,16 @@ todoApp.controller('todoCtrl',
             $scope.checkForUnsaved();
         };
 
+        $scope.moveFinishedUp = function (index) {
+            var document = $scope.finishedTodo.splice(index, 1)[0];
+            $scope.finishedTodo.splice(0, 0, document)
+        };
+
+        $scope.moveUnfinishedUp = function (index) {
+            var document = $scope.unfinishedTodo.splice(index, 1)[0];
+            $scope.unfinishedTodo.splice(0, 0, document)
+        };
+
         $scope.loadList = function () {
             Backend.getList(Authenticate.getToken()).success(function (data) {
                 if (data['error'] == 'Unknown token. Please authenticate.') {
