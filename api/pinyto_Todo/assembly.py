@@ -27,7 +27,7 @@ class Todo():
             query={'type': 'todo'},
             skip=0,
             limit=10000,
-            sorting='time',
+            sorting='data.priority',
             sort_direction='desc')})
 
     @staticmethod
