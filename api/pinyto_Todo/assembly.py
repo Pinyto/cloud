@@ -28,7 +28,7 @@ class Todo():
             skip=0,
             limit=10000,
             sorting='data.priority',
-            sort_direction='desc')})
+            sort_direction='asc')})
 
     @staticmethod
     def save(request, db, factory):
