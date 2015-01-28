@@ -130,12 +130,24 @@ todoApp.controller('todoCtrl',
 
         $scope.moveFinishedUp = function (index) {
             var document = $scope.finishedTodo.splice(index, 1)[0];
-            $scope.finishedTodo.splice(0, 0, document)
+            $scope.finishedTodo.splice(0, 0, document);
+            $scope.setPriorityFromOrder();
         };
 
         $scope.moveUnfinishedUp = function (index) {
             var document = $scope.unfinishedTodo.splice(index, 1)[0];
-            $scope.unfinishedTodo.splice(0, 0, document)
+            $scope.unfinishedTodo.splice(0, 0, document);
+            $scope.setPriorityFromOrder();
+        };
+
+        $scope.setPriorityFromOrder = function () {
+            var i;
+            for (i = 0; i < $scope.unfinishedTodo.length; i++) {
+                $scope.unfinishedTodo[i]['data']['priority'] = i;
+            }
+            for (i = 0; i < $scope.finishedTodo.length; i++) {
+                $scope.finishedTodo[i]['data']['priority'] = i;
+            }
         };
 
         $scope.loadList = function () {
@@ -218,6 +230,25 @@ todoApp.controller('todoCtrl',
                         $scope.unfinishedTodo.splice(i, 1);
                     }
                 }
+                var compare = function (a, b) {
+                    var aPriority = parseInt(a['data']['priority']);
+                    if (isNaN(aPriority)) {
+                        aPriority = 0;
+                    }
+                    var bPriority = parseInt(b['data']['priority']);
+                    if (isNaN(bPriority)) {
+                        bPriority = 0;
+                    }
+                    if (aPriority < bPriority) {
+                        return -1;
+                    } else if (aPriority > bPriority) {
+                        return 1;
+                    }
+                    return 0;
+                };
+                $scope.unfinishedTodo.sort(compare);
+                $scope.finishedTodo.sort(compare);
+                $scope.setPriorityFromOrder();
             });
         };
 
