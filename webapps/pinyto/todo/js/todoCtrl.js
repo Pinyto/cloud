@@ -11,7 +11,8 @@ todoApp.controller('todoCtrl',
             for (var i = 0; i < $scope.cloudList.length; i++) {
                 if ($scope.cloudList[i]['_id'] == document['_id']) {
                     if (($scope.cloudList[i]['data']['text'] != document['data']['text']) ||
-                        ($scope.cloudList[i]['data']['finished'] != document['data']['finished'])) {
+                        ($scope.cloudList[i]['data']['finished'] != document['data']['finished']) ||
+                        ($scope.cloudList[i]['data']['priority'] != document['data']['priority'])) {
                         return true;
                     }
                 }
@@ -132,12 +133,14 @@ todoApp.controller('todoCtrl',
             var document = $scope.finishedTodo.splice(index, 1)[0];
             $scope.finishedTodo.splice(0, 0, document);
             $scope.setPriorityFromOrder();
+            $scope.checkForUnsaved();
         };
 
         $scope.moveUnfinishedUp = function (index) {
             var document = $scope.unfinishedTodo.splice(index, 1)[0];
             $scope.unfinishedTodo.splice(0, 0, document);
             $scope.setPriorityFromOrder();
+            $scope.checkForUnsaved();
         };
 
         $scope.setPriorityFromOrder = function () {
