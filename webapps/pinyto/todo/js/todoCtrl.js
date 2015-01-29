@@ -193,19 +193,25 @@ todoApp.controller('todoCtrl',
                         if (item['_id'] == $scope.finishedTodo[i]['_id']) {
                             found = true;
                             $scope.finishedTodo[i]['type'] = item['type'];
-                            if (item['assembly']) {
+                            if ('assembly' in item) {
                                 $scope.finishedTodo[i]['assembly'] = item['assembly'];
                             }
-                            if (item['time']) {
+                            if ('time' in item) {
                                 $scope.finishedTodo[i]['time'] = item['time'];
                             }
-                            if (item['tags']) {
+                            if ('tags' in item) {
                                 $scope.finishedTodo[i]['tags'] = item['tags'];
                             }
-                            if (item['data']['priority']) {
+                            if ('priority' in item['data']) {
                                 $scope.finishedTodo[i]['data']['priority'] = item['data']['priority'];
+                            } else {
+                                $scope.finishedTodo[i]['data']['priority'] = 0;
                             }
-                            $scope.finishedTodo[i]['data']['finished'] = item['data']['finished'];
+                            if ('finished' in item['data']) {
+                                $scope.finishedTodo[i]['data']['finished'] = item['data']['finished'];
+                            } else {
+                                $scope.finishedTodo[i]['data']['finished'] = false;
+                            }
                             $scope.finishedTodo[i]['data']['text'] = item['data']['text'];
                         }
                     });
@@ -219,20 +225,25 @@ todoApp.controller('todoCtrl',
                         if (item['_id'] == $scope.unfinishedTodo[i]['_id']) {
                             found = true;
                             $scope.unfinishedTodo[i]['type'] = item['type'];
-                            if (item['assembly']) {
+                            if ('assembly' in item) {
                                 $scope.unfinishedTodo[i]['assembly'] = item['assembly'];
                             }
-                            if (item['time']) {
+                            if ('time' in item) {
                                 $scope.unfinishedTodo[i]['time'] = item['time'];
                             }
-                            if (item['tags']) {
+                            if ('tags' in item) {
                                 $scope.unfinishedTodo[i]['tags'] = item['tags'];
                             }
-                            console.log(item['data']);
-                            if (item['data']['priority']) {
+                            if ('priority' in item['data']) {
                                 $scope.unfinishedTodo[i]['data']['priority'] = item['data']['priority'];
+                            } else {
+                                $scope.unfinishedTodo[i]['data']['priority'] = 0;
                             }
-                            $scope.unfinishedTodo[i]['data']['finished'] = item['data']['finished'];
+                            if ('finished' in item['data']) {
+                                $scope.unfinishedTodo[i]['data']['finished'] = item['data']['finished'];
+                            } else {
+                                $scope.unfinishedTodo[i]['data']['finished'] = false;
+                            }
                             $scope.unfinishedTodo[i]['data']['text'] = item['data']['text'];
                         }
                     });
