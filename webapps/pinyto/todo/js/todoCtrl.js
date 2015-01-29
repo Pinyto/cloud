@@ -210,7 +210,7 @@ todoApp.controller('todoCtrl',
                             if ('finished' in item['data']) {
                                 $scope.finishedTodo[i]['data']['finished'] = item['data']['finished'];
                             } else {
-                                $scope.finishedTodo[i]['data']['finished'] = false;
+                                $scope.finishedTodo[i]['data']['finished'] = true;
                             }
                             $scope.finishedTodo[i]['data']['text'] = item['data']['text'];
                         }
