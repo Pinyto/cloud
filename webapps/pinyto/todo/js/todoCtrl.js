@@ -190,7 +190,7 @@ todoApp.controller('todoCtrl',
                 for (i = 0; i < $scope.finishedTodo.length; i++) {
                     found = false;
                     angular.forEach(data['result'], function (item) {
-                        if (item['_id'] == $scope.finishedTodo[i]['_id']) {
+                        if ((item['_id'] == $scope.finishedTodo[i]['_id']) && (item['data']['finished'])) {
                             found = true;
                             $scope.finishedTodo[i]['type'] = item['type'];
                             if ('assembly' in item) {
@@ -222,7 +222,7 @@ todoApp.controller('todoCtrl',
                 for (i = 0; i < $scope.unfinishedTodo.length; i++) {
                     found = false;
                     angular.forEach(data['result'], function (item) {
-                        if (item['_id'] == $scope.unfinishedTodo[i]['_id']) {
+                        if ((item['_id'] == $scope.unfinishedTodo[i]['_id']) && (!item['data']['finished'])) {
                             found = true;
                             $scope.unfinishedTodo[i]['type'] = item['type'];
                             if ('assembly' in item) {
