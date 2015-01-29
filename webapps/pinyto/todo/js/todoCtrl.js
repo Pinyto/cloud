@@ -228,6 +228,7 @@ todoApp.controller('todoCtrl',
                             if (item['tags']) {
                                 $scope.unfinishedTodo[i]['tags'] = item['tags'];
                             }
+                            console.log(item['data']);
                             if (item['data']['priority']) {
                                 $scope.unfinishedTodo[i]['data']['priority'] = item['data']['priority'];
                             }
