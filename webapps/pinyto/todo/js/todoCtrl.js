@@ -202,6 +202,9 @@ todoApp.controller('todoCtrl',
                             if (item['tags']) {
                                 $scope.finishedTodo[i]['tags'] = item['tags'];
                             }
+                            if (item['data']['priority']) {
+                                $scope.finishedTodo[i]['data']['priority'] = item['data']['priority'];
+                            }
                             $scope.finishedTodo[i]['data']['finished'] = item['data']['finished'];
                             $scope.finishedTodo[i]['data']['text'] = item['data']['text'];
                         }
@@ -224,6 +227,9 @@ todoApp.controller('todoCtrl',
                             }
                             if (item['tags']) {
                                 $scope.unfinishedTodo[i]['tags'] = item['tags'];
+                            }
+                            if (item['data']['priority']) {
+                                $scope.unfinishedTodo[i]['data']['priority'] = item['data']['priority'];
                             }
                             $scope.unfinishedTodo[i]['data']['finished'] = item['data']['finished'];
                             $scope.unfinishedTodo[i]['data']['text'] = item['data']['text'];
