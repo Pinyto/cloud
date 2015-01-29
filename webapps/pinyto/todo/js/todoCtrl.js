@@ -267,9 +267,6 @@ todoApp.controller('todoCtrl',
                     }
                     return 0;
                 };
-                for (var k=0; k < $scope.unfinishedTodo.length; k++) {
-                    console.log("p: "+$scope.unfinishedTodo[k]['data']['priority']+" ("+$scope.unfinishedTodo[k]['data']['text']+")");
-                }
                 $scope.unfinishedTodo.sort(compare);
                 $scope.finishedTodo.sort(compare);
                 $scope.setPriorityFromOrder();
