@@ -260,6 +260,6 @@ todoApp.controller('todoCtrl',
         $scope.finishedTodo = [];
         $scope.loadList();
 
-        $interval($scope.loadList, 30000);
+        $interval($scope.loadList, 10000);
     }
 );
