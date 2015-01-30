@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; Pinyto-Cloud 1.0-alpha1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0-alpha1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pinyto-Cloud 1.0-alpha1 documentation" href="index.html" />
+    <link rel="next" title="Administration" href="administration.html" />
+    <link rel="prev" title="Welcome to Pinyto-Cloud’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="administration.html" title="Administration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Pinyto-Cloud’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Pinyto-Cloud 1.0-alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Pinyto is your own private and secure database. You decide which data is used for which application
+and how the data is processed even before it reaches the device. It achieves that with a document
+based database (MongoDB) which saves your data in the structure you want it to have. You can access
+your data through Assemblies which process and prepare your data at the server before it gets
+transferred to an app on a device. It is up to you which Assemblies you want to install and you can
+even create your own Assemblies by programming them in Python. This structure lets you expose the
+minimum of your data to achieve just what you want. Assemblies can also do things on their own like
+searching for data on the internet to complete your saved datasets computationally on the server.
+This structure lets your apps feel smart because they can access the information they need while
+keeping your data in your control. Assemblies are always OpenSource and you can read their sourcecode
+if you want to know what they are doing.</p>
+<p>Pinyto is designed as a framework to make our vision of a personal cloud accessible for you. We
+provide some webapps and applications for your devices to show how Pinyto is meant to be used and
+what it is capable of. They may also be useful as they are.</p>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<p>There are two main parts of the Pinyto-Cloud component hosted on your server:</p>
+<ol class="arabic simple">
+<li>The Django application talking to your database and executing code from the assemblies.</li>
+<li>The Webapps which are hosted on the server.</li>
+</ol>
+<p>The Django application is structured in six Django-Apps:</p>
+<ol class="arabic simple">
+<li><strong>pinytoCloud</strong> is the main app which contains the settings.py and the main urls.py. Its models.py
+contains all the models used for administration of your personal cloud. This data is saved in the
+SQL-database specified in settings.py. Your user-data does not live in this database. views.py
+contains the views used for administration of the cloud including registration and authentication.</li>
+<li><strong>keyserver</strong> contains models and views which are needed to access the cloud with username and
+password. Pinyto normally uses public-key-authentication which is not usable for webapps. The
+keyserver does the public-key-authentication for all users who supply the correct credentials. The
+models in this app store private keys and password hashes for user accounts.</li>
+<li><strong>database</strong> wraps all calls to the document based database used to store the data. It uses pymongo
+but adds some functionality specific for Pinyto.</li>
+<li><strong>service</strong> contains helpers which can be called from assemblies to perform certain tasks. As
+assemblies are very limited in their ability to process data all the work is done in those services.</li>
+<li><strong>api_prototype</strong> contains the views handling all requests concerning api-calls and jobs at
+assemblies. If necessary a sandbox is initialized and code from the assemblies is executed there.</li>
+<li><strong>api</strong> contains trusted assemblies which are executed without a sandbox. This is generally not
+necessary but can improve the performance of assembly calls and job execution.</li>
+</ol>
+<p>The Webapps are structured in folders matching the name of the assembly. For example the files for the
+&#8220;pinyto/Todo&#8221; assembly live in /webapps/pinyto/Todo/. Every webapp is a separate application which
+is bootstrapped with its index.html. At the moment all Webapps are based on Angular.js and are
+structured like typical Angular applications.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#structure">Structure</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Pinyto-Cloud&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="administration.html"
+                        title="next chapter">Administration</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/introduction.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="administration.html" title="Administration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Pinyto-Cloud’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Pinyto-Cloud 1.0-alpha1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2015, Johannes Merkert.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
