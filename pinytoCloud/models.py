@@ -18,11 +18,11 @@ class User(models.Model):
     This is an user object. Users have a username and a list of public keys
     for authentication.
     """
-    name = models.CharField(max_length=30, primary_key=True)
-    time_budget = models.FloatField()
-    storage_budget = models.FloatField()
-    current_storage = models.BigIntegerField()
-    last_calculation_time = models.DateTimeField()
+    name = models.CharField(max_length=30, primary_key=True)  #: (str) The username used for identifying the account
+    time_budget = models.FloatField()  #: (float) The time budget of the user
+    storage_budget = models.FloatField()  #: (float) The storage budget of the user
+    current_storage = models.BigIntegerField()  #: (int) Current storage usage in bytes
+    last_calculation_time = models.DateTimeField()  #: (int) Timestamp of the last time the budget was calculated
 
     def __str__(self):
         return self.name
@@ -32,8 +32,9 @@ class User(models.Model):
         Creates a session object with a new random token.
         If there is an existing session it will be overwritten
 
-        @param key_db_object: StoredPublicKey
-        @return: Session object
+        :param key_db_object:
+        :type key_db_object: StoredPublicKey
+        :rtype: Session
         """
         try:
             session = self.sessions.filter(key=key_db_object).all()[0]
@@ -54,8 +55,10 @@ class User(models.Model):
         This method updates the time- and storage budget of the user. The changed budget
         and the corresponding variables are saved.
 
-        @param added_time: time
-        @param new_storage: int
+        :param added_time: added time in milliseconds
+        :type added_time: int
+        :param new_storage: new storage in bytes
+        :type new_storage: int
         """
         now = timezone.now()
         self.time_budget = self.time_budget + added_time
@@ -70,9 +73,9 @@ def initialize_budgets(sender, instance, **kwargs):
     """
     Initialization for users. All users are initialized with empty budgets.
 
-    @param sender: User class
-    @param instance: User
-    @param kwargs: other params of __init__()
+    :param sender: User class
+    :param instance: User
+    :param kwargs: other params of __init__()
     """
     if not instance.time_budget:
         instance.time_budget = 0.0
@@ -89,10 +92,15 @@ class StoredPublicKey(models.Model):
     This class is used to store public keys. The matching RSA object can be
     created with the get_key method.
     """
+    #: (str) The first 10 characters of a sha256 hash computed from ``n + e``.
     key_hash = models.CharField(max_length=10, primary_key=True, unique=True)
+    #: (str) N is a very big prime number so we have to save it as a string.
     N = models.CharField(max_length=1000)
+    #: (long) e is not a very big number so we store it as a big integer.
     e = models.BigIntegerField()
+    #: (User) This is the foreign-key to the User who owns this key.
     user = models.ForeignKey(User, related_name='keys')
+    #: (boolean) Keys can be deactivated. By default keys are active.
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -103,10 +111,13 @@ class StoredPublicKey(models.Model):
         """
         Creates a storedPublicKey and calculates the hash for the key.
 
-        @param user: User instance
-        @param n: string
-        @param e: long
-        @return: StoredPublicKey
+        :param user:
+        :type user: pinytoCloud.models.User
+        :param n:
+        :type n: string
+        :param e:
+        :type e: long
+        :rtype: StoredPublicKey
         """
         hasher = sha256()
         hasher.update(n + str(e))
@@ -119,7 +130,7 @@ class StoredPublicKey(models.Model):
         Generates the RSA object from the stored data. Use this object for
         encryption and verification.
 
-        @return: RSA key object
+        :rtype: Crypto.PublicKey.RSA
         """
         return RSA.construct((long(self.N), long(self.e)))
 
@@ -128,9 +139,13 @@ class Session(models.Model):
     """
     The session saves the session token used for verification.
     """
+    #: (string) The token consists of 16 random characters.
     token = models.CharField(max_length=16)
+    #: (int) The timestamp is reset with every request. It can be used to delete old sessions with a cron job.
     timestamp = models.DateTimeField()
+    #: (pinytoCloud.models.User) The reference to the user who own this session.
     user = models.ForeignKey(User, related_name='sessions')
+    #: (pinytoCloud.models.StoredPublicKey) The reference to the key used to start the session.
     key = models.OneToOneField(StoredPublicKey, related_name='related_session', unique=True)
 
     def __str__(self):
@@ -140,7 +155,8 @@ class Session(models.Model):
         """
         This method returns the session token encrypted with the key.
 
-        @return: base16 encoded encrypted token which is a string
+        :returns: base16 encoded encrypted token
+        :rtype: string
         """
         cipher = PKCS1_OAEP.new(self.key.get_key())
         return b16encode(cipher.encrypt(self.token.encode('ascii')))
@@ -154,10 +170,18 @@ class Assembly(models.Model):
     installed it automatically load the new version. A user may fork an assembly which creates
     an exact clone with the forking user as new author.
     """
+    #: (string) The name of the assembly is capped to 42 characters.
     name = models.CharField(max_length=42)
+    #: (pinytoCloud.models.User) Foreign-key to the user who owns the assembly.
     author = models.ForeignKey(User, related_name='assemblies')
+    #: (string) A description what the assembly does. This is displayed when the assembly gets installed.
     description = models.TextField()
+    #: A list of users who installed this assembly.
     installed_at = models.ManyToManyField(User, related_name='installed_assemblies')
+    #: (boolean) If this flag is true the assembly can only access documents with the assembly attribute
+    #: matching the name of this assembly. If set to true the user may be able not to check the sourcecode
+    #: of this assembly because he can be sure that it does not read, change or delete other data than its
+    #: own.
     only_own_data = models.BooleanField(default=True)
 
     class Meta:
@@ -171,8 +195,9 @@ class Assembly(models.Model):
         A user may fork an assembly which creates an exact clone with the forking user as new
         author.
 
-        @param new_user: User
-        @return: Assembly
+        :param new_user:
+        :type new_user: pinytoCloud.models.User
+        :rtype: pinytoCloud.models.Assembly
         """
         fork = Assembly()
         fork.name = self.name
@@ -187,8 +212,12 @@ class ApiFunction(models.Model):
     ApiFunctions answer to requests to a url in the format user/assemblyname/functionname.
     They always return a json response.
     """
+    #: (string) The name of the function is the last part of the path that has to be called to execute this code.
     name = models.CharField(max_length=42, primary_key=True)
+    #: (string) The python code of the function. The signature of the call has a very special format. Please see
+    #: `Assemblies <assemblies.html>`_ for more information.
     code = models.TextField()
+    #: (pinytoCloud.models.Assembly) Reference to the Assembly the function belongs to.
     assembly = models.ForeignKey(Assembly, related_name='api_functions')
 
     def __str__(self):
@@ -202,10 +231,16 @@ class Job(models.Model):
     needs to be done). This model saves these scripts. Jobs do not return anything but
     save their work to the database. Results can be polled by ApiFunctions.
     """
+    #: (string) The name of the job. This name can be used to execute the job. To invoke this in a API-call
+    #: simply save a document with type:'job' and this name.
     name = models.CharField(max_length=42, primary_key=True)
+    #: (string) The python code of the function. The signature of the call has a very special format. Please see
+    #: `Assemblies <assemblies.html>`_ for more information.
     code = models.TextField()
+    #: (pinytoCloud.models.Assembly) Reference to the Assembly the job belongs to.
     assembly = models.ForeignKey(Assembly, related_name='jobs')
-    schedule = models.IntegerField(default=0)  # each schedule minutes (0 means never)
+    #: (int) Execute every schedule minutes (0 means never).
+    schedule = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
