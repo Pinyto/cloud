@@ -120,7 +120,7 @@ class StoredPublicKey(models.Model):
         :rtype: StoredPublicKey
         """
         hasher = sha256()
-        hasher.update(n + str(e))
+        hasher.update((n + str(e)).encode('utf-8'))
         stored_key = cls(user=user, N=n, e=e, key_hash=hasher.hexdigest()[:10])
         stored_key.save()
         return stored_key
@@ -132,7 +132,7 @@ class StoredPublicKey(models.Model):
 
         :rtype: Crypto.PublicKey.RSA
         """
-        return RSA.construct((long(self.N), long(self.e)))
+        return RSA.construct((int(self.N), int(self.e)))
 
 
 class Session(models.Model):
@@ -159,7 +159,7 @@ class Session(models.Model):
         :rtype: string
         """
         cipher = PKCS1_OAEP.new(self.key.get_key())
-        return b16encode(cipher.encrypt(self.token.encode('ascii')))
+        return str(b16encode(cipher.encrypt(self.token.encode('ascii'))), encoding='utf-8')
 
 
 class Assembly(models.Model):

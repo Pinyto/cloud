@@ -6,7 +6,7 @@ This File is part of Pinyto
 import time
 from multiprocessing import Process, Queue
 from multiprocessing.queues import Empty
-from seccomp_process import SecureHost
+from api_prototype.seccomp_process import SecureHost
 
 
 def sandbox(code, request, real_db, queue):

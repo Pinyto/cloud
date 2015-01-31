@@ -14,4 +14,4 @@ def create_token(length=16):
     @return: string
     """
     ru = lambda: hex(random.randint(0, 15))[2]
-    return ''.join([ru() for _ in xrange(length)])
+    return ''.join([ru() for _ in range(length)])

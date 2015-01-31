@@ -10,7 +10,7 @@ from hashlib import sha256
 from base64 import b16decode, b16encode
 from django.http import HttpResponse
 import json
-from settings import PINYTO_PUBLICKEY
+from keyserver.settings import PINYTO_PUBLICKEY
 from pinytoCloud.views import authenticate as cloud_authenticate
 from pinytoCloud.views import register as cloud_register
 from pinytoCloud.checktoken import check_token
@@ -25,7 +25,7 @@ def authenticate(request):
     @return:
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply username and password as JSON data. " +
@@ -54,7 +54,7 @@ def authenticate(request):
         )
     # Make a request to Pinyto-Cloud asking for a encrypted token
     hasher = sha256()
-    hasher.update(account.N + str(account.e))
+    hasher.update((account.N + str(account.e)).encode('utf-8'))
     response = cloud_authenticate(name, hasher.hexdigest()[:10])
     if 'error' in response:
         return HttpResponse(
@@ -67,18 +67,18 @@ def authenticate(request):
             content_type='application/json'
         )
     encrypted_token = response['encrypted_token']
-    signature = (long(response['signature']),)
+    signature = (int(response['signature']),)
     hasher = sha256()
-    hasher.update(encrypted_token)
-    if not PINYTO_PUBLICKEY.verify(hasher.hexdigest(), signature):
+    hasher.update(encrypted_token.encode('utf-8'))
+    if not PINYTO_PUBLICKEY.verify(hasher.hexdigest().encode('utf-8'), signature):
         return HttpResponse(json.dumps(
             {'error': "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! "
                       + "The developers will be informed. Authentication aborted."}), content_type='application/json')
-    key = RSA.construct((long(account.N), long(account.e), long(account.d)))
+    key = RSA.construct((int(account.N), int(account.e), int(account.d)))
     user_cipher = PKCS1_OAEP.new(key)
     token = user_cipher.decrypt(b16decode(encrypted_token))
     pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-    authentication_token = b16encode(pinyto_cipher.encrypt(token))
+    authentication_token = str(b16encode(pinyto_cipher.encrypt(token)), encoding='utf-8')
     return HttpResponse(json.dumps({'token': authentication_token}), content_type='application/json')
 
 
@@ -90,7 +90,7 @@ def register(request):
     @return:
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply username and password as JSON data. " +
@@ -112,7 +112,7 @@ def register(request):
             content_type='application/json')
     new_account = Account.create(name, password)
     # Register at the PinytoCloud
-    key_data = {'N': unicode(new_account.N), 'e': unicode(new_account.e)}
+    key_data = {'N': str(new_account.N), 'e': str(new_account.e)}
     response = cloud_register(name, key_data)
     if 'success' not in response or not response['success']:
         new_account.delete()
@@ -132,7 +132,7 @@ def change_password(request):
     @return: json response
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return HttpResponse(
             json.dumps({'error': "Please supply the new password as JSON data. " +

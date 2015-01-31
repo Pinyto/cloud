@@ -42,5 +42,5 @@ def create_salt(length=10):
     @param length: integer
     @return: string
     """
-    ru = lambda: unichr(random.randint(33, 127))
-    return u''.join([ru() for _ in xrange(length)])
+    ru = lambda: chr(random.randint(33, 127))
+    return u''.join([ru() for _ in range(length)])

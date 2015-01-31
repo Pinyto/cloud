@@ -27,7 +27,7 @@ class Account(models.Model):
     """
     name = models.CharField(max_length=30, primary_key=True)
     salt = models.CharField(max_length=10)
-    hash_iterations = models.IntegerField(default=42000)
+    hash_iterations = models.IntegerField(default=10000)
     hash = models.CharField(max_length=32)
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
@@ -47,16 +47,16 @@ class Account(models.Model):
         hash_string = password + salt
         for i in range(hash_iterations):
             hasher = sha256()
-            hasher.update(hash_string)
+            hasher.update(hash_string.encode('utf-8'))
             hash_string = hasher.hexdigest()
         key = RSA.generate(3072, Random.new().read)
         account = cls(name=name,
                       salt=salt,
                       hash_iterations=hash_iterations,
-                      hash=unicode(hash_string),
-                      N=unicode(key.n),
+                      hash=hash_string,
+                      N=key.n,
                       e=key.e,
-                      d=unicode(key.d))
+                      d=key.d)
         account.save()
         return account
 
@@ -67,12 +67,12 @@ class Account(models.Model):
         @param password: string
         @return: boolean
         """
-        hash_string = unicode(password) + self.salt
+        hash_string = password + self.salt
         for i in range(self.hash_iterations):
             hasher = sha256()
-            hasher.update(hash_string)
+            hasher.update(hash_string.encode('utf-8'))
             hash_string = hasher.hexdigest()
-        return unicode(hash_string) == self.hash
+        return hash_string == self.hash
 
     def change_password(self, password, hash_iterations=420):
         """
@@ -84,11 +84,11 @@ class Account(models.Model):
         @return: nothing
         """
         self.salt = create_salt(10)
-        hash_string = password + self.salt
+        hash_string = (password + self.salt).encode('utf-8')
         for i in range(hash_iterations):
             hasher = sha256()
             hasher.update(hash_string)
             hash_string = hasher.hexdigest()
         self.hash_iterations = hash_iterations
-        self.hash = unicode(hash_string)
+        self.hash = str(hash_string, encoding='utf-8')
         self.save()

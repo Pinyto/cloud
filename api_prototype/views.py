@@ -14,8 +14,8 @@ from service.models import Factory as DirectFactory
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import Session
 from pinytoCloud.models import User
-from sandbox import safely_exec
-from sandbox_helpers import EmptyRequest
+from api_prototype.sandbox import safely_exec
+from api_prototype.sandbox_helpers import EmptyRequest
 from inspect import getmembers, isfunction
 import time
 import json
@@ -32,7 +32,7 @@ def api_call(request, user_name, assembly_name, function_name):
     @return: json response
     """
     try:
-        json_data = json.loads(request.body)
+        json_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "All Pinyto API-calls have to use json. This is not valid JSON data."})
     if 'token' not in json_data:
@@ -73,7 +73,7 @@ def api_call(request, user_name, assembly_name, function_name):
         # loading the code from the database and executing it in the sandbox.
         return load_api(request, session=session, assembly=assembly, function_name=function_name)
     for name, function in getmembers(api_class, predicate=isfunction):
-        if not unicode(name).startswith(u'job_') and unicode(name) == unicode(function_name):
+        if not name.startswith('job_') and name == function_name:
             if session.user.name in MongoClient().pinyto.collection_names():
                 collection = Collection(MongoClient().pinyto, session.user.name)
             else:
@@ -185,7 +185,7 @@ def check_for_jobs(sender, **kwargs):
                 )
                 continue
             for name, function in getmembers(api_class, predicate=isfunction):
-                if unicode(name).startswith(u'job_') and unicode(name) == unicode(job['data']['job_name']):
+                if name.startswith(u'job_') and name == job['data']['job_name']:
                     collection_wrapper = CollectionWrapper(
                         collection,
                         assembly_name=job['data']['assembly_user'] + '/' + job['data']['assembly_name'],

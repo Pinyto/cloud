@@ -38,7 +38,7 @@ def authenticate_request(request):
     @return: json {encrypted_token: string, signature: string}
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Your request contained no valid JSON data. " +
                                        "You have to supply a username and a key_hash to authenticate."})
@@ -67,9 +67,9 @@ def authenticate(username, key_hash):
     session = user.start_session(key)
     encrypted_token = session.get_encrypted_token()
     hasher = sha256()
-    hasher.update(encrypted_token)
-    signature = PINYTO_KEY.sign(hasher.hexdigest(), get_random_bytes(16))
-    return {'encrypted_token': encrypted_token, 'signature': unicode(signature[0])}
+    hasher.update(encrypted_token.encode('utf-8'))
+    signature = PINYTO_KEY.sign(hasher.hexdigest().encode('utf-8'), get_random_bytes(16))
+    return {'encrypted_token': encrypted_token, 'signature': signature[0]}
 
 
 @csrf_exempt
@@ -81,7 +81,7 @@ def logout(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -105,7 +105,7 @@ def list_keys(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -134,7 +134,7 @@ def set_key_active(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -170,7 +170,7 @@ def delete_key(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -203,7 +203,7 @@ def register_request(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the username and public_key as JSON."})
     if 'username' not in request_data or 'public_key' not in request_data:
@@ -224,19 +224,19 @@ def register(username, key_data):
     if 'N' not in key_data or 'e' not in key_data:
         return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
     try:
-        n = long(key_data['N'])
+        n = int(key_data['N'])
         if n < pow(2, 3071):
             return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
     except ValueError:
         return {'error': "Factor N in the public key is not a number. " +
                          "It has to be a long integer transferred as a string."}
     try:
-        e = long(key_data['e'])
+        e = int(key_data['e'])
     except ValueError:
         return {'error': "Factor e in the public key is not a number. It has to be a long integer."}
     new_user = User(name=username)
     new_user.save()
-    StoredPublicKey.create(new_user, unicode(key_data['N']), e)
+    StoredPublicKey.create(new_user, key_data['N'], e)
     return {'success': True}
 
 
@@ -249,7 +249,7 @@ def register_new_key(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token and public_key as JSON."})
     if 'token' not in request_data or 'public_key' not in request_data:
@@ -262,7 +262,7 @@ def register_new_key(request):
             return json_response(
                 {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."})
         try:
-            n = long(key_data['N'])
+            n = int(key_data['N'])
             if n < pow(2, 3071):
                 return json_response({
                     'error': "Factor N in the public key is too small. Please use at least 3072 bit."})
@@ -270,10 +270,10 @@ def register_new_key(request):
             return json_response({'error': "Factor N in the public key is not a number. " +
                                            "It has to be a long integer transferred as a string."})
         try:
-            e = long(key_data['e'])
+            e = int(key_data['e'])
         except ValueError:
             return json_response({'error': "Factor e in the public key is not a number. It has to be a long integer."})
-        StoredPublicKey.create(session.user, unicode(key_data['N']), e)
+        StoredPublicKey.create(session.user, key_data['N'], e)
         return json_response({'success': True})
     else:
         # session is not a session so it has to be response object with an error message
@@ -289,7 +289,7 @@ def list_own_assemblies(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -329,7 +329,7 @@ def save_assembly(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -447,7 +447,7 @@ def delete_assembly(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -481,7 +481,7 @@ def list_installed_assemblies(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -511,7 +511,7 @@ def list_all_assemblies(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -541,7 +541,7 @@ def install_assembly(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -588,7 +588,7 @@ def uninstall_assembly(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
@@ -628,7 +628,7 @@ def get_assembly_source(request):
     @return: json
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:

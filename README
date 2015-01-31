@@ -2,11 +2,10 @@ This is the Pinyto Backend.
 
 Dependencies
 ------------
-* Django 1.5.5
-* PyMongo
-
+* django
 * Crypto
 * django-cors-headers
 * cffi
 * pymongo
 * beautifulsoup4
+* pytz

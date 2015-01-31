@@ -94,9 +94,9 @@ class SecureHost(object):
         """
         with stdout_io() as s:
             try:
-                exec "def f(request, db, factory):\n" + \
-                     "".join(['  '+line for line in msg['body'].splitlines(True)]) + \
-                     "\nprint(f(request, db, factory))"
+                exec("def f(request, db, factory):\n" +
+                     "".join(['  '+line for line in msg['body'].splitlines(True)]) +
+                     "\nprint(f(request, db, factory))")
             except Exception as e:
                 return {'exception': str(type(e)), 'message': str(e)}
         return {'result': s.getvalue()}

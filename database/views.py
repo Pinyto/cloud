@@ -28,7 +28,7 @@ def store(request, user_name, assembly_name):
     @return JSON
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
@@ -78,7 +78,7 @@ def statistics(request):
     @return JSON
     """
     try:
-        request_data = json.loads(request.body)
+        request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
         return json_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
