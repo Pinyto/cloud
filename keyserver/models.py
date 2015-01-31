@@ -7,7 +7,7 @@ from django.db import models
 from hashlib import sha256
 from Crypto import Random
 from Crypto.PublicKey import RSA
-from helper import create_salt
+from keyserver.helper import create_salt
 
 
 class Account(models.Model):

@@ -4,3 +4,9 @@ Dependencies
 ------------
 * Django 1.5.5
 * PyMongo
+
+* Crypto
+* django-cors-headers
+* cffi
+* pymongo
+* beautifulsoup4

@@ -3,8 +3,8 @@
 This File is part of Pinyto
 """
 
-from httplib import HTTPSConnection
-from urllib import urlencode
+from http.client import HTTPSConnection
+from urllib.parse import urlencode
 import random
 
 
