@@ -64,4 +64,10 @@ Job
 .. autoclass:: Job
    :members:
 
+Registration
+------------
+
+.. py:module:: pinytoCloud.views
+
+.. autofunction:: register
 
