@@ -11,7 +11,7 @@ import socket
 import prctl
 
 import sys
-import StringIO
+from io import StringIO
 import contextlib
 
 import gc

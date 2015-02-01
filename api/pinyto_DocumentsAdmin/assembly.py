@@ -26,7 +26,7 @@ class DocumentsAdmin():
         @return: string
         """
         try:
-            request_data = json.loads(request.body)
+            request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
             return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
         if 'skip' in request_data:
@@ -63,7 +63,7 @@ class DocumentsAdmin():
         @return: string
         """
         try:
-            request_data = json.loads(request.body)
+            request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
             return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
         if 'document' not in request_data:
@@ -89,7 +89,7 @@ class DocumentsAdmin():
         @return: string
         """
         try:
-            request_data = json.loads(request.body)
+            request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
             return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
         if 'document' not in request_data:

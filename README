@@ -9,3 +9,4 @@ Dependencies
 * pymongo
 * beautifulsoup4
 * pytz
+* python-prctl

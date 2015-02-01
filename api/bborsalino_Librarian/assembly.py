@@ -25,7 +25,7 @@ class Librarian():
         @return: string
         """
         try:
-            data = json.loads(request.body)
+            data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         if 'ean' in data:
@@ -49,7 +49,7 @@ class Librarian():
         @return: string
         """
         try:
-            search_string = json.loads(request.body)['searchstring']
+            search_string = json.loads(str(request.body, encoding='utf-8'))['searchstring']
         except ValueError:
             return json.dumps({'error': 'The data you supplied is not valid json.'})
         except IndexError:
@@ -78,7 +78,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.body)['book']
+            book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
@@ -108,7 +108,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.body)['book']
+            book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to update.'})
         except ValueError:
@@ -147,7 +147,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.body)['book']
+            book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to duplicate.'})
         except ValueError:
@@ -175,7 +175,7 @@ class Librarian():
         @return: string
         """
         try:
-            book_data = json.loads(request.body)['book']
+            book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
             return json.dumps({'error': 'You have to supply a book to remove.'})
         except ValueError:
