@@ -29,12 +29,14 @@ class TestListKeys(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
+        ), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -42,7 +44,7 @@ class TestListKeys(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -52,7 +54,7 @@ class TestListKeys(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -62,7 +64,7 @@ class TestListKeys(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertListEqual(res, [{u'key_hash': self.hugo_key.key_hash, u'active': True}])
 
@@ -86,7 +88,9 @@ class TestSetKeyActive(TestCase):
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
+        ), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -94,7 +98,7 @@ class TestSetKeyActive(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -104,7 +108,7 @@ class TestSetKeyActive(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -116,7 +120,7 @@ class TestSetKeyActive(TestCase):
                 'active_state': True}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a key_hash and an active_state.")
 
@@ -130,7 +134,7 @@ class TestSetKeyActive(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -140,7 +144,7 @@ class TestSetKeyActive(TestCase):
 
     def test_successful_activate(self):
         second_key = RSA.generate(3072, Random.new().read)
-        second_key_object = StoredPublicKey.create(self.hugo, unicode(second_key.n), long(second_key.e))
+        second_key_object = StoredPublicKey.create(self.hugo, str(second_key.n), second_key.e)
         second_key_object.active = False
         second_key_object.save()
         response = self.client.post(
@@ -152,7 +156,7 @@ class TestSetKeyActive(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -161,7 +165,7 @@ class TestSetKeyActive(TestCase):
 
     def test_successful_deactivate(self):
         second_key = RSA.generate(3072, Random.new().read)
-        second_key_object = StoredPublicKey.create(self.hugo, unicode(second_key.n), long(second_key.e))
+        second_key_object = StoredPublicKey.create(self.hugo, str(second_key.n), second_key.e)
         second_key_object.active = True
         second_key_object.save()
         response = self.client.post(
@@ -173,7 +177,7 @@ class TestSetKeyActive(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])

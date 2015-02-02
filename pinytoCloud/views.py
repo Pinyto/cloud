@@ -69,7 +69,7 @@ def authenticate(username, key_hash):
     hasher = sha256()
     hasher.update(encrypted_token.encode('utf-8'))
     signature = PINYTO_KEY.sign(hasher.hexdigest().encode('utf-8'), get_random_bytes(16))
-    return {'encrypted_token': encrypted_token, 'signature': signature[0]}
+    return {'encrypted_token': encrypted_token, 'signature': str(signature[0])}
 
 
 @csrf_exempt

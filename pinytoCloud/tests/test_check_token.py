@@ -13,7 +13,7 @@ class TokenCheckTest(TestCase):
     def test_no_base16_token(self):
         response = check_token('xxx')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The token is not in valid base16-format.")
 
@@ -29,7 +29,7 @@ class TokenCheckTest(TestCase):
             'A798D01899BD166BA61D9A33DE7FA32E1898BAC6F306D1DDAC1DCEA1400E8AAAA'
         )
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The token has an invalid length.")
 
@@ -45,7 +45,7 @@ class TokenCheckTest(TestCase):
             'A798D01899BD166BA61D9A33DE7FA32E1898BAC6F306D1DDAC1DCEA1400E8'
         )
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Unknown token. Please authenticate.")
 

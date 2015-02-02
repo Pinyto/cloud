@@ -41,7 +41,7 @@ class TestListOwnAssemblies(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -51,7 +51,7 @@ class TestListOwnAssemblies(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -61,7 +61,7 @@ class TestListOwnAssemblies(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertListEqual(res, [])
 
@@ -103,7 +103,7 @@ class TestListOwnAssemblies(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertListEqual(res, [
             {
@@ -167,7 +167,7 @@ class TestSaveAssembly(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -177,7 +177,7 @@ class TestSaveAssembly(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -187,7 +187,7 @@ class TestSaveAssembly(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -205,7 +205,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -229,7 +229,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -258,7 +258,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -285,7 +285,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -314,7 +314,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -358,7 +358,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -401,7 +401,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -451,7 +451,7 @@ class TestSaveAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -496,7 +496,7 @@ class TestDeleteAssembly(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -506,7 +506,7 @@ class TestDeleteAssembly(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -518,7 +518,7 @@ class TestDeleteAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply the name of the assembly you want to delete.")
 
@@ -533,7 +533,7 @@ class TestDeleteAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no assembly found with the name foo.")
 
@@ -548,7 +548,7 @@ class TestDeleteAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -584,7 +584,7 @@ class TestListInstalledAssemblies(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -594,7 +594,7 @@ class TestListInstalledAssemblies(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -604,7 +604,7 @@ class TestListInstalledAssemblies(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertListEqual(res, [])
 
@@ -622,7 +622,7 @@ class TestListInstalledAssemblies(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertListEqual(res, [{
             u'author': u'Hugo',
@@ -660,7 +660,7 @@ class TestListAllAssemblies(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -670,7 +670,7 @@ class TestListAllAssemblies(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -686,7 +686,7 @@ class TestListAllAssemblies(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertGreaterEqual(len(res), 1)
         found = False
@@ -730,7 +730,7 @@ class TestInstallAssembly(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -740,7 +740,7 @@ class TestInstallAssembly(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -752,7 +752,7 @@ class TestInstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply an author to install an assembly.")
 
@@ -765,7 +765,7 @@ class TestInstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no user found with the name Bilbo.")
 
@@ -778,7 +778,7 @@ class TestInstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply the name of the assembly you want to install.")
 
@@ -792,7 +792,7 @@ class TestInstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no assembly found with the name Hugo/Foo.")
 
@@ -808,7 +808,7 @@ class TestInstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -845,7 +845,7 @@ class TestUninstallAssembly(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -855,7 +855,7 @@ class TestUninstallAssembly(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -867,7 +867,7 @@ class TestUninstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply an author and a name to uninstall an assembly.")
 
@@ -881,7 +881,7 @@ class TestUninstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no installed assembly found with the name Hugo/Foo.")
 
@@ -899,7 +899,7 @@ class TestUninstallAssembly(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -935,7 +935,7 @@ class TestGetAssemblySource(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the data as JSON.")
 
@@ -945,7 +945,7 @@ class TestGetAssemblySource(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -955,7 +955,7 @@ class TestGetAssemblySource(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply an author to identify the assembly.")
 
@@ -968,7 +968,7 @@ class TestGetAssemblySource(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no user found with the name Bilbo.")
 
@@ -981,7 +981,7 @@ class TestGetAssemblySource(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply the name of the assembly.")
 
@@ -995,7 +995,7 @@ class TestGetAssemblySource(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "There was no assembly found with the name Hugo/Foo.")
 
@@ -1030,7 +1030,7 @@ class TestGetAssemblySource(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('api_functions', res)
         self.assertListEqual(res['api_functions'], [{
