@@ -60,7 +60,7 @@ class TestSandbox(TestCase):
 
     def test_safely_exec_db_access(self):
         self.collection_wrapper.insert({'test': 1, 'a': "Hallo"})
-        self.collection_wrapper.insert({'test': 1, 'b': long(34578629385748347)})
+        self.collection_wrapper.insert({'test': 1, 'b': 34578629385748347})
         self.collection_wrapper.insert({'test': 2, 'a': "Bar"})
         code = """response = '['
 for document in db.find({'test': 1}):
