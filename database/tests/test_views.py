@@ -25,7 +25,7 @@ class StoreTest(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -35,7 +35,7 @@ class StoreTest(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -57,7 +57,7 @@ class StoreTest(TestCase):
         hugo.last_calculation_time = timezone.now()
         hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        authentication_token = b16encode(pinyto_cipher.encrypt(session.token))
+        authentication_token = str(b16encode(pinyto_cipher.encrypt(session.token.encode('utf-8'))), encoding='utf-8')
         return hugo, session, authentication_token
 
     def clear_collection(self, username):
@@ -83,7 +83,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The assembly test/bla does not exist.")
 
@@ -109,7 +109,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The assembly test/bla is not installed.")
 
@@ -137,7 +137,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -176,7 +176,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "If you want to store data you have to send your " +
                                        "data as json string in the parameter 'data'. " +
@@ -201,7 +201,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "If you want to store data you have to send your " +
                                        "data as json string in the parameter 'data'. " +
@@ -232,7 +232,7 @@ class StoreTest(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -275,7 +275,7 @@ class StoreTest(TestCase):
                 }),
                 content_type='application/json')
             self.assertEqual(response.status_code, 200)
-            res = json.loads(response.content)
+            res = json.loads(str(response.content, encoding='utf-8'))
             self.assertNotIn('error', res)
             self.assertIn('success', res)
             self.assertTrue(res['success'])

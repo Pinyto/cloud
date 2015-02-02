@@ -5,8 +5,7 @@ This File is part of Pinyto
 from django.test import TestCase
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import User, StoredPublicKey, Session
-from datetime import datetime
-from dateutil.tz import tzlocal
+from django.utils import timezone
 import json
 
 
@@ -62,9 +61,9 @@ class TokenCheckTest(TestCase):
             "90688059670133506261782024039100227468751916576386439758688208328415660157197873568680255352172029124" + \
             "53663022693800259960461449906351642931128748448787494175277109726096069796085022115538441518684931184" + \
             "1158934104945289"
-        e = long(65537)
+        e = 65537
         key = StoredPublicKey.create(hugo, n, e)
-        session = Session(token="abcdabcdabcdabcd", timestamp=datetime.now(tzlocal()), user=hugo, key=key)
+        session = Session(token="abcdabcdabcdabcd", timestamp=timezone.now(), user=hugo, key=key)
         session.save()
         return_value = check_token(
             '6385AAC2648396659A7CFD4D0599034F847C4ACD1F9F90BCE6C58D4F79069B5ACA68C81664C1184DF592DD1C4C62C63F01DE9' +

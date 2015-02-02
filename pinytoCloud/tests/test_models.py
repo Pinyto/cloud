@@ -9,13 +9,13 @@ from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from base64 import b16decode
 from datetime import datetime
-from dateutil.tz import tzlocal
+from django.utils import timezone
 
 
 class ModelTest(TestCase):
     def test_create_user(self):
         user = User(name='hugo')
-        self.assertAlmostEqual((datetime.now(tzlocal()) - user.last_calculation_time).total_seconds(), 0.0, places=3)
+        self.assertAlmostEqual((timezone.now() - user.last_calculation_time).total_seconds(), 0.0, places=3)
         self.assertEqual(user.name, 'hugo')
         self.assertAlmostEqual(user.time_budget, 0)
         self.assertAlmostEqual(user.storage_budget, 0)
@@ -105,10 +105,10 @@ class ModelTest(TestCase):
             '773509890553520647739778537073744646301718153394252974338493323330467752730038537907555683045977517145' +
             '123643303950276393220303004639969615396630485823420591373138524480778223744937045683437364751850606773' +
             '020916979709818469855115771522472889917358007025437544275329719658313372687629568527255894518417396349' +
-            '5164173', 65537L)
+            '5164173', 65537)
         session = hugo.start_session(key)
         encrypted_token = session.get_encrypted_token()
-        private_key = RSA.construct((long(
+        private_key = RSA.construct((int(
             '425459331484582537015228348890619636855413475085489045693909215308544091998991169014958758605127751846' +
             '006675827510313643957363733495040060163148245516866504721450324530867669011501594156260170954794195671' +
             '248440166115134306603838661277715020350031810275579151793293609594804675283243365619966947743955136368' +
@@ -118,7 +118,7 @@ class ModelTest(TestCase):
             '773509890553520647739778537073744646301718153394252974338493323330467752730038537907555683045977517145' +
             '123643303950276393220303004639969615396630485823420591373138524480778223744937045683437364751850606773' +
             '020916979709818469855115771522472889917358007025437544275329719658313372687629568527255894518417396349' +
-            '5164173'), 65537L, long(
+            '5164173'), 65537, int(
             '143951282730963168527330720177923918208522489533326732978573064684859799746488703812162526714834410629' +
             '619177408169639970415346802974182801990595376597814942333238315701778532625250413488882814757337175867' +
             '285089525663930117561583814870562474041253114439945254007118002031756089990854607157134856634793493657' +
@@ -137,7 +137,7 @@ class ModelTest(TestCase):
         hugo = User(name='hugo')
         hugo.save()
         hugo.calculate_time_and_storage(1.0, 30000)
-        time1 = datetime.now(tzlocal())
+        time1 = timezone.now()
         self.assertAlmostEqual((time1 - hugo.last_calculation_time).total_seconds(), 0.0, places=2)
         self.assertAlmostEqual(hugo.time_budget, 1.0)
         self.assertAlmostEqual(hugo.storage_budget, 0.0)
@@ -145,7 +145,7 @@ class ModelTest(TestCase):
         self.assertEqual(User.objects.filter(name='hugo').count(), 1)
         self.assertEqual(User.objects.filter(name='hugo').all()[0].current_storage, 30000)
         hugo.calculate_time_and_storage(1.1, 0)
-        time2 = datetime.now(tzlocal())
+        time2 = timezone.now()
         self.assertAlmostEqual((time2 - hugo.last_calculation_time).total_seconds(), 0.0, places=2)
         self.assertAlmostEqual(hugo.time_budget, 2.1)
         self.assertAlmostEqual(hugo.storage_budget, (time2 - time1).total_seconds() * 30000, places=-2)

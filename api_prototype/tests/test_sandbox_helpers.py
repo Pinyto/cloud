@@ -36,11 +36,11 @@ def errerous_host_process(pipe):
 class TestSandboxHelpers(TestCase):
     def test_write_exact_read_exact(self):
         pipe_in, pipe_out = socketpair()
-        write_exact(pipe_in, "abcdefg")
-        self.assertEqual(read_exact(pipe_out, 7), "abcdefg")
-        write_exact(pipe_in, "abcdefghijk")
-        self.assertEqual(read_exact(pipe_out, 3), "abc")
-        self.assertEqual(read_exact(pipe_out, 8), "defghijk")
+        write_exact(pipe_in, b"abcdefg")
+        self.assertEqual(read_exact(pipe_out, 7), b"abcdefg")
+        write_exact(pipe_in, b"abcdefghijk")
+        self.assertEqual(read_exact(pipe_out, 3), b"abc")
+        self.assertEqual(read_exact(pipe_out, 8), b"defghijk")
 
     def test_write_to_and_read_from_pipe(self):
         pipe_in, pipe_out = socketpair()

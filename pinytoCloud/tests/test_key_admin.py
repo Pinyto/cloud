@@ -195,12 +195,14 @@ class TestDeleteKey(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
+        ), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -208,7 +210,7 @@ class TestDeleteKey(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -218,7 +220,7 @@ class TestDeleteKey(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -230,7 +232,7 @@ class TestDeleteKey(TestCase):
                 'active_state': True}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a key_hash.")
 
@@ -243,7 +245,7 @@ class TestDeleteKey(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -253,7 +255,7 @@ class TestDeleteKey(TestCase):
 
     def test_successful(self):
         second_key = RSA.generate(3072, Random.new().read)
-        second_key_object = StoredPublicKey.create(self.hugo, unicode(second_key.n), long(second_key.e))
+        second_key_object = StoredPublicKey.create(self.hugo, str(second_key.n), second_key.e)
         second_key_object.save()
         self.assertEqual(StoredPublicKey.objects.filter(user=self.hugo).count(), 2)
         response = self.client.post(
@@ -264,7 +266,7 @@ class TestDeleteKey(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -286,12 +288,14 @@ class TestRegisterNewKey(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
+        ), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -299,7 +303,7 @@ class TestRegisterNewKey(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token and public_key as JSON.")
 
@@ -309,7 +313,7 @@ class TestRegisterNewKey(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token and the new public_key.")
 
@@ -319,7 +323,7 @@ class TestRegisterNewKey(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token and the new public_key.")
 
@@ -331,7 +335,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': '123423423', 'e': 36754}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The token is not in valid base16-format.")
 
@@ -343,7 +347,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': '123423423'}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -357,7 +361,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': 'abc', 'e': 123}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -372,7 +376,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': '123423423', 'e': 123}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -396,7 +400,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': n, 'e': 'abc'}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -421,7 +425,7 @@ class TestRegisterNewKey(TestCase):
                 'public_key': {'N': n, 'e': e}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])

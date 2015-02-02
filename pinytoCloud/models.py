@@ -116,7 +116,7 @@ class StoredPublicKey(models.Model):
         :param n:
         :type n: string
         :param e:
-        :type e: long
+        :type e: int
         :rtype: StoredPublicKey
         """
         hasher = sha256()

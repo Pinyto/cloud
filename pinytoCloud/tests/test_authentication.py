@@ -25,7 +25,7 @@ def mock_get_random_string(length=16):
     @param length: int
     @return: string
     """
-    return ''.join(['a' for _ in xrange(length)])
+    return ''.join(['a' for _ in range(length)])
 
 
 class MockCypher(object):
@@ -60,7 +60,7 @@ class TestAuthenticate(TestCase):
             "41243302167669344553957334683344937435097912351392424497312892616471741932717410139629" +
             "80063759785279475005515834241012427318321378366846873982743328829662037254303913488713" +
             "32406582311062881906761707254413153872272793345983335018763276971",
-            long(65537)
+            int(65537)
         )
 
     def test_no_JSON(self):
@@ -69,7 +69,7 @@ class TestAuthenticate(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Your request contained no valid JSON data. " +
                                        "You have to supply a username and a key_hash to authenticate.")
@@ -80,7 +80,7 @@ class TestAuthenticate(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a username and a key_hash to authenticate.")
 
@@ -90,7 +90,7 @@ class TestAuthenticate(TestCase):
             json.dumps({'username': 'Max', 'key_hash': 'wrong'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "User 'Max' is unknown. Please register first.")
 
@@ -100,7 +100,7 @@ class TestAuthenticate(TestCase):
             json.dumps({'username': 'hugo', 'key_hash': 'wrong'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "This is not a registered and active public key of this user.")
 
@@ -115,20 +115,20 @@ class TestAuthenticate(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
-        encrypted_token = u'61616161616161616161616161616161'
-        signature = u'19510491069554755379376950608707692380897304739473362067077379620777901927214268423255745186' + \
-                    u'40365630465999928213643800686695349578109072043994318968544860388858746861161484963207136475' + \
-                    u'93987120033443077617108441245798188146685881387281434731571459338301047625519069056124006916' + \
-                    u'88242040714850951643567180701459338913497922611465363283956969336252096128673698237616276709' + \
-                    u'12582000168963647412405812785986860475519146713047461951331008493899316530144442038347086925' + \
-                    u'53465690223057114984145030180079312491056754119494211053137822227503653419504153189977218842' + \
-                    u'03857374390902449784368746995000115125626019248435561109734956001111403918980154202848677902' + \
-                    u'46969671204985429618202085253508077797305197354713259458898747090394941744286287655210722517' + \
-                    u'39920674553250388195087163765781395455357883583143801994109316250182921816166246377696562385' + \
-                    u'79051392498934482555166917903811748609766782106967890875660934895187954392663388462785477239' + \
-                    u'52680'
+        encrypted_token = '61616161616161616161616161616161'
+        signature = '19510491069554755379376950608707692380897304739473362067077379620777901927214268423255745186' + \
+                    '40365630465999928213643800686695349578109072043994318968544860388858746861161484963207136475' + \
+                    '93987120033443077617108441245798188146685881387281434731571459338301047625519069056124006916' + \
+                    '88242040714850951643567180701459338913497922611465363283956969336252096128673698237616276709' + \
+                    '12582000168963647412405812785986860475519146713047461951331008493899316530144442038347086925' + \
+                    '53465690223057114984145030180079312491056754119494211053137822227503653419504153189977218842' + \
+                    '03857374390902449784368746995000115125626019248435561109734956001111403918980154202848677902' + \
+                    '46969671204985429618202085253508077797305197354713259458898747090394941744286287655210722517' + \
+                    '39920674553250388195087163765781395455357883583143801994109316250182921816166246377696562385' + \
+                    '79051392498934482555166917903811748609766782106967890875660934895187954392663388462785477239' + \
+                    '52680'
         self.assertEqual(res['encrypted_token'], encrypted_token)
         self.assertEqual(res['signature'], signature)
 
@@ -147,10 +147,12 @@ class TestLogout(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(key)
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
+        ), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -158,7 +160,7 @@ class TestLogout(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -168,7 +170,7 @@ class TestLogout(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -178,7 +180,7 @@ class TestLogout(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -192,7 +194,7 @@ class TestRegister(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the username and public_key as JSON.")
 
@@ -202,7 +204,7 @@ class TestRegister(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
 
@@ -217,7 +219,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Username Hugo is already taken. Try another username.")
 
@@ -232,7 +234,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -251,7 +253,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -270,7 +272,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -299,7 +301,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
             res['error'],
@@ -318,7 +320,7 @@ class TestRegister(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        e = long(65537)
+        e = int(65537)
         response = self.client.post(
             reverse('register'),
             json.dumps({
@@ -330,7 +332,7 @@ class TestRegister(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
