@@ -9,6 +9,7 @@ from base64 import b16decode
 from pinytoCloud.models import Session
 from service.response import json_response
 import logging
+import binascii
 
 
 # Get an instance of a logger
@@ -27,7 +28,7 @@ def check_token(encrypted_token):
     cipher = PKCS1_OAEP.new(PINYTO_KEY)
     try:
         decoded_token = b16decode(encrypted_token)
-    except TypeError:
+    except binascii.Error:
         return json_response({'error': "The token is not in valid base16-format."})
     try:
         token = cipher.decrypt(decoded_token)
