@@ -26,6 +26,8 @@ def check_token(encrypted_token):
     @return: Session
     """
     cipher = PKCS1_OAEP.new(PINYTO_KEY)
+    if type(encrypted_token) != str:
+        encrypted_token = str(encrypted_token)
     try:
         decoded_token = b16decode(encrypted_token)
     except binascii.Error:

@@ -335,7 +335,19 @@ class TestRegisterNewKey(TestCase):
         response = self.client.post(
             reverse('register_new_key'),
             json.dumps({
-                'token': 1234,
+                'token': 31323334,
+                'public_key': {'N': '123423423', 'e': 36754}}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        res = json.loads(str(response.content, encoding='utf-8'))
+        self.assertIn('error', res)
+        self.assertEqual(res['error'], "The token has an invalid length.")
+
+    def test_wrong_session_wrong_format(self):
+        response = self.client.post(
+            reverse('register_new_key'),
+            json.dumps({
+                'token': 3132333,
                 'public_key': {'N': '123423423', 'e': 36754}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
