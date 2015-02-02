@@ -12,7 +12,7 @@ from Crypto.PublicKey import RSA
 from keyserver.settings import PINYTO_PUBLICKEY
 from base64 import b16encode
 import json
-from mock import patch
+from unittest.mock import patch
 import json
 
 from pinytoCloud.models import User, StoredPublicKey

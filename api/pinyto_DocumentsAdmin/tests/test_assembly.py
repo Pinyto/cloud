@@ -4,7 +4,7 @@ This File is part of Pinyto
 """
 
 from django.test import TestCase
-from mock import patch
+from unittest.mock import patch
 from django.test.client import Client
 from pymongo import MongoClient
 from pymongo.collection import Collection

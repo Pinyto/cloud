@@ -15,4 +15,7 @@ class TestResponse(TestCase):
         response = json_response(data)
         self.assertEqual(type(response), HttpResponse)
         self.assertEqual(200, response.status_code)
-        self.assertEqual('{"a": 12, "9": 14.5, "b": ["c", 4, {"1": 5, "2": "d"}]}', response.content)
+        self.assertEqual(
+            '{"a": 12, "9": 14.5, "b": ["c", 4, {"1": 5, "2": "d"}]}',
+            str(response.content, encoding='utf-8')
+        )

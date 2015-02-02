@@ -52,7 +52,7 @@ class StoreTest(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        key = StoredPublicKey.create(hugo, unicode(n), long(65537))
+        key = StoredPublicKey.create(hugo, n, int(65537))
         session = hugo.start_session(key)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
@@ -301,7 +301,7 @@ class StatisticsTest(TestCase):
             "Didelidi",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
 
@@ -311,7 +311,7 @@ class StatisticsTest(TestCase):
             json.dumps({'x': 1234}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
 
@@ -329,18 +329,18 @@ class StatisticsTest(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        key = StoredPublicKey.create(hugo, unicode(n), long(65537))
+        key = StoredPublicKey.create(hugo, n, int(65537))
         session = hugo.start_session(key)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        authentication_token = b16encode(pinyto_cipher.encrypt(session.token))
+        authentication_token = b16encode(pinyto_cipher.encrypt(session.token.encode('utf-8')))
         response = self.client.post(
             reverse('statistics'),
-            json.dumps({'token': authentication_token}),
+            json.dumps({'token': str(authentication_token, encoding='utf-8')}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('time_budget', res)
         self.assertIn('storage_budget', res)

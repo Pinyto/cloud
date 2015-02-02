@@ -171,5 +171,5 @@ class TestParseHtml(TestCase):
         self.assertNotIn('category', infos)
         self.assertNotIn('publisher', infos)
         self.assertEqual(infos['edition'], u'6. Aufl., Ausg. 2012')
-        self.assertEqual(unicode(infos['isbn']).split(' ', 1)[0], u'978-3-943176-24-7')
+        self.assertEqual(infos['isbn'].split(' ', 1)[0], u'978-3-943176-24-7')
         self.assertEqual(infos['ean'], u'9783943176247')

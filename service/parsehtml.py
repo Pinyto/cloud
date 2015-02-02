@@ -28,7 +28,7 @@ class ParseHtml():
             return ""
         element = self.soup
         for description in descriptions:
-            if 'tag' not in description or not (type(description['tag']) == str or type(description['tag']) == unicode):
+            if 'tag' not in description or not (type(description['tag']) == str or type(description['tag']) == bytes):
                 return False
             attrs_dict = {}
             if 'attrs' in description and type(description['attrs']) == dict:
@@ -56,7 +56,7 @@ class ParseHtml():
         element = self.soup
         for description in descriptions:
             if 'tag' not in description or \
-               not (type(description['tag']) == str or type(description['tag']) == unicode):
+               not (type(description['tag']) == str or type(description['tag']) == bytes):
                 return ""
             attrs_dict = {}
             if 'attrs' in description and type(description['attrs']) == dict:
@@ -93,7 +93,7 @@ class ParseHtml():
         rows = []
         for i, description in enumerate(descriptions):
             if 'tag' not in description or \
-               not (type(description['tag']) == str or type(description['tag']) == unicode):
+               not (type(description['tag']) == str or type(description['tag']) == bytes):
                 return {}
             attrs_dict = {}
             if 'attrs' in description and type(description['attrs']) == dict:

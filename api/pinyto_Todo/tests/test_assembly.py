@@ -41,7 +41,7 @@ class TestTodo(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()

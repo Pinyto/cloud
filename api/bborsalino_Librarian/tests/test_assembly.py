@@ -39,12 +39,14 @@ class TestBBorsalino(TestCase):
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(
+            b16encode(pinyto_cipher.encrypt(self.session.token.encode('utf-8'))),
+            encoding='utf-8')
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
@@ -61,21 +63,25 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token, 'ean': '1234567890123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['index'], [])
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'], [])
         response = test_client.post(
             '/bborsalino/Librarian/index',
             json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-943176-24-7')
         response = test_client.post(
             '/bborsalino/Librarian/index',
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-943176-24-7')
 
     def test_search(self):
         self.collection.insert({
@@ -114,9 +120,13 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token, 'searchstring': 'Informatik'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 2)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
-        self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 2)
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-8085-3004-7')
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][1]['data']['isbn'],
+            '978-3-8273-7337-3')
 
     def test_update(self):
         self.collection.insert({
@@ -133,7 +143,7 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         book_test = self.collection.find()[0]
         self.assertEqual(book_test['data']['place'], u'B')
 
@@ -158,7 +168,7 @@ class TestBBorsalino(TestCase):
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         for book in self.collection.find():
             self.assertEqual(book['data']['place'], u'C')
 
@@ -178,7 +188,7 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         self.assertEqual(self.collection.find(
             {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}
         ).count(), 2)
@@ -201,7 +211,7 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
@@ -227,7 +237,7 @@ class TestBBorsalino(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('book_count', res)
         self.assertEqual(res['book_count'], 4)
         self.assertIn('places_used', res)
@@ -249,7 +259,7 @@ class TestBBorsalino(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalino/Librarian/store',
             json.dumps({
@@ -263,15 +273,16 @@ class TestBBorsalino(TestCase):
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalino/Librarian/index',
             json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+                         '978-3-943176-24-7')
         # Wait for job to complete
         iterations = 0
         completed = False
@@ -284,16 +295,16 @@ class TestBBorsalino(TestCase):
                 json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
                 content_type='application/json'
             )
-            if len(json.loads(response.content)['index']) >= 1 and \
-               'data' in json.loads(response.content)['index'][0] and \
-               'title' in json.loads(response.content)['index'][0]['data']:
+            if len(json.loads(str(response.content, encoding='utf-8'))['index']) >= 1 and \
+               'data' in json.loads(str(response.content, encoding='utf-8'))['index'][0] and \
+               'title' in json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']:
                 completed = True
             else:
                 time.sleep(0.1)
         self.assertEqual(
-            json.loads(response.content)['index'][0]['data']['title'],
-            u"Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / "
-            u"Kerstin Fels ; Andreas Fels"
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['title'],
+            "Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / " +
+            "Kerstin Fels ; Andreas Fels"
         )
 
 
@@ -500,12 +511,13 @@ for book in incomplete_books:
             "0092897659089644083580577942453555759938724084685541443702341305828164318826796951735041984241803" + \
             "8137353327025799036181291470746401739276004770882613670169229258999662110622086326024782780442603" + \
             "0939464832253228468472307931284129162453821959698949"
-        self.hugo_key = StoredPublicKey.create(self.hugo, unicode(n), long(65537))
+        self.hugo_key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))), encoding='utf-8')
         self.collection = Collection(MongoClient().pinyto, 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
@@ -521,21 +533,21 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'ean': '1234567890123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['index'], [])
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'], [])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
             json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
     def test_search(self):
         self.collection.insert({
@@ -574,9 +586,9 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'searchstring': 'Informatik'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 2)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
-        self.assertEqual(json.loads(response.content)['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 2)
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
+        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
 
     def test_update(self):
         self.collection.insert({
@@ -593,7 +605,7 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         book_test = self.collection.find()[0]
         self.assertEqual(book_test['data']['place'], u'B')
 
@@ -620,7 +632,7 @@ for book in incomplete_books:
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         for book in self.collection.find():
             self.assertEqual(book['data']['place'], u'C')
 
@@ -641,13 +653,13 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         self.assertEqual(self.collection.find(
             {'type': "book", 'data': {'$exists': True}, 'data.isbn': "978-3-943176-24-7"}
         ).count(), 2)
         for book in self.collection.find({"type": "book", 'data.isbn': "978-3-943176-24-7"}):
-            self.assertEqual(book['data']['isbn'], u'978-3-943176-24-7')
-            self.assertEqual(book['data']['author'], u'Max Mustermann')
+            self.assertEqual(book['data']['isbn'], '978-3-943176-24-7')
+            self.assertEqual(book['data']['author'], 'Max Mustermann')
 
     def test_remove(self):
         self.collection.insert({
@@ -664,7 +676,7 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
     def test_statistics(self):
@@ -694,7 +706,7 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertEqual(res['book_count'], 4)
         self.assertEqual(res['places_used'], [u'A', u'B', u'C'])
         self.assertEqual(res['lent_count'], 1)
@@ -710,7 +722,7 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/store',
             json.dumps({
@@ -724,15 +736,17 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(json.loads(response.content)['success'])
+        self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
             json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(json.loads(response.content)['index']), 1)
-        self.assertEqual(json.loads(response.content)['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-943176-24-7')
         # Wait for job to complete
         iterations = 0
         completed = False
@@ -745,14 +759,14 @@ for book in incomplete_books:
                 json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
                 content_type='application/json'
             )
-            if len(json.loads(response.content)['index']) >= 1 and \
-               'data' in json.loads(response.content)['index'][0] and \
-               'title' in json.loads(response.content)['index'][0]['data']:
+            if len(json.loads(str(response.content, encoding='utf-8'))['index']) >= 1 and \
+               'data' in json.loads(str(response.content, encoding='utf-8'))['index'][0] and \
+               'title' in json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']:
                 completed = True
             else:
                 time.sleep(0.1)
         self.assertEqual(
-            json.loads(response.content)['index'][0]['data']['title'],
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['title'],
             u"Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / "
             u"Kerstin Fels ; Andreas Fels"
         )
