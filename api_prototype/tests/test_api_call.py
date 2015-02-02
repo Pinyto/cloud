@@ -38,7 +38,10 @@ class TestApiCall(TestCase):
         self.user.last_calculation_time = timezone.now()
         self.user.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(
+            b16encode(pinyto_cipher.encrypt(self.session.token.encode('utf-8'))),
+            encoding='utf-8'
+        )
 
     def test_no_json(self):
         response = self.client.post(
@@ -46,9 +49,9 @@ class TestApiCall(TestCase):
             'wlglml',
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'All Pinyto API-calls have to use json. This is not valid JSON data.')
+        self.assertEqual(res['error'], 'All Pinyto API-calls have to use json. This is not valid JSON data.')
 
     def test_no_token(self):
         response = self.client.post(
@@ -56,9 +59,9 @@ class TestApiCall(TestCase):
             json.dumps({'a': 'b'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'Unauthenticated API-calls are not supported. Please supply a token.')
+        self.assertEqual(res['error'], 'Unauthenticated API-calls are not supported. Please supply a token.')
 
     def test_invalid_token(self):
         response = self.client.post(
@@ -66,9 +69,9 @@ class TestApiCall(TestCase):
             json.dumps({'token': 'b'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'The token is not in valid base16-format.')
+        self.assertEqual(res['error'], 'The token is not in valid base16-format.')
 
     def test_non_existent_user(self):
         response = self.client.post(
@@ -76,9 +79,9 @@ class TestApiCall(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'The user wrongbert was not found. There can not be an assembly wrongbert/bar.')
+        self.assertEqual(res['error'], 'The user wrongbert was not found. There can not be an assembly wrongbert/bar.')
 
     def test_unknown_assembly(self):
         response = self.client.post(
@@ -86,9 +89,9 @@ class TestApiCall(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'Assembly not found. Does foo have an Assembly named dideldi?')
+        self.assertEqual(res['error'], 'Assembly not found. Does foo have an Assembly named dideldi?')
 
     def test_assembly_not_installed(self):
         response = self.client.post(
@@ -96,9 +99,9 @@ class TestApiCall(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'The assembly exists but it is not installed.')
+        self.assertEqual(res['error'], 'The assembly exists but it is not installed.')
 
     def test_api_function_does_not_exist(self):
         self.user.installed_assemblies.add(self.assembly)
@@ -107,9 +110,9 @@ class TestApiCall(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], u'The assembly foo/bar exists but has no API function "test".')
+        self.assertEqual(res['error'], 'The assembly foo/bar exists but has no API function "test".')
 
     def test_successful(self):
         self.user.installed_assemblies.add(self.assembly)
@@ -121,7 +124,7 @@ class TestApiCall(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('badam', res)
         self.assertEqual(res['badam'], 42)

@@ -46,7 +46,8 @@ class TestTodo(TestCase):
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
         pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = b16encode(pinyto_cipher.encrypt(self.session.token))
+        self.authentication_token = str(b16encode(
+            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))), encoding='utf-8')
 
     def test_get_empty_list(self):
         response = self.client.post(
@@ -54,7 +55,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('result', res)
         self.assertListEqual(res['result'], [])
@@ -81,7 +82,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('result', res)
         for index, document in enumerate(res['result']):
@@ -103,7 +104,7 @@ class TestTodo(TestCase):
             "BlaBlubb",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
 
     def test_save_no_document(self):
@@ -112,7 +113,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to supply a document to save.')
 
@@ -122,7 +123,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token, 'document': [{'type': 'fake'}]}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'The document you supplied is not a single document. ' +
                                        'Only one document at a time will be saved.')
@@ -138,7 +139,7 @@ class TestTodo(TestCase):
             }}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -168,7 +169,7 @@ class TestTodo(TestCase):
             }}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
@@ -191,7 +192,7 @@ class TestTodo(TestCase):
             "BlaBlubb",
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
 
     def test_delete_no_document(self):
@@ -200,7 +201,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to supply a document to delete.')
 
@@ -210,7 +211,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token, 'document': {'type': 'todo'}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to specify an _id to identify the document you want to delete.')
 
@@ -220,7 +221,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token, 'document': {'type': 'todo', '_id': 'ABC123'}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'There is no document with this ID. The document could not be deleted.')
 
@@ -236,7 +237,7 @@ class TestTodo(TestCase):
             json.dumps({'token': self.authentication_token, 'document': {'type': 'todo', '_id': document_id}}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        res = json.loads(response.content)
+        res = json.loads(str(response.content, encoding='utf-8'))
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])

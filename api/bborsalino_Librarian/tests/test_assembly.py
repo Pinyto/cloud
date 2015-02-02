@@ -315,7 +315,7 @@ class TestBBorsalinoSandbox(TestCase):
         self.assembly = Assembly(name='Librarian', author=self.bborsalino, description="Manage your books.")
         self.assembly.save()
         self.librarian_index = ApiFunction(name='index', code="""try:
-    data = json.loads(request.body)
+    data = json.loads(str(request.body, encoding='utf-8'))
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 if 'ean' in data:
@@ -327,7 +327,7 @@ else:
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_index.save()
         self.librarian_search = ApiFunction(name='search', code="""try:
-    search_string = json.loads(request.body)['searchstring']
+    search_string = json.loads(str(request.body, encoding='utf-8'))['searchstring']
 except ValueError:
     return json.dumps({'error': 'The data you supplied is not valid json.'})
 except IndexError:
@@ -345,7 +345,7 @@ books = db.find({'type': 'book',
 return json.dumps({'index': books})""", assembly=self.assembly)
         self.librarian_search.save()
         self.librarian_update = ApiFunction(name='update', code="""try:
-    book_data = json.loads(request.body)['book']
+    book_data = json.loads(str(request.body, encoding='utf-8'))['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
@@ -365,7 +365,7 @@ db.save(book)
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_update.save()
         self.librarian_update_all = ApiFunction(name='update_all', code="""try:
-    book_data = json.loads(request.body)['book']
+    book_data = json.loads(str(request.body, encoding='utf-8'))['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to update.'})
 except ValueError:
@@ -394,7 +394,7 @@ for book in books:
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_update_all.save()
         self.librarian_duplicate = ApiFunction(name='duplicate', code="""try:
-    book_data = json.loads(request.body)['book']
+    book_data = json.loads(str(request.body, encoding='utf-8'))['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to duplicate.'})
 except ValueError:
@@ -404,7 +404,7 @@ if book_data['type'] != 'book':
 if '_id' not in book_data:
     return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
 book = db.find_document_for_id(book_data['_id'])
-if not book:
+if not book:  # there was an error
     return json.dumps({'error': 'There is no book with this ID which could be updated.'})
 for key in book_data['data']:
     book['data'][key] = book_data['data'][key]
@@ -412,7 +412,7 @@ db.insert(book)
 return json.dumps({'success': True})""", assembly=self.assembly)
         self.librarian_duplicate.save()
         self.librarian_remove = ApiFunction(name='remove', code="""try:
-    book_data = json.loads(request.body)['book']
+    book_data = json.loads(str(request.body, encoding='utf-8'))['book']
 except IndexError:
     return json.dumps({'error': 'You have to supply a book to remove.'})
 except ValueError:

@@ -34,13 +34,13 @@ def read_exact(fp, n):
     @param n: (int) number of bytes to read
     @return: byte string
     """
-    buf = ''
+    buf = b''
     while len(buf) < n:
         buf2 = os.read(fp.fileno(), n)
         if not buf2:
             libc_exit(123)
         buf += buf2
-    return buf  # TODO: originally buf2 was returned but that prpably makes no sense.
+    return buf  # TODO: originally buf2 was returned but that probably makes no sense.
 
 
 def write_exact(fp, s):
@@ -67,7 +67,7 @@ def write_to_pipe(pipe, data_dict):
     @param data_dict: dict
     @return: nothing
     """
-    data_json = json.dumps(data_dict)
+    data_json = json.dumps(data_dict).encode('utf-8')
     write_exact(pipe, struct.pack('>L', len(data_json)))
     write_exact(pipe, data_json)
 
@@ -80,7 +80,7 @@ def read_from_pipe(pipe):
     @return: dict
     """
     sz, = struct.unpack('>L', read_exact(pipe, 4))
-    return json.loads(read_exact(pipe, sz))
+    return json.loads(str(read_exact(pipe, sz), encoding='utf-8'))
 
 
 def escape_all_objectids_and_datetime(conv_dict):
