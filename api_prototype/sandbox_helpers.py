@@ -40,7 +40,7 @@ def read_exact(fp, n):
         if not buf2:
             libc_exit(123)
         buf += buf2
-    return buf  # TODO: originally buf2 was returned but that probably makes no sense.
+    return buf
 
 
 def write_exact(fp, s):

@@ -39,7 +39,7 @@ class Https():
             return ""
         content = response.read()
         connection.close()
-        return content
+        return str(content, encoding='ISO-8859-1')  # ISO-8859-1 is default for http.
 
     @staticmethod
     def post(domain, path="", params=None):
@@ -70,4 +70,4 @@ class Https():
             return ""
         content = response.read()
         connection.close()
-        return content
+        return str(content, encoding='ISO-8859-1')  # ISO-8859-1 is default for http.

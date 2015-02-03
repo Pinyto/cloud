@@ -166,13 +166,13 @@ class SandboxRequest(object):
     def __init__(self, child_pipe):
         self.child = child_pipe
         self.POST = SandboxRequestPost(child_pipe)
-        self.body = ""
+        self.body = b""
 
     def init_body(self):
         """
         This needs to be called after the seccomp process is initialized to fill in valid body data for the request.
         """
-        self.body = piped_command(self.child, {'request.body': {}})
+        self.body = piped_command(self.child, {'request.body': {}}).encode('utf-8')
 
 
 class CanNotCreateNewInstanceInTheSandbox(Exception):
@@ -297,11 +297,11 @@ class SandboxHttps():
         @param path: string
         @return: string
         """
-        return b64decode(piped_command(
+        return piped_command(
             self.child,
             {'https.get': {
                 'domain': domain,
-                'path': path}}))
+                'path': path}})
 
     def post(self, domain, path):
         """
@@ -313,8 +313,8 @@ class SandboxHttps():
         @param path: string
         @return: string
         """
-        return b64decode(piped_command(
+        return piped_command(
             self.child,
             {'https.post': {
                 'domain': domain,
-                'path': path}}))
+                'path': path}})

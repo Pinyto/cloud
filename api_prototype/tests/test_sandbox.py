@@ -39,10 +39,10 @@ class TestSandbox(TestCase):
         code = "a = 1 / 0"
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
         self.assertEqual(result, {
-            u'result so far': u'',
-            u'error': {
-                u'exception': u"<type 'exceptions.ZeroDivisionError'>",
-                u'message': u'integer division or modulo by zero'
+            'result so far': '',
+            'error': {
+                'exception': "<class 'ZeroDivisionError'>",
+                'message': 'division by zero'
             }})
         self.assertTrue(time < 1)
 
@@ -103,18 +103,19 @@ return soup.find_element_and_collect_table_like_information(
     [{'tag': 'table'}, {'tag': 'tr'}],
     {'a': {'search tag': 'td', 'captions': ['A'], 'content tag': 'td'}})"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
-        self.assertEqual(result, {'result': u"{u'a': u'3'}\n"})
+        self.assertEqual(result, {'result': "{'a': '3'}\n"})
         self.assertTrue(time < 1)
 
     def test_connect_to_pinyto(self):
         code = """https = factory.create('Https')
 return len(str(https.get('pinyto.de', '/')))"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
+        self.assertIn('result', result)
         self.assertGreater(int(result['result']), 0)
         self.assertTrue(time < 1)
 
     def test_request_body(self):
-        code = """return request.body"""
+        code = """return str(request.body, encoding='utf-8')"""
         result, time = safely_exec(code, self.factory.post(
             '/',
             json.dumps({'a': '123'}),

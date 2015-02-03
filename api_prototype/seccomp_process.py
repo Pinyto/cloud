@@ -19,7 +19,6 @@ import json
 
 from api_prototype.sandbox_helpers import libc_exit, write_to_pipe, read_from_pipe
 from api_prototype.sandbox_helpers import escape_all_objectids_and_datetime, unescape_all_objectids_and_datetime
-from base64 import b64encode
 from api_prototype.models import SandboxCollectionWrapper, SandboxRequest
 from api_prototype.models import Factory
 from service.parsehtml import ParseHtml as RealParseHtml
@@ -36,7 +35,7 @@ def stdout_io(stdout=None):
     """
     old = sys.stdout
     if stdout is None:
-        stdout = StringIO.StringIO()
+        stdout = StringIO()
     sys.stdout = stdout
     yield stdout
     sys.stdout = old
@@ -180,13 +179,13 @@ class SecureHost(object):
         @param real_db: CollectionWrapper
         @return: string
         """
-        result = u''
+        result = ''
         write_to_pipe(self.host, {'cmd': 'exec', 'body': code})
         result_received = False
         while not result_received:
             response = read_from_pipe(self.host)
             if 'exception' in response:
-                return {u'error': response, u'result so far': result}
+                return {'error': response, 'result so far': result}
             elif 'db.find' in response:
                 return_value = real_db.find(
                     response['db.find']['query'],
@@ -249,12 +248,12 @@ class SecureHost(object):
                 return_value = RealHttps.get(
                     response['https.get']['domain'],
                     response['https.get']['path'])
-                write_to_pipe(self.host, {'response': b64encode(return_value)})
+                write_to_pipe(self.host, {'response': return_value})
             elif 'https.post' in response:
                 return_value = RealHttps.post(
                     response['https.post']['domain'],
                     response['https.post']['path'])
-                write_to_pipe(self.host, {'response': b64encode(return_value)})
+                write_to_pipe(self.host, {'response': return_value})
             elif 'request.body' in response:
                 write_to_pipe(self.host, {'response': str(request.body, encoding='utf-8')})
             elif 'request.post.get' in response:

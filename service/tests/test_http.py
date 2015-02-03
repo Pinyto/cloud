@@ -13,9 +13,16 @@ class TestHttps(TestCase):
         self.assertEqual(Https.post('nix.uns1nnsdomain.gibtsnicht', '/pfad/nach/nirgendwo'), "")
 
     def test_get_connect_to_google(self):
-        self.assertGreater(len(Https.get('www.google.de', '/')), 0)
+        response = Https.get('www.google.de', '/')
+        self.assertEqual(type(response), str)
+        self.assertGreater(len(response), 0)
+
+    def test_get_connect_to_pinyto(self):
+        response = Https.get('pinyto.de', '/')
+        self.assertEqual(type(response), str)
+        self.assertGreater(len(response), 0)
 
     def test_post_connect_to_google(self):
-        self.assertGreater(len(
-            Https.post('accounts.google.com', '/ServiceLoginAuth', {'@Email': "a@bc.de", '@Passwd': "******"})
-        ), 0)
+        response = Https.post('accounts.google.com', '/ServiceLoginAuth', {'@Email': "a@bc.de", '@Passwd': "******"})
+        self.assertEqual(type(response), str)
+        self.assertGreater(len(response), 0)
