@@ -147,3 +147,4 @@ accepts the state:
 .. autofunction:: set_key_active
 
 The function needs a "key_hash" which identifies the key and an "active_state" as a boolean.
+

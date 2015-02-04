@@ -11,3 +11,4 @@ Dependencies
 * pytz
 * python-prctl
 * requests
+* sphinx_rtd_theme
