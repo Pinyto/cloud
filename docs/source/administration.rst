@@ -115,7 +115,35 @@ accessed by malware.
 
 Logout
 ------
+
 ``logout`` only needs a "token".
 
 .. autofunction:: logout
 
+Key Management
+--------------
+There are four functions for the key management. ``list_keys`` lists all public keys of the user:
+
+.. autofunction:: list_keys
+
+Each key listed by this function should match a device used for Pinyto. The first key is usually the one
+used by webapps like the backoffice.
+
+If a key is to be added ``register_new_key`` is called:
+
+.. autofunction:: register_new_key
+
+The function accepts "key_data" with a "N" and "e" encoded as strings.
+
+Keys can also be deleted:
+
+.. autofunction:: delete_key
+
+``delete_key`` expects a "key_hash" with the first 10 bytes of a sha256 hash of (str(N)+str(e)).
+
+Keys can be deactivated and deactivated again. For this functionality there is only one function which
+accepts the state:
+
+.. autofunction:: set_key_active
+
+The function needs a "key_hash" which identifies the key and an "active_state" as a boolean.

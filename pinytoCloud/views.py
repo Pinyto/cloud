@@ -105,8 +105,9 @@ def list_keys(request):
     """
     Returns a list of keys for the active account.
 
-    @param request:
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -134,8 +135,9 @@ def set_key_active(request):
     """
     Sets the transferred active state for the key.
 
-    @param request:
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -170,8 +172,9 @@ def delete_key(request):
     """
     Deletes the specified key. This will raise an error if you try to delete your last key.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -252,8 +255,9 @@ def register_new_key(request):
     """
     Adds another public key to an existing account.
 
-    @param request:
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -292,8 +296,9 @@ def list_own_assemblies(request):
     """
     Returns a list of the assemblies of the user specified through the token.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -332,8 +337,9 @@ def save_assembly(request):
     Saves the assembly specified by its original name. This can be used to rename an assembly because the
     original name and the one specified in the data could be different.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -450,8 +456,9 @@ def delete_assembly(request):
     """
     Deletes the assembly specified by its name.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -484,8 +491,9 @@ def list_installed_assemblies(request):
     """
     Returns a list of the assemblies the user marked as installed.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -514,8 +522,9 @@ def list_all_assemblies(request):
     """
     Returns a list of all assemblies.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -544,8 +553,9 @@ def install_assembly(request):
     """
     Adds the assembly specified by author and name to the installed assemblies of the user.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -591,8 +601,9 @@ def uninstall_assembly(request):
     """
     Removes the assembly specified by author and name from the installed assemblies of the user.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -631,8 +642,9 @@ def get_assembly_source(request):
     """
     Fetches the sourcecode of the assebly specified by author and name.
 
-    @param request: Django request
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
