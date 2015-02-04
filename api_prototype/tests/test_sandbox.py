@@ -107,8 +107,8 @@ return soup.find_element_and_collect_table_like_information(
         self.assertTrue(time < 1)
 
     def test_connect_to_pinyto(self):
-        code = """https = factory.create('Https')
-return len(str(https.get('pinyto.de', '/')))"""
+        code = """http = factory.create('Http')
+return len(str(http.get('https://pinyto.de/')))"""
         result, time = safely_exec(code, self.factory.post('/'), self.collection_wrapper)
         self.assertIn('result', result)
         self.assertGreater(int(result['result']), 0)

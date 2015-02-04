@@ -10,3 +10,4 @@ Dependencies
 * beautifulsoup4
 * pytz
 * python-prctl
+* requests

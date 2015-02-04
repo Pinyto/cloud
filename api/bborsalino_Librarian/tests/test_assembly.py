@@ -436,7 +436,9 @@ return json.dumps({'success': True})""", assembly=self.assembly)
                             'data.lent': {'$exists': True, '$ne': ""}})
 })""", assembly=self.assembly)
         self.librarian_statistics.save()
-        self.librarian_complete = Job(name='job_complete_data_by_asking_dnb', code="""incomplete_books = db.find_documents({'type': 'book',
+        self.librarian_complete = Job(
+            name='job_complete_data_by_asking_dnb',
+            code="""incomplete_books = db.find_documents({'type': 'book',
                                       'data': {'$exists': True},
                                       '$or': [
                                           {'data.author': {'$exists': False}},
@@ -445,14 +447,14 @@ return json.dumps({'success': True})""", assembly=self.assembly)
                                           {'data.isbn': {'$exists': False}},
                                           {'data.ean': {'$exists': False}}
                                       ]})
-https = factory.create('Https')
+http = factory.create('Http')
 for book in incomplete_books:
     query = ''
     if 'isbn' in book['data']:
         query = book['data']['isbn']
     if 'ean' in book['data']:
         query = book['data']['ean']
-    content = https.get('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
+    content = http.get('https://portal.dnb.de/opac.htm?query=' + query + '&method=simpleSearch')
     if not content:
         continue
     soup = factory.create('ParseHtml', content)
@@ -466,7 +468,7 @@ for book in incomplete_books:
              {'tag': 'a'}],
             'href')
         if link:
-            content = https.get('portal.dnb.de', link)
+            content = http.get('https://portal.dnb.de' + link)
             soup = factory.create('ParseHtml', content)
     parsed = soup.find_element_and_collect_table_like_information(
         [
@@ -542,7 +544,9 @@ for book in incomplete_books:
         self.assertEqual(response.status_code, 200)
         self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
-        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-943176-24-7')
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
             json.dumps({'token': self.authentication_token}),
@@ -550,7 +554,9 @@ for book in incomplete_books:
         self.assertEqual(response.status_code, 200)
         self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
-        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-943176-24-7')
 
     def test_search(self):
         self.collection.insert({
@@ -590,8 +596,12 @@ for book in incomplete_books:
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 2)
-        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-8085-3004-7')
-        self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][1]['data']['isbn'], u'978-3-8273-7337-3')
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
+            '978-3-8085-3004-7')
+        self.assertEqual(
+            json.loads(str(response.content, encoding='utf-8'))['index'][1]['data']['isbn'],
+            '978-3-8273-7337-3')
 
     def test_update(self):
         self.collection.insert({
@@ -725,6 +735,7 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+        self.assertIn('success', json.loads(str(response.content, encoding='utf-8')))
         self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/store',
@@ -764,7 +775,8 @@ for book in incomplete_books:
                 json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
                 content_type='application/json'
             )
-            if len(json.loads(str(response.content, encoding='utf-8'))['index']) >= 1 and \
+            if 'index' in json.loads(str(response.content, encoding='utf-8')) and \
+               len(json.loads(str(response.content, encoding='utf-8'))['index']) >= 1 and \
                'data' in json.loads(str(response.content, encoding='utf-8'))['index'][0] and \
                'title' in json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']:
                 completed = True

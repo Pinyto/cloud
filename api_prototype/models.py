@@ -3,8 +3,9 @@
 This File is part of Pinyto
 """
 
-from api_prototype.sandbox_helpers import piped_command, escape_all_objectids_and_datetime, unescape_all_objectids_and_datetime
-from base64 import b64decode
+from api_prototype.sandbox_helpers import piped_command
+from api_prototype.sandbox_helpers import escape_all_objectids_and_datetime
+from api_prototype.sandbox_helpers import unescape_all_objectids_and_datetime
 
 
 class SandboxCollectionWrapper(object):
@@ -207,8 +208,8 @@ class Factory():
         """
         if class_name == 'ParseHtml':
             return SandboxParseHtml(self.pipe_child_end, *args)
-        elif class_name == 'Https':
-            return SandboxHttps(self.pipe_child_end)
+        elif class_name == 'Http':
+            return SandboxHttp(self.pipe_child_end)
         raise CanNotCreateNewInstanceInTheSandbox(class_name)
 
 
@@ -278,43 +279,44 @@ class SandboxParseHtml():
                 'searched_information': searched_information}})
 
 
-class SandboxHttps():
+class SandboxHttp():
     """
-    This wrapper is user to expose https requests to the sandbox.
-    This is the Https class with the same methods to be used in the sandbox.
+    This wrapper is user to expose http requests to the sandbox.
+    This is the Http class with the same methods to be used in the sandbox.
     """
 
     def __init__(self, pipe_child_end):
         self.child = pipe_child_end
 
-    def get(self, domain, path):
+    def get(self, url):
         """
         This issues a http request to the supplied url and returns
         the response as a string. If the request fails an empty
         string is returned.
 
-        @param domain: string
-        @param path: string
-        @return: string
+        :param url: Url with http:// or https:// at the beginning
+        :type: str
+        :rtype: str
         """
         return piped_command(
             self.child,
             {'https.get': {
-                'domain': domain,
-                'path': path}})
+                'url': url}})
 
-    def post(self, domain, path):
+    def post(self, url, data):
         """
         This issues a http request to the supplied url and returns
         the response as a string. If the request fails an empty
         string is returned.
 
-        @param domain: string
-        @param path: string
-        @return: string
+        :param url: Url with http:// or https:// at the beginning
+        :type url: str
+        :param data: payload data
+        :type data: dict
+        :rtype: str
         """
         return piped_command(
             self.child,
             {'https.post': {
-                'domain': domain,
-                'path': path}})
+                'url': url,
+                'data': data}})

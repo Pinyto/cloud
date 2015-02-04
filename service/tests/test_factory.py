@@ -5,16 +5,16 @@ This File is part of Pinyto
 
 from django.test import TestCase
 from service.models import Factory
-from service.http import Https
+from service.http import Http
 from service.parsehtml import ParseHtml
 from api_prototype.models import CanNotCreateNewInstanceInTheSandbox
 
 
 class TestFactory(TestCase):
-    def test_create_Https(self):
+    def test_create_Http(self):
         factory = Factory()
-        https = factory.create('Https')
-        self.assertEqual(type(https), Https)
+        https = factory.create('Http')
+        self.assertEqual(type(https), Http)
 
     def test_create_ParseHtml(self):
         factory = Factory()

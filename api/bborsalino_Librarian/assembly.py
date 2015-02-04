@@ -232,14 +232,14 @@ class Librarian():
                                                   {'data.isbn': {'$exists': False}},
                                                   {'data.ean': {'$exists': False}}
                                               ]})
-        https = factory.create('Https')
+        http = factory.create('Http')
         for book in incomplete_books:
             query = ''
             if 'isbn' in book['data']:
                 query = book['data']['isbn']
             if 'ean' in book['data']:
                 query = book['data']['ean']
-            content = https.get('portal.dnb.de', '/opac.htm?query=' + query + '&method=simpleSearch')
+            content = http.get('https://portal.dnb.de/opac.htm?query=' + query + '&method=simpleSearch')
             if not content:
                 continue
             soup = factory.create('ParseHtml', content)
@@ -253,7 +253,7 @@ class Librarian():
                      {'tag': 'a'}],
                     'href')
                 if link:
-                    content = https.get('portal.dnb.de', link)
+                    content = http.get('https://portal.dnb.de' + link)
                     soup = factory.create('ParseHtml', content)
             parsed = soup.find_element_and_collect_table_like_information(
                 [

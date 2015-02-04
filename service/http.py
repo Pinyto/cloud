@@ -3,46 +3,38 @@
 This File is part of Pinyto
 """
 
-from http.client import HTTPSConnection
-from urllib.parse import urlencode
-from _socket import gaierror
+import requests
+from requests.exceptions import RequestException, ConnectionError, HTTPError
 
 
-class Https():
+class Http():
     """
     Objects of this class can be used to connect to remote websites.
-    As such connections should always be encrypted this class only
-    supports HTTPs.
     """
     def __init__(self):
         pass
 
     @staticmethod
-    def get(domain, path):
+    def get(url):
         """
         This issues a http request to the supplied url and returns
         the response as a string. If the request fails an empty
         string is returned.
 
-        @param domain: string
-        @param path: string
-        @return: string
+        :param url: Url with http:// or https:// at the beginning
+        :type: str
+        :rtype: str
         """
-        connection = HTTPSConnection(domain)
         try:
-            connection.request('GET', path)
-        except gaierror:
+            response = requests.get(url)
+        except RequestException or ConnectionError or HTTPError:
             return ""
-        response = connection.getresponse()
-        if response.status != 200:
-            connection.close()
+        if response.status_code != requests.codes.ok:
             return ""
-        content = response.read()
-        connection.close()
-        return str(content, encoding='ISO-8859-1')  # ISO-8859-1 is default for http.
+        return response.text
 
     @staticmethod
-    def post(domain, path="", params=None):
+    def post(url="", data=None):
         """
         This issues a http request to the supplied url and returns
         the response as a string. If the request fails an empty
@@ -50,24 +42,16 @@ class Https():
 
         For the params do not forget to add an @ to the beginning of each param name.
 
-        @param domain: string
-        @param path: string
-        @param params: dict
-        @return: string
+        :param url: Url with http:// or https:// at the beginning
+        :type url: str
+        :param data: payload data
+        :type data: dict
+        :rtype: str
         """
-        if not params:
-            params = {}
-        params = urlencode(params)
-        headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-        connection = HTTPSConnection(domain)
         try:
-            connection.request('POST', path, params, headers)
-        except gaierror:
+            response = requests.post(url, data=data)
+        except RequestException or ConnectionError or HTTPError:
             return ""
-        response = connection.getresponse()
-        if response.status != 200:
-            connection.close()
+        if response.status_code != requests.codes.ok:
             return ""
-        content = response.read()
-        connection.close()
-        return str(content, encoding='ISO-8859-1')  # ISO-8859-1 is default for http.
+        return response.text

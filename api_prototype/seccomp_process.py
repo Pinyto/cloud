@@ -22,7 +22,7 @@ from api_prototype.sandbox_helpers import escape_all_objectids_and_datetime, une
 from api_prototype.models import SandboxCollectionWrapper, SandboxRequest
 from api_prototype.models import Factory
 from service.parsehtml import ParseHtml as RealParseHtml
-from service.http import Https as RealHttps
+from service.http import Http as RealHttp
 
 
 @contextlib.contextmanager
@@ -245,14 +245,13 @@ class SecureHost(object):
                     response['parsehtml.find_element_and_collect_table_like_information']['searched_information'])
                 write_to_pipe(self.host, {'response': return_value})
             elif 'https.get' in response:
-                return_value = RealHttps.get(
-                    response['https.get']['domain'],
-                    response['https.get']['path'])
+                return_value = RealHttp.get(
+                    response['https.get']['url'])
                 write_to_pipe(self.host, {'response': return_value})
             elif 'https.post' in response:
-                return_value = RealHttps.post(
-                    response['https.post']['domain'],
-                    response['https.post']['path'])
+                return_value = RealHttp.post(
+                    response['https.post']['url'],
+                    response['https.post']['data'])
                 write_to_pipe(self.host, {'response': return_value})
             elif 'request.body' in response:
                 write_to_pipe(self.host, {'response': str(request.body, encoding='utf-8')})

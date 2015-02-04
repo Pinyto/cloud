@@ -5,7 +5,7 @@ This File is part of Pinyto
 
 from api_prototype.models import CanNotCreateNewInstanceInTheSandbox
 from service.parsehtml import ParseHtml
-from service.http import Https
+from service.http import Http
 
 
 class Factory():
@@ -31,6 +31,6 @@ class Factory():
         """
         if class_name == 'ParseHtml':
             return ParseHtml(*args)
-        elif class_name == 'Https':
-            return Https()
+        elif class_name == 'Http':
+            return Http()
         raise CanNotCreateNewInstanceInTheSandbox(class_name)
