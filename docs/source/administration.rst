@@ -69,5 +69,53 @@ Registration
 
 .. py:module:: pinytoCloud.views
 
+Registering new accounts is done in the register function in views.py.
+
 .. autofunction:: register
+
+Although the register function does the real work it does not accept a Django request object as parameter
+and is therefore not fit to be called by the url dispatcher. For this task the register_request function
+exists which accepts a request object and can easily be referenced in the url configuration. It internally
+calls register after extracting relevant the request data.
+
+.. autofunction:: register_request
+
+Registration requests must supply json-encoded data with a "username" and "key_data" while the key_data
+itself consists of a "N" and "e" value. Supply the numbers as strings.
+
+Example: ``{"username": "MaxMustermann", "key_data": {"N": "123456789123456789213456", "e": "54263"}}``
+For a real key N must be a much bigger number.
+
+Authentication
+--------------
+
+Similar to the registration the authentication also consists of two functions. The real work is done in
+``authenticate``:
+
+.. autofunction:: authenticate
+
+The matching function which accepts requests and which is wired into the url config is:
+
+.. autofunction:: authenticate_request
+
+The authentication request needs a "username" and a "key_hash" which identifies the public key used for
+authentication. The key_hash consists of the first 10 bytes of a sha256 hash of (N+e).
+
+Authenticate returns a challenge for this request containing an encrypted token and a signature of this
+token signed with the key of the server. The client can check the signature to verify the identity of
+the server. The client also decrypts the token with the private key matching the public key which was used
+for the hash in the request. By encrypting the token the server makes sure that only the client which
+possesses the private key can decrypt the token and use it for authentication.
+
+Authenticate starts a session with a token which is transmitted with every request and which is used to
+identify the client and ensure that no attacker can access api functions without a correct token. If an
+attacker reads the token he can make requests as he likes as long as the session is active. Because of
+that the whole connection must be secured with https and the client must make sure the token is not
+accessed by malware.
+
+Logout
+------
+``logout`` only needs a "token".
+
+.. autofunction:: logout
 

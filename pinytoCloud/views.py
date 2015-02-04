@@ -34,8 +34,9 @@ def authenticate_request(request):
     Returns an encrypted token and the matching signature.
     This function only extracts the params from the request and calls authenticate.
 
-    @param request:
-    @return: json {encrypted_token: string, signature: string}
+    :param request:
+    :type request: HttpRequest
+    :rtype: json {encrypted_token: string, signature: string}
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -50,11 +51,13 @@ def authenticate_request(request):
 def authenticate(username, key_hash):
     """
     Creates a token and registers the authentication request for the username.
-    Returns an encrypted token and the matching signature
+    Returns an encrypted token and the matching signature.
 
-    @param username: string
-    @param key_hash: string
-    @return: json {encrypted_token: string, signature: string}
+    :param username:
+    :type username: str
+    :param key_hash:
+    :type key_hash: str
+    :rtype: json {encrypted_token: string, signature: string}
     """
     try:
         user = User.objects.filter(name=username).all()[0]
@@ -77,8 +80,9 @@ def logout(request):
     """
     Ends the session with the given token.
 
-    @param request:
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -199,8 +203,9 @@ def register_request(request):
     Creates an account if possible and saves the public key.
     This function only extracts the params from the request and calls register.
 
-    @param request:
-    @return: json
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -215,9 +220,11 @@ def register(username, key_data):
     """
     Creates an account if possible and saves the public key.
 
-    @param username: string
-    @param key_data: string
-    @return: json
+    :param username:
+    :type username: str
+    :param key_data:
+    :type key_data: str
+    :rtype: json
     """
     if User.objects.filter(name=username).count() > 0:
         return {'error': "Username " + username + " is already taken. Try another username."}
