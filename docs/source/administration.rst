@@ -148,3 +148,43 @@ accepts the state:
 
 The function needs a "key_hash" which identifies the key and an "active_state" as a boolean.
 
+Assembly Management
+-------------------
+
+Assemblies in Pinyto belong to a user but any user can install them. So it is important to distinguish
+between the assemblies owned by the user which she can edit and the ones owned by other users which can
+only be installed and deinstalled.
+
+save_assembly
++++++++++++++
+
+If a user wants to save a new assembly she can use this function:
+
+.. autofunction:: save_assembly
+
+``save_assembly`` accepts all the data defining an assembly in one big json datastructure:
+
+- "original_name" is the name the assembly had. If the original_name does not specify an assembly of
+  the user a new assembly is created using the data from "data".
+- "data" contains the data of the assembly as it should be after it is saved to the database.
+    - "name" is the new name of the assembly.
+    - "description" is the new description.
+    - "api_functions" is a list of dictionaries containing:
+        - "name" - the name of the function
+        - "code" - the code of the function
+    - "jobs" is a list of dictionaries containing:
+        - "name" - the name of the job
+        - "code" - the code of the job
+        - "schedule" - an integer defining how many minutes the cloud should wait until running the job
+          again. 0 means the job is run only once.
+
+``save_assembly`` returns ``{"success": true}`` if the assembly is saved.
+
+delete_assembly
++++++++++++++++
+
+.. autofunction:: delete_assembly
+
+Call ``delete_assembly`` with a "name" defining an existing assembly of this user.
+
+``delete_assembly`` returns ``{"success": true}`` if the assembly is deleted.
