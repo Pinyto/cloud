@@ -65,7 +65,7 @@ class TestTodo(TestCase):
             'type': 'todo',
             'tags': [],
             'assembly': 'pinyto/Todo',
-            'data': 'Wäsche aufhängen'
+            'data': {'text': 'Wäsche aufhängen', 'priority': 1}
         }
         document_id = self.collection_wrapper.insert(document1)
         document1['_id'] = document_id
@@ -75,7 +75,7 @@ class TestTodo(TestCase):
             'type': 'todo',
             'tags': [],
             'assembly': 'pinyto/Todo',
-            'data': 'Zimmer aufräumen'
+            'data': {'text': 'Zimmer aufräumen', 'priority': 0}
         })
         response = self.client.post(
             '/pinyto/Todo/get_list',
@@ -91,11 +91,11 @@ class TestTodo(TestCase):
             self.assertEqual(document['assembly'], 'pinyto/Todo')
             self.assertIn('time', document)
             if index == 0:
-                data = u'Zimmer aufräumen'
+                data = {'text': 'Zimmer aufräumen', 'priority': 0}
             elif index == 1:
-                data = u'Wäsche aufhängen'
+                data = {'text': 'Wäsche aufhängen', 'priority': 1}
             else:
-                data = u'Wrong index!'
+                data = 'Wrong index!'
             self.assertEqual(document['data'], data)
 
     def test_save_no_json(self):

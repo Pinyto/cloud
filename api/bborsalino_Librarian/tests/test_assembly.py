@@ -736,6 +736,7 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+        self.assertIn('success', json.loads(str(response.content, encoding='utf-8')))
         self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
@@ -743,6 +744,7 @@ for book in incomplete_books:
             content_type='application/json'
         )
         self.assertEqual(response.status_code, 200)
+        self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
         self.assertEqual(
             json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'],
