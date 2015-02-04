@@ -533,12 +533,14 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'ean': '1234567890123'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
+        self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'], [])
         response = test_client.post(
             '/bborsalinosandbox/Librarian/index',
             json.dumps({'token': self.authentication_token, 'isbn': '978-3-943176-24-7'}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
+        self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
         self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
         response = test_client.post(
@@ -546,6 +548,7 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
+        self.assertIn('index', json.loads(str(response.content, encoding='utf-8')))
         self.assertEqual(len(json.loads(str(response.content, encoding='utf-8'))['index']), 1)
         self.assertEqual(json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['isbn'], u'978-3-943176-24-7')
 
