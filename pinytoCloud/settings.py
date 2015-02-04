@@ -111,6 +111,8 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'pinytoCloud.urls'
