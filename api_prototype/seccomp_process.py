@@ -254,7 +254,13 @@ class SecureHost(object):
                     response['https.post']['data'])
                 write_to_pipe(self.host, {'response': return_value})
             elif 'request.body' in response:
-                write_to_pipe(self.host, {'response': str(request.body, encoding='utf-8')})
+                if type(request.body) == bytes:
+                    content = str(request.body, encoding='utf-8')
+                elif type(request.body) == str:
+                    content = request.body
+                else:
+                    content = "Error: request.body could not be initialized because it had a strange type."
+                write_to_pipe(self.host, {'response': content})
             elif 'request.post.get' in response:
                 return_value = request.POST.get(
                     response['request.post.get']['param'])
