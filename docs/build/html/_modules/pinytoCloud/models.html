@@ -1,0 +1,419 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pinytoCloud.models &mdash; Pinyto-Cloud 1.0-alpha1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Pinyto-Cloud 1.0-alpha1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> Pinyto-Cloud</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../administration.html">Administration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#users">Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#public-keys">Public Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#sessions">Sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#the-user-s-code">The user&#8217;s code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#module-pinytoCloud.views">Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#logout">Logout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#key-management">Key Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#assembly-management">Assembly Management</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../keyserver.html">Keyserver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../database.html">Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../assemblies.html">Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../services.html">Services</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Pinyto-Cloud</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pinytoCloud.models</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for pinytoCloud.models</h1><div class="highlight"><pre>
+<span class="c"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">In this file is the model definition for Pinyto users and for sessions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.dispatch</span> <span class="kn">import</span> <span class="n">receiver</span>
+<span class="kn">from</span> <span class="nn">Crypto.PublicKey</span> <span class="kn">import</span> <span class="n">RSA</span>
+<span class="kn">from</span> <span class="nn">Crypto.Cipher</span> <span class="kn">import</span> <span class="n">PKCS1_OAEP</span>
+<span class="kn">from</span> <span class="nn">base64</span> <span class="kn">import</span> <span class="n">b16encode</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha256</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">timezone</span>
+<span class="kn">from</span> <span class="nn">pinytoCloud.helpers</span> <span class="kn">import</span> <span class="n">create_token</span>
+
+
+<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an user object. Users have a username and a list of public keys</span>
+<span class="sd">    for authentication.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c">#: (str) The username used for identifying the account</span>
+    <span class="n">time_budget</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>  <span class="c">#: (float) The time budget of the user</span>
+    <span class="n">storage_budget</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>  <span class="c">#: (float) The storage budget of the user</span>
+    <span class="n">current_storage</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BigIntegerField</span><span class="p">()</span>  <span class="c">#: (int) Current storage usage in bytes</span>
+    <span class="n">last_calculation_time</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>  <span class="c">#: (int) Timestamp of the last time the budget was calculated</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="User.start_session"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.User.start_session">[docs]</a>    <span class="k">def</span> <span class="nf">start_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_db_object</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a session object with a new random token.</span>
+<span class="sd">        If there is an existing session it will be overwritten</span>
+
+<span class="sd">        :param key_db_object:</span>
+<span class="sd">        :type key_db_object: StoredPublicKey</span>
+<span class="sd">        :rtype: Session</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key_db_object</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">token</span> <span class="o">=</span> <span class="n">create_token</span><span class="p">()</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span>
+                <span class="n">token</span><span class="o">=</span><span class="n">create_token</span><span class="p">(),</span>
+                <span class="n">timestamp</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">key_db_object</span><span class="p">,</span>
+                <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">session</span>
+</div>
+<div class="viewcode-block" id="User.calculate_time_and_storage"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.User.calculate_time_and_storage">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_time_and_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">added_time</span><span class="p">,</span> <span class="n">new_storage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method updates the time- and storage budget of the user. The changed budget</span>
+<span class="sd">        and the corresponding variables are saved.</span>
+
+<span class="sd">        :param added_time: added time in milliseconds</span>
+<span class="sd">        :type added_time: int</span>
+<span class="sd">        :param new_storage: new storage in bytes</span>
+<span class="sd">        :type new_storage: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_budget</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_budget</span> <span class="o">+</span> <span class="n">added_time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storage_budget</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_storage</span> <span class="o">*</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_calculation_time</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_calculation_time</span> <span class="o">=</span> <span class="n">now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_storage</span> <span class="o">=</span> <span class="n">new_storage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+</div></div>
+<span class="nd">@receiver</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">signals</span><span class="o">.</span><span class="n">post_init</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">User</span><span class="p">)</span>
+<div class="viewcode-block" id="initialize_budgets"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.initialize_budgets">[docs]</a><span class="k">def</span> <span class="nf">initialize_budgets</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialization for users. All users are initialized with empty budgets.</span>
+
+<span class="sd">    :param sender: User class</span>
+<span class="sd">    :param instance: User</span>
+<span class="sd">    :param kwargs: other params of __init__()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">time_budget</span><span class="p">:</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">time_budget</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">storage_budget</span><span class="p">:</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">storage_budget</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">current_storage</span><span class="p">:</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">current_storage</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">instance</span><span class="o">.</span><span class="n">last_calculation_time</span><span class="p">:</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">last_calculation_time</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="StoredPublicKey"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.StoredPublicKey">[docs]</a><span class="k">class</span> <span class="nc">StoredPublicKey</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is used to store public keys. The matching RSA object can be</span>
+<span class="sd">    created with the get_key method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: (str) The first 10 characters of a sha256 hash computed from ``n + e``.</span>
+    <span class="n">key_hash</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#: (str) N is a very big prime number so we have to save it as a string.</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="c">#: (long) e is not a very big number so we store it as a big integer.</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BigIntegerField</span><span class="p">()</span>
+    <span class="c">#: (User) This is the foreign-key to the User who owns this key.</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;keys&#39;</span><span class="p">)</span>
+    <span class="c">#: (boolean) Keys can be deactivated. By default keys are active.</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_hash</span> <span class="o">+</span> <span class="s">&#39;:: N: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">+</span> <span class="s">&#39; e: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="StoredPublicKey.create"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.StoredPublicKey.create">[docs]</a>    <span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a storedPublicKey and calculates the hash for the key.</span>
+
+<span class="sd">        :param user:</span>
+<span class="sd">        :type user: pinytoCloud.models.User</span>
+<span class="sd">        :param n:</span>
+<span class="sd">        :type n: str</span>
+<span class="sd">        :param e:</span>
+<span class="sd">        :type e: int</span>
+<span class="sd">        :rtype: StoredPublicKey</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">hasher</span> <span class="o">=</span> <span class="n">sha256</span><span class="p">()</span>
+        <span class="n">hasher</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="n">n</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+        <span class="n">stored_key</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="o">=</span><span class="n">e</span><span class="p">,</span> <span class="n">key_hash</span><span class="o">=</span><span class="n">hasher</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">10</span><span class="p">])</span>
+        <span class="n">stored_key</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">stored_key</span>
+</div>
+<div class="viewcode-block" id="StoredPublicKey.get_key"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.StoredPublicKey.get_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the RSA object from the stored data. Use this object for</span>
+<span class="sd">        encryption and verification.</span>
+
+<span class="sd">        :rtype: Crypto.PublicKey.RSA</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RSA</span><span class="o">.</span><span class="n">construct</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">)))</span>
+
+</div></div>
+<div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The session saves the session token used for verification.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: (string) The token consists of 16 random characters.</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="c">#: (int) The timestamp is reset with every request. It can be used to delete old sessions with a cron job.</span>
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
+    <span class="c">#: (pinytoCloud.models.User) The reference to the user who own this session.</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;sessions&#39;</span><span class="p">)</span>
+    <span class="c">#: (pinytoCloud.models.StoredPublicKey) The reference to the key used to start the session.</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span><span class="n">StoredPublicKey</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;related_session&#39;</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">token</span> <span class="o">+</span> <span class="s">&#39; (&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;) &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39; Key: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">key_hash</span>
+
+<div class="viewcode-block" id="Session.get_encrypted_token"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.Session.get_encrypted_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_encrypted_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the session token encrypted with the key.</span>
+
+<span class="sd">        :returns: base16 encoded encrypted token</span>
+<span class="sd">        :rtype: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cipher</span> <span class="o">=</span> <span class="n">PKCS1_OAEP</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">get_key</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">b16encode</span><span class="p">(</span><span class="n">cipher</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">))),</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="Assembly"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.Assembly">[docs]</a><span class="k">class</span> <span class="nc">Assembly</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An Assembly is a collection of ApiFunctions and Jobs which can be installed and activated</span>
+<span class="sd">    for the user en block. Each assembly has a unique identifier referencing the exact set of</span>
+<span class="sd">    ApiFunctions and Jobs. The original author can update his assembly and all users who</span>
+<span class="sd">    installed it automatically load the new version. A user may fork an assembly which creates</span>
+<span class="sd">    an exact clone with the forking user as new author.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: (string) The name of the assembly is capped to 42 characters.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="c">#: (pinytoCloud.models.User) Foreign-key to the user who owns the assembly.</span>
+    <span class="n">author</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;assemblies&#39;</span><span class="p">)</span>
+    <span class="c">#: (string) A description what the assembly does. This is displayed when the assembly gets installed.</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="c">#: A list of users who installed this assembly.</span>
+    <span class="n">installed_at</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;installed_assemblies&#39;</span><span class="p">)</span>
+    <span class="c">#: (boolean) If this flag is true the assembly can only access documents with the assembly attribute</span>
+    <span class="c">#: matching the name of this assembly. If set to true the user may be able not to check the sourcecode</span>
+    <span class="c">#: of this assembly because he can be sure that it does not read, change or delete other data than its</span>
+    <span class="c">#: own.</span>
+    <span class="n">only_own_data</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">unique_together</span> <span class="o">=</span> <span class="p">((</span><span class="s">&quot;author&quot;</span><span class="p">,</span> <span class="s">&quot;name&quot;</span><span class="p">),)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="Assembly.fork"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.Assembly.fork">[docs]</a>    <span class="k">def</span> <span class="nf">fork</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A user may fork an assembly which creates an exact clone with the forking user as new</span>
+<span class="sd">        author.</span>
+
+<span class="sd">        :param new_user:</span>
+<span class="sd">        :type new_user: pinytoCloud.models.User</span>
+<span class="sd">        :rtype: pinytoCloud.models.Assembly</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fork</span> <span class="o">=</span> <span class="n">Assembly</span><span class="p">()</span>
+        <span class="n">fork</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">fork</span><span class="o">.</span><span class="n">author</span> <span class="o">=</span> <span class="n">new_user</span>
+        <span class="n">fork</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+        <span class="n">fork</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fork</span>
+
+</div></div>
+<div class="viewcode-block" id="ApiFunction"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.ApiFunction">[docs]</a><span class="k">class</span> <span class="nc">ApiFunction</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ApiFunctions answer to requests to a url in the format user/assemblyname/functionname.</span>
+<span class="sd">    They always return a json response.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: (string) The name of the function is the last part of the path that has to be called to execute this code.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#: (string) The python code of the function. The signature of the call has a very special format. Please see</span>
+    <span class="c">#: `Assemblies &lt;assemblies.html&gt;`_ for more information.</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="c">#: (pinytoCloud.models.Assembly) Reference to the Assembly the function belongs to.</span>
+    <span class="n">assembly</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Assembly</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;api_functions&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; from Assembly: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">name</span>
+
+</div>
+<div class="viewcode-block" id="Job"><a class="viewcode-back" href="../../administration.html#pinytoCloud.models.Job">[docs]</a><span class="k">class</span> <span class="nc">Job</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Jobs are scripts that can be run on a regular basis or which are queued for later</span>
+<span class="sd">    execution (if the ApiFunction tries to return something early but additional work</span>
+<span class="sd">    needs to be done). This model saves these scripts. Jobs do not return anything but</span>
+<span class="sd">    save their work to the database. Results can be polled by ApiFunctions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c">#: (string) The name of the job. This name can be used to execute the job. To invoke this in a API-call</span>
+    <span class="c">#: simply save a document with type:&#39;job&#39; and this name.</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c">#: (string) The python code of the function. The signature of the call has a very special format. Please see</span>
+    <span class="c">#: `Assemblies &lt;assemblies.html&gt;`_ for more information.</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">()</span>
+    <span class="c">#: (pinytoCloud.models.Assembly) Reference to the Assembly the job belongs to.</span>
+    <span class="n">assembly</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Assembly</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;jobs&#39;</span><span class="p">)</span>
+    <span class="c">#: (int) Execute every schedule minutes (0 means never).</span>
+    <span class="n">schedule</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39; from Assembly: &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> \
+            <span class="s">&#39; Scheduled: &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Johannes Merkert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0-alpha1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,866 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>pinytoCloud.views &mdash; Pinyto-Cloud 1.0-alpha1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Pinyto-Cloud 1.0-alpha1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> Pinyto-Cloud</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../introduction.html#structure">Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../administration.html">Administration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#users">Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#public-keys">Public Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#sessions">Sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#the-user-s-code">The user&#8217;s code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#module-pinytoCloud.views">Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#logout">Logout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#key-management">Key Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../administration.html#assembly-management">Assembly Management</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../keyserver.html">Keyserver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../database.html">Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../assemblies.html">Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../services.html">Services</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Pinyto-Cloud</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>pinytoCloud.views</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for pinytoCloud.views</h1><div class="highlight"><pre>
+<span class="c"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This File is part of Pinyto</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">sha256</span>
+<span class="kn">from</span> <span class="nn">Crypto.Random</span> <span class="kn">import</span> <span class="n">get_random_bytes</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.csrf</span> <span class="kn">import</span> <span class="n">csrf_exempt</span>
+
+<span class="kn">from</span> <span class="nn">project_path</span> <span class="kn">import</span> <span class="n">project_path</span>
+<span class="kn">from</span> <span class="nn">service.response</span> <span class="kn">import</span> <span class="n">json_response</span>
+<span class="kn">from</span> <span class="nn">pinytoCloud.models</span> <span class="kn">import</span> <span class="n">User</span><span class="p">,</span> <span class="n">StoredPublicKey</span><span class="p">,</span> <span class="n">Session</span><span class="p">,</span> <span class="n">Assembly</span><span class="p">,</span> <span class="n">ApiFunction</span><span class="p">,</span> <span class="n">Job</span>
+<span class="kn">from</span> <span class="nn">pinytoCloud.settings</span> <span class="kn">import</span> <span class="n">PINYTO_KEY</span>
+<span class="kn">from</span> <span class="nn">pinytoCloud.checktoken</span> <span class="kn">import</span> <span class="n">check_token</span>
+
+
+<span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This view serves static content. Namely index.html which may bootstrap an</span>
+<span class="sd">    Angular application at the client.</span>
+
+<span class="sd">    @param request:</span>
+<span class="sd">    @return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">project_path</span><span class="p">(</span><span class="s">&quot;webapps/pinyto/backoffice/index.html&quot;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">index_html_file</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="n">index_html_file</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">content_type</span><span class="o">=</span><span class="s">&#39;text/html&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="authenticate_request"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.authenticate_request">[docs]</a><span class="k">def</span> <span class="nf">authenticate_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a token and registers the authentication request for the username.</span>
+<span class="sd">    Returns an encrypted token and the matching signature.</span>
+<span class="sd">    This function only extracts the params from the request and calls authenticate.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json {encrypted_token: string, signature: string}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Your request contained no valid JSON data. &quot;</span> <span class="o">+</span>
+                                       <span class="s">&quot;You have to supply a username and a key_hash to authenticate.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;username&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">or</span> <span class="s">&#39;key_hash&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply a username and a key_hash to authenticate.&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">authenticate</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;key_hash&#39;</span><span class="p">]))</span>
+
+</div>
+<div class="viewcode-block" id="authenticate"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.authenticate">[docs]</a><span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">key_hash</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a token and registers the authentication request for the username.</span>
+<span class="sd">    Returns an encrypted token and the matching signature.</span>
+
+<span class="sd">    :param username:</span>
+<span class="sd">    :type username: str</span>
+<span class="sd">    :param key_hash:</span>
+<span class="sd">    :type key_hash: str</span>
+<span class="sd">    :rtype: json {encrypted_token: string, signature: string}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;User &#39;&quot;</span> <span class="o">+</span> <span class="n">username</span> <span class="o">+</span> <span class="s">&quot;&#39; is unknown. Please register first.&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">key_hash</span><span class="o">=</span><span class="n">key_hash</span><span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;This is not a registered and active public key of this user.&quot;</span><span class="p">}</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">start_session</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="n">encrypted_token</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">get_encrypted_token</span><span class="p">()</span>
+    <span class="n">hasher</span> <span class="o">=</span> <span class="n">sha256</span><span class="p">()</span>
+    <span class="n">hasher</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">encrypted_token</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">PINYTO_KEY</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">hasher</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">get_random_bytes</span><span class="p">(</span><span class="mi">16</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;encrypted_token&#39;</span><span class="p">:</span> <span class="n">encrypted_token</span><span class="p">,</span> <span class="s">&#39;signature&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">signature</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="logout"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.logout">[docs]</a><span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ends the session with the given token.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="list_keys"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.list_keys">[docs]</a><span class="k">def</span> <span class="nf">list_keys</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of keys for the active account.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">key_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">key_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s">&#39;key_hash&#39;</span><span class="p">:</span> <span class="n">key</span><span class="o">.</span><span class="n">key_hash</span><span class="p">,</span>
+                <span class="s">&#39;active&#39;</span><span class="p">:</span> <span class="n">key</span><span class="o">.</span><span class="n">active</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">key_list</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="set_key_active"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.set_key_active">[docs]</a><span class="k">def</span> <span class="nf">set_key_active</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sets the transferred active state for the key.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;key_hash&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">or</span> <span class="s">&#39;active_state&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply a key_hash and an active_state.&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">key_hash</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;key_hash&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You are deactivating your last active key. &quot;</span> <span class="o">+</span>
+                          <span class="s">&quot;That is in all possible scenarios a bad idea so it will not be done.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_hash</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;key_hash&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;active_state&#39;</span><span class="p">]:</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="delete_key"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.delete_key">[docs]</a><span class="k">def</span> <span class="nf">delete_key</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deletes the specified key. This will raise an error if you try to delete your last key.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;key_hash&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply a key_hash.&quot;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">active</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">exclude</span><span class="p">(</span><span class="n">key_hash</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;key_hash&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You are deleting your last active key. &quot;</span> <span class="o">+</span>
+                          <span class="s">&quot;That is in all possible scenarios a bad idea so it will not be done.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_hash</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;key_hash&#39;</span><span class="p">])</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="register_request"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.register_request">[docs]</a><span class="k">def</span> <span class="nf">register_request</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an account if possible and saves the public key.</span>
+<span class="sd">    This function only extracts the params from the request and calls register.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the username and public_key as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;username&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">or</span> <span class="s">&#39;public_key&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with username and public_key.&quot;</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">register</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;username&#39;</span><span class="p">],</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;public_key&#39;</span><span class="p">]))</span>
+
+</div>
+<div class="viewcode-block" id="register"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.register">[docs]</a><span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">key_data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an account if possible and saves the public key.</span>
+
+<span class="sd">    :param username:</span>
+<span class="sd">    :type username: str</span>
+<span class="sd">    :param key_data:</span>
+<span class="sd">    :type key_data: str</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">username</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Username &quot;</span> <span class="o">+</span> <span class="n">username</span> <span class="o">+</span> <span class="s">&quot; is already taken. Try another username.&quot;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="s">&#39;N&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_data</span> <span class="ow">or</span> <span class="s">&#39;e&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The public_key is in the wrong format. The key data must consist of an N and an e.&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_data</span><span class="p">[</span><span class="s">&#39;N&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3071</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor N in the public key is too small. Please use at least 3072 bit.&quot;</span><span class="p">}</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor N in the public key is not a number. &quot;</span> <span class="o">+</span>
+                         <span class="s">&quot;It has to be a long integer transferred as a string.&quot;</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_data</span><span class="p">[</span><span class="s">&#39;e&#39;</span><span class="p">])</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor e in the public key is not a number. It has to be a long integer.&quot;</span><span class="p">}</span>
+    <span class="n">new_user</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">new_user</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="n">StoredPublicKey</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">new_user</span><span class="p">,</span> <span class="n">key_data</span><span class="p">[</span><span class="s">&#39;N&#39;</span><span class="p">],</span> <span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="register_new_key"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.register_new_key">[docs]</a><span class="k">def</span> <span class="nf">register_new_key</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds another public key to an existing account.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token and public_key as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">or</span> <span class="s">&#39;public_key&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token and the new public_key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">key_data</span> <span class="o">=</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;public_key&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s">&#39;N&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_data</span> <span class="ow">or</span> <span class="s">&#39;e&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">key_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The public_key is in the wrong format. The key data must consist of an N and an e.&quot;</span><span class="p">})</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_data</span><span class="p">[</span><span class="s">&#39;N&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="nb">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3071</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span>
+                    <span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor N in the public key is too small. Please use at least 3072 bit.&quot;</span><span class="p">})</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor N in the public key is not a number. &quot;</span> <span class="o">+</span>
+                                           <span class="s">&quot;It has to be a long integer transferred as a string.&quot;</span><span class="p">})</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key_data</span><span class="p">[</span><span class="s">&#39;e&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Factor e in the public key is not a number. It has to be a long integer.&quot;</span><span class="p">})</span>
+        <span class="n">StoredPublicKey</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">key_data</span><span class="p">[</span><span class="s">&#39;N&#39;</span><span class="p">],</span> <span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="list_own_assemblies"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.list_own_assemblies">[docs]</a><span class="k">def</span> <span class="nf">list_own_assemblies</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of the assemblies of the user specified through the token.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the token as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">own_assemblies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">assembly</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">assemblies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">own_assemblies</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+                <span class="s">&#39;api_functions&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">api_function</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="n">api_function</span><span class="o">.</span><span class="n">code</span>
+                <span class="p">}</span> <span class="k">for</span> <span class="n">api_function</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">api_functions</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
+                <span class="s">&#39;jobs&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                    <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+                    <span class="s">&#39;schedule&#39;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">schedule</span>
+                <span class="p">}</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
+                <span class="s">&#39;only_own_data&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">only_own_data</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">own_assemblies</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="save_assembly"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.save_assembly">[docs]</a><span class="k">def</span> <span class="nf">save_assembly</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves the assembly specified by its original name. This can be used to rename an assembly because the</span>
+<span class="sd">    original name and the one specified in the data could be different.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;original_name&#39;</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">and</span> <span class="s">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="n">assembly_data</span> <span class="o">=</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;data&#39;</span><span class="p">]</span>
+            <span class="n">assembly_is_new</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">assembly</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">assemblies</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;original_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="n">assembly_is_new</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="n">assembly</span> <span class="o">=</span> <span class="n">Assembly</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_data</span> <span class="ow">or</span> <span class="s">&#39;description&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The assembly data lacks a name or description. Both attributes must be present.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;description&#39;</span><span class="p">]</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s">&#39;api_functions&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">:</span>
+                <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;api_functions&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="s">&#39;jobs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">:</span>
+                <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">api_function</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">api_functions</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">for</span> <span class="n">loaded_function</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;api_functions&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded_function</span> <span class="ow">or</span> <span class="s">&#39;code&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded_function</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                            <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The assembly data for changing an existing function &quot;</span> <span class="o">+</span>
+                                      <span class="s">&quot;lacks a name or code attribute.&quot;</span><span class="p">}</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">api_function</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">loaded_function</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]:</span>
+                        <span class="n">api_function</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">loaded_function</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">]</span>
+                        <span class="n">api_function</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">api_function</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">loaded_function</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;api_functions&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">loaded_function</span> <span class="ow">and</span> <span class="s">&#39;code&#39;</span> <span class="ow">in</span> <span class="n">loaded_function</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded_function</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">api_functions</span><span class="o">.</span><span class="n">all</span><span class="p">()]:</span>
+                        <span class="n">new_function</span> <span class="o">=</span> <span class="n">ApiFunction</span><span class="p">(</span>
+                            <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">loaded_function</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span>
+                            <span class="n">code</span><span class="o">=</span><span class="n">loaded_function</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="n">new_function</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">assembly_is_new</span><span class="p">:</span>
+                        <span class="n">assembly</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The assembly data lacks a name or code attribute in a api function.&quot;</span><span class="p">}</span>
+                    <span class="p">)</span>
+            <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="k">for</span> <span class="n">loaded_job</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;jobs&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded_job</span> <span class="ow">or</span> <span class="s">&#39;code&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded_job</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                            <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The assembly data for changing an existing job lacks a name or code attribute.&quot;</span><span class="p">}</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="s">&#39;schedule&#39;</span> <span class="ow">in</span> <span class="n">loaded_job</span><span class="p">:</span>
+                        <span class="n">schedule</span> <span class="o">=</span> <span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;schedule&#39;</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">schedule</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">if</span> <span class="n">job</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]:</span>
+                        <span class="n">job</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">]</span>
+                        <span class="n">job</span><span class="o">.</span><span class="n">schedule</span> <span class="o">=</span> <span class="n">schedule</span>
+                        <span class="n">job</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                        <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
+                    <span class="n">job</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">loaded_job</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;jobs&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">loaded_job</span> <span class="ow">and</span> <span class="s">&#39;code&#39;</span> <span class="ow">in</span> <span class="n">loaded_job</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">all</span><span class="p">()]:</span>
+                        <span class="k">if</span> <span class="s">&#39;schedule&#39;</span> <span class="ow">in</span> <span class="n">loaded_job</span><span class="p">:</span>
+                            <span class="n">schedule</span> <span class="o">=</span> <span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;schedule&#39;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">schedule</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">new_job</span> <span class="o">=</span> <span class="n">Job</span><span class="p">(</span>
+                            <span class="n">assembly</span><span class="o">=</span><span class="n">assembly</span><span class="p">,</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">],</span>
+                            <span class="n">code</span><span class="o">=</span><span class="n">loaded_job</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">],</span>
+                            <span class="n">schedule</span><span class="o">=</span><span class="n">schedule</span>
+                        <span class="p">)</span>
+                        <span class="n">new_job</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">assembly_is_new</span><span class="p">:</span>
+                        <span class="n">assembly</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                        <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;The assembly data lacks a name or code attribute in a job.&quot;</span><span class="p">}</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="s">&#39;only_own_data&#39;</span> <span class="ow">in</span> <span class="n">assembly_data</span><span class="p">:</span>
+                <span class="n">assembly</span><span class="o">.</span><span class="n">only_own_data</span> <span class="o">=</span> <span class="n">assembly_data</span><span class="p">[</span><span class="s">&#39;only_own_data&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">assembly</span><span class="o">.</span><span class="n">only_own_data</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">assembly</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply an original_name and the data of the new or changed assembly.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="delete_assembly"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.delete_assembly">[docs]</a><span class="k">def</span> <span class="nf">delete_assembly</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deletes the assembly specified by its name.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply the name of the assembly you want to delete.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">assembly</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">assemblies</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no assembly found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">assembly</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="list_installed_assemblies"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.list_installed_assemblies">[docs]</a><span class="k">def</span> <span class="nf">list_installed_assemblies</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of the assemblies the user marked as installed.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">installed_assemblies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">assembly</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">installed_assemblies</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">installed_assemblies</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;author&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">description</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">installed_assemblies</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="list_all_assemblies"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.list_all_assemblies">[docs]</a><span class="k">def</span> <span class="nf">list_all_assemblies</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of all assemblies.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="n">all_assemblies</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">assembly</span> <span class="ow">in</span> <span class="n">Assembly</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">all_assemblies</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;author&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;description&#39;</span><span class="p">:</span> <span class="n">assembly</span><span class="o">.</span><span class="n">description</span>
+            <span class="p">})</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span><span class="n">all_assemblies</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="install_assembly"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.install_assembly">[docs]</a><span class="k">def</span> <span class="nf">install_assembly</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Adds the assembly specified by author and name to the installed assemblies of the user.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;author&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">author</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no user found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply an author to install an assembly.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">assembly</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">assemblies</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no assembly found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span>
+                              <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply the name of the assembly you want to install.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">installed_assemblies</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="uninstall_assembly"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.uninstall_assembly">[docs]</a><span class="k">def</span> <span class="nf">uninstall_assembly</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Removes the assembly specified by author and name from the installed assemblies of the user.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;author&#39;</span> <span class="ow">in</span> <span class="n">request_data</span> <span class="ow">and</span> <span class="s">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">assembly</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">installed_assemblies</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">author__name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no installed assembly found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span> <span class="o">+</span>
+                              <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply an author and a name to uninstall an assembly.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">installed_assemblies</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">assembly</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;success&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span>
+
+</div>
+<span class="nd">@csrf_exempt</span>
+<div class="viewcode-block" id="get_assembly_source"><a class="viewcode-back" href="../../administration.html#pinytoCloud.views.get_assembly_source">[docs]</a><span class="k">def</span> <span class="nf">get_assembly_source</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetches the sourcecode of the assebly specified by author and name.</span>
+
+<span class="sd">    :param request:</span>
+<span class="sd">    :type request: HttpRequest</span>
+<span class="sd">    :rtype: json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply the data as JSON.&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="s">&#39;token&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;Please supply JSON with a token key.&quot;</span><span class="p">})</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">check_token</span><span class="p">(</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;token&#39;</span><span class="p">])</span>
+    <span class="c"># check_token will return an error response if the token is not found or can not be verified.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">Session</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">&#39;author&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">author</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no user found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply an author to identify the assembly.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">request_data</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">assembly</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">assemblies</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">all</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;There was no assembly found with the name &quot;</span> <span class="o">+</span> <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;author&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span>
+                              <span class="n">request_data</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">}</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">json_response</span><span class="p">(</span>
+                <span class="p">{</span><span class="s">&#39;error&#39;</span><span class="p">:</span> <span class="s">&quot;You have to supply the name of the assembly.&quot;</span><span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">json_response</span><span class="p">({</span>
+            <span class="s">&#39;api_functions&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">code</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">api_functions</span><span class="o">.</span><span class="n">all</span><span class="p">()],</span>
+            <span class="s">&#39;jobs&#39;</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+                <span class="s">&#39;schedule&#39;</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">schedule</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">assembly</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span>
+        <span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c"># session is not a session so it has to be response object with an error message</span>
+        <span class="k">return</span> <span class="n">session</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Johannes Merkert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0-alpha1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

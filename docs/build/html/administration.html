@@ -1,0 +1,969 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Administration &mdash; Pinyto-Cloud 1.0-alpha1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Pinyto-Cloud 1.0-alpha1 documentation" href="index.html"/>
+        <link rel="next" title="Keyserver" href="keyserver.html"/>
+        <link rel="prev" title="Introduction" href="introduction.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> Pinyto-Cloud</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#structure">Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Administration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#users">Users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#public-keys">Public Keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sessions">Sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-user-s-code">The user&#8217;s code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pinytoCloud.views">Registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#logout">Logout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-management">Key Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assembly-management">Assembly Management</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Pinyto-Cloud</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Administration</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/administration.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="administration">
+<h1>Administration<a class="headerlink" href="#administration" title="Permalink to this headline">¶</a></h1>
+<p>Pinyto uses two separate databases to store data. The SQL database is used for user accounts,
+public-keys, code from assemblies and so on. The real data user store inside of Pinyto is
+stored in a document-based database described in <a class="reference external" href="database.html">database</a>. This section is about
+the database models and view functions used for registration, authentication and
+administration.</p>
+<p>In Pinyto all api calls accept only json data for parameters and payload data. Every request except
+registration and authentication must contain a &#8220;token&#8221; which identifies the current user and her
+permissions. An example would be <tt class="docutils literal"><span class="pre">{&quot;token&quot;:</span> <span class="pre">&quot;12323A38B3&quot;,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;test&quot;,</span> <span class="pre">&quot;author&quot;:</span> <span class="pre">&quot;mustermann&quot;}</span></tt>.</p>
+<span class="target" id="module-pinytoCloud.models"></span><div class="section" id="users">
+<h2>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h2>
+<p>Users are saved in this class:</p>
+<dl class="class">
+<dt id="pinytoCloud.models.User">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">User</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#User"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.User" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is an user object. Users have a username and a list of public keys
+for authentication.</p>
+<dl class="method">
+<dt id="pinytoCloud.models.User.calculate_time_and_storage">
+<tt class="descname">calculate_time_and_storage</tt><big>(</big><em>added_time</em>, <em>new_storage</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#User.calculate_time_and_storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.User.calculate_time_and_storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method updates the time- and storage budget of the user. The changed budget
+and the corresponding variables are saved.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>added_time</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; added time in milliseconds</li>
+<li><strong>new_storage</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; new storage in bytes</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.User.current_storage">
+<tt class="descname">current_storage</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.User.current_storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>(int) Current storage usage in bytes</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.User.last_calculation_time">
+<tt class="descname">last_calculation_time</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.User.last_calculation_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>(int) Timestamp of the last time the budget was calculated</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.User.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.User.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(str) The username used for identifying the account</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinytoCloud.models.User.start_session">
+<tt class="descname">start_session</tt><big>(</big><em>key_db_object</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#User.start_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.User.start_session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a session object with a new random token.
+If there is an existing session it will be overwritten</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key_db_object</strong> (<em>StoredPublicKey</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Session</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.User.storage_budget">
+<tt class="descname">storage_budget</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.User.storage_budget" title="Permalink to this definition">¶</a></dt>
+<dd><p>(float) The storage budget of the user</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.User.time_budget">
+<tt class="descname">time_budget</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.User.time_budget" title="Permalink to this definition">¶</a></dt>
+<dd><p>(float) The time budget of the user</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>As users need to get initialized with empty budgets a function is needed which is hooked into the
+<tt class="docutils literal"><span class="pre">post_init</span></tt> signal from Django:</p>
+<dl class="function">
+<dt id="pinytoCloud.models.initialize_budgets">
+<tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">initialize_budgets</tt><big>(</big><em>sender</em>, <em>instance</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#initialize_budgets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.initialize_budgets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialization for users. All users are initialized with empty budgets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sender</strong> &#8211; User class</li>
+<li><strong>instance</strong> &#8211; User</li>
+<li><strong>kwargs</strong> &#8211; other params of __init__()</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="public-keys">
+<h2>Public Keys<a class="headerlink" href="#public-keys" title="Permalink to this headline">¶</a></h2>
+<p>Users have one public key for each device they use to connect to the cloud. This class saves the
+key:</p>
+<dl class="class">
+<dt id="pinytoCloud.models.StoredPublicKey">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">StoredPublicKey</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#StoredPublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used to store public keys. The matching RSA object can be
+created with the get_key method.</p>
+<dl class="attribute">
+<dt id="pinytoCloud.models.StoredPublicKey.N">
+<tt class="descname">N</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.N" title="Permalink to this definition">¶</a></dt>
+<dd><p>(str) N is a very big prime number so we have to save it as a string.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.StoredPublicKey.active">
+<tt class="descname">active</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>(boolean) Keys can be deactivated. By default keys are active.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pinytoCloud.models.StoredPublicKey.create">
+<em class="property">classmethod </em><tt class="descname">create</tt><big>(</big><em>user</em>, <em>n</em>, <em>e</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#StoredPublicKey.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a storedPublicKey and calculates the hash for the key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user</strong> (<a class="reference internal" href="#pinytoCloud.models.User" title="pinytoCloud.models.User"><em>pinytoCloud.models.User</em></a>) &#8211; </li>
+<li><strong>n</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>e</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">StoredPublicKey</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.StoredPublicKey.e">
+<tt class="descname">e</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.e" title="Permalink to this definition">¶</a></dt>
+<dd><p>(long) e is not a very big number so we store it as a big integer.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinytoCloud.models.StoredPublicKey.get_key">
+<tt class="descname">get_key</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#StoredPublicKey.get_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.get_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the RSA object from the stored data. Use this object for
+encryption and verification.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Crypto.PublicKey.RSA</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.StoredPublicKey.key_hash">
+<tt class="descname">key_hash</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.key_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>(str) The first 10 characters of a sha256 hash computed from <tt class="docutils literal"><span class="pre">n</span> <span class="pre">+</span> <span class="pre">e</span></tt>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.StoredPublicKey.user">
+<tt class="descname">user</tt><a class="headerlink" href="#pinytoCloud.models.StoredPublicKey.user" title="Permalink to this definition">¶</a></dt>
+<dd><p>(User) This is the foreign-key to the User who owns this key.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h2>
+<p>If a user authenticates at the cloud a session is created. Each session has a random token which has
+to be present at all requests a user makes.</p>
+<dl class="class">
+<dt id="pinytoCloud.models.Session">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">Session</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#Session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>The session saves the session token used for verification.</p>
+<dl class="method">
+<dt id="pinytoCloud.models.Session.get_encrypted_token">
+<tt class="descname">get_encrypted_token</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#Session.get_encrypted_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.Session.get_encrypted_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method returns the session token encrypted with the key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">base16 encoded encrypted token</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Session.key">
+<tt class="descname">key</tt><a class="headerlink" href="#pinytoCloud.models.Session.key" title="Permalink to this definition">¶</a></dt>
+<dd><p>(pinytoCloud.models.StoredPublicKey) The reference to the key used to start the session.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Session.timestamp">
+<tt class="descname">timestamp</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Session.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>(int) The timestamp is reset with every request. It can be used to delete old sessions with a cron job.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Session.token">
+<tt class="descname">token</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Session.token" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The token consists of 16 random characters.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Session.user">
+<tt class="descname">user</tt><a class="headerlink" href="#pinytoCloud.models.Session.user" title="Permalink to this definition">¶</a></dt>
+<dd><p>(pinytoCloud.models.User) The reference to the user who own this session.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-user-s-code">
+<h2>The user&#8217;s code<a class="headerlink" href="#the-user-s-code" title="Permalink to this headline">¶</a></h2>
+<p>Users can write their own assemblies and they are stored in the following objects. The Assembly class
+stores the basic information about the assembly while ApiFunction an Job store the code.</p>
+<div class="section" id="assembly">
+<h3>Assembly<a class="headerlink" href="#assembly" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pinytoCloud.models.Assembly">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">Assembly</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#Assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.Assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>An Assembly is a collection of ApiFunctions and Jobs which can be installed and activated
+for the user en block. Each assembly has a unique identifier referencing the exact set of
+ApiFunctions and Jobs. The original author can update his assembly and all users who
+installed it automatically load the new version. A user may fork an assembly which creates
+an exact clone with the forking user as new author.</p>
+<dl class="attribute">
+<dt id="pinytoCloud.models.Assembly.author">
+<tt class="descname">author</tt><a class="headerlink" href="#pinytoCloud.models.Assembly.author" title="Permalink to this definition">¶</a></dt>
+<dd><p>(pinytoCloud.models.User) Foreign-key to the user who owns the assembly.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Assembly.description">
+<tt class="descname">description</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Assembly.description" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) A description what the assembly does. This is displayed when the assembly gets installed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinytoCloud.models.Assembly.fork">
+<tt class="descname">fork</tt><big>(</big><em>new_user</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#Assembly.fork"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.Assembly.fork" title="Permalink to this definition">¶</a></dt>
+<dd><p>A user may fork an assembly which creates an exact clone with the forking user as new
+author.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>new_user</strong> (<a class="reference internal" href="#pinytoCloud.models.User" title="pinytoCloud.models.User"><em>pinytoCloud.models.User</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">pinytoCloud.models.Assembly</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Assembly.installed_at">
+<tt class="descname">installed_at</tt><a class="headerlink" href="#pinytoCloud.models.Assembly.installed_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of users who installed this assembly.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Assembly.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Assembly.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The name of the assembly is capped to 42 characters.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Assembly.only_own_data">
+<tt class="descname">only_own_data</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Assembly.only_own_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>(boolean) If this flag is true the assembly can only access documents with the assembly attribute
+matching the name of this assembly. If set to true the user may be able not to check the sourcecode
+of this assembly because he can be sure that it does not read, change or delete other data than its
+own.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="apifunction">
+<h3>ApiFunction<a class="headerlink" href="#apifunction" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pinytoCloud.models.ApiFunction">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">ApiFunction</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#ApiFunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.ApiFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>ApiFunctions answer to requests to a url in the format user/assemblyname/functionname.
+They always return a json response.</p>
+<dl class="attribute">
+<dt id="pinytoCloud.models.ApiFunction.assembly">
+<tt class="descname">assembly</tt><a class="headerlink" href="#pinytoCloud.models.ApiFunction.assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>(pinytoCloud.models.Assembly) Reference to the Assembly the function belongs to.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.ApiFunction.code">
+<tt class="descname">code</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.ApiFunction.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The python code of the function. The signature of the call has a very special format. Please see
+<a class="reference external" href="assemblies.html">Assemblies</a> for more information.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.ApiFunction.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.ApiFunction.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The name of the function is the last part of the path that has to be called to execute this code.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="job">
+<h3>Job<a class="headerlink" href="#job" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pinytoCloud.models.Job">
+<em class="property">class </em><tt class="descclassname">pinytoCloud.models.</tt><tt class="descname">Job</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/models.html#Job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.models.Job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Jobs are scripts that can be run on a regular basis or which are queued for later
+execution (if the ApiFunction tries to return something early but additional work
+needs to be done). This model saves these scripts. Jobs do not return anything but
+save their work to the database. Results can be polled by ApiFunctions.</p>
+<dl class="attribute">
+<dt id="pinytoCloud.models.Job.assembly">
+<tt class="descname">assembly</tt><a class="headerlink" href="#pinytoCloud.models.Job.assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>(pinytoCloud.models.Assembly) Reference to the Assembly the job belongs to.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Job.code">
+<tt class="descname">code</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Job.code" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The python code of the function. The signature of the call has a very special format. Please see
+<a class="reference external" href="assemblies.html">Assemblies</a> for more information.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Job.name">
+<tt class="descname">name</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Job.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>(string) The name of the job. This name can be used to execute the job. To invoke this in a API-call
+simply save a document with type:&#8217;job&#8217; and this name.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pinytoCloud.models.Job.schedule">
+<tt class="descname">schedule</tt><em class="property"> = None</em><a class="headerlink" href="#pinytoCloud.models.Job.schedule" title="Permalink to this definition">¶</a></dt>
+<dd><p>(int) Execute every schedule minutes (0 means never).</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-pinytoCloud.views">
+<span id="registration"></span><h2>Registration<a class="headerlink" href="#module-pinytoCloud.views" title="Permalink to this headline">¶</a></h2>
+<p>Registering new accounts is done in the register function in views.py.</p>
+<dl class="function">
+<dt id="pinytoCloud.views.register">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">register</tt><big>(</big><em>username</em>, <em>key_data</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#register"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an account if possible and saves the public key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>key_data</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">json</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>Although the register function does the real work it does not accept a Django request object as parameter
+and is therefore not fit to be called by the url dispatcher. For this task the register_request function
+exists which accepts a request object and can easily be referenced in the url configuration. It internally
+calls register after extracting relevant the request data.</p>
+<dl class="function">
+<dt id="pinytoCloud.views.register_request">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">register_request</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#register_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.register_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an account if possible and saves the public key.
+This function only extracts the params from the request and calls register.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>Registration requests must supply json-encoded data with a &#8220;username&#8221; and &#8220;key_data&#8221; while the key_data
+itself consists of a &#8220;N&#8221; and &#8220;e&#8221; value. Supply the numbers as strings.</p>
+<p>Example: <tt class="docutils literal"><span class="pre">{&quot;username&quot;:</span> <span class="pre">&quot;MaxMustermann&quot;,</span> <span class="pre">&quot;key_data&quot;:</span> <span class="pre">{&quot;N&quot;:</span> <span class="pre">&quot;123456789123456789213456&quot;,</span> <span class="pre">&quot;e&quot;:</span> <span class="pre">&quot;54263&quot;}}</span></tt>
+For a real key N must be a much bigger number.</p>
+</div>
+<div class="section" id="authentication">
+<h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<p>Similar to the registration the authentication also consists of two functions. The real work is done in
+<tt class="docutils literal"><span class="pre">authenticate</span></tt>:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.authenticate">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">authenticate</tt><big>(</big><em>username</em>, <em>key_hash</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.authenticate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a token and registers the authentication request for the username.
+Returns an encrypted token and the matching signature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>username</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>key_hash</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">json {encrypted_token: string, signature: string}</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The matching function which accepts requests and which is wired into the url config is:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.authenticate_request">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">authenticate_request</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#authenticate_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.authenticate_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a token and registers the authentication request for the username.
+Returns an encrypted token and the matching signature.
+This function only extracts the params from the request and calls authenticate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json {encrypted_token: string, signature: string}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The authentication request needs a &#8220;username&#8221; and a &#8220;key_hash&#8221; which identifies the public key used for
+authentication. The key_hash consists of the first 10 bytes of a sha256 hash of (N+e).</p>
+<p>Authenticate returns a challenge for this request containing an encrypted token and a signature of this
+token signed with the key of the server. The client can check the signature to verify the identity of
+the server. The client also decrypts the token with the private key matching the public key which was used
+for the hash in the request. By encrypting the token the server makes sure that only the client which
+possesses the private key can decrypt the token and use it for authentication.</p>
+<p>Authenticate starts a session with a token which is transmitted with every request and which is used to
+identify the client and ensure that no attacker can access api functions without a correct token. If an
+attacker reads the token he can make requests as he likes as long as the session is active. Because of
+that the whole connection must be secured with https and the client must make sure the token is not
+accessed by malware.</p>
+</div>
+<div class="section" id="logout">
+<h2>Logout<a class="headerlink" href="#logout" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">logout</span></tt> only needs a &#8220;token&#8221;.</p>
+<dl class="function">
+<dt id="pinytoCloud.views.logout">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">logout</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#logout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.logout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ends the session with the given token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="key-management">
+<h2>Key Management<a class="headerlink" href="#key-management" title="Permalink to this headline">¶</a></h2>
+<p>There are four functions for the key management. <tt class="docutils literal"><span class="pre">list_keys</span></tt> lists all public keys of the user:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.list_keys">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">list_keys</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#list_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.list_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of keys for the active account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>Each key listed by this function should match a device used for Pinyto. The first key is usually the one
+used by webapps like the backoffice.</p>
+<p>If a key is to be added <tt class="docutils literal"><span class="pre">register_new_key</span></tt> is called:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.register_new_key">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">register_new_key</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#register_new_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.register_new_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds another public key to an existing account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The function accepts &#8220;key_data&#8221; with a &#8220;N&#8221; and &#8220;e&#8221; encoded as strings.</p>
+<p>Keys can also be deleted:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.delete_key">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">delete_key</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#delete_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.delete_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the specified key. This will raise an error if you try to delete your last key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">delete_key</span></tt> expects a &#8220;key_hash&#8221; with the first 10 bytes of a sha256 hash of (str(N)+str(e)).</p>
+<p>Keys can be deactivated and deactivated again. For this functionality there is only one function which
+accepts the state:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.set_key_active">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">set_key_active</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#set_key_active"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.set_key_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the transferred active state for the key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The function needs a &#8220;key_hash&#8221; which identifies the key and an &#8220;active_state&#8221; as a boolean.</p>
+</div>
+<div class="section" id="assembly-management">
+<h2>Assembly Management<a class="headerlink" href="#assembly-management" title="Permalink to this headline">¶</a></h2>
+<p>Assemblies in Pinyto belong to a user but any user can install them. So it is important to distinguish
+between the assemblies owned by the user which she can edit and the ones owned by other users which can
+only be installed and deinstalled.</p>
+<div class="section" id="save-assembly">
+<h3>save_assembly<a class="headerlink" href="#save-assembly" title="Permalink to this headline">¶</a></h3>
+<p>If a user wants to save a new assembly she can use this function:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.save_assembly">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">save_assembly</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#save_assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.save_assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the assembly specified by its original name. This can be used to rename an assembly because the
+original name and the one specified in the data could be different.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">save_assembly</span></tt> accepts all the data defining an assembly in one big json datastructure:</p>
+<ul>
+<li><p class="first">&#8220;original_name&#8221; is the name the assembly had. If the original_name does not specify an assembly of
+the user a new assembly is created using the data from &#8220;data&#8221;.</p>
+</li>
+<li><dl class="first docutils">
+<dt>&#8220;data&#8221; contains the data of the assembly as it should be after it is saved to the database.</dt>
+<dd><ul class="first last">
+<li><p class="first">&#8220;name&#8221; is the new name of the assembly.</p>
+</li>
+<li><p class="first">&#8220;description&#8221; is the new description.</p>
+</li>
+<li><dl class="first docutils">
+<dt>&#8220;api_functions&#8221; is a list of dictionaries containing:</dt>
+<dd><ul class="first last simple">
+<li>&#8220;name&#8221; - the name of the function</li>
+<li>&#8220;code&#8221; - the code of the function</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>&#8220;jobs&#8221; is a list of dictionaries containing:</dt>
+<dd><ul class="first last simple">
+<li>&#8220;name&#8221; - the name of the job</li>
+<li>&#8220;code&#8221; - the code of the job</li>
+<li>&#8220;schedule&#8221; - an integer defining how many minutes the cloud should wait until running the job
+again. 0 means the job is run only once.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">save_assembly</span></tt> returns <tt class="docutils literal"><span class="pre">{&quot;success&quot;:</span> <span class="pre">true}</span></tt> if the assembly is saved.</p>
+</div>
+<div class="section" id="delete-assembly">
+<h3>delete_assembly<a class="headerlink" href="#delete-assembly" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pinytoCloud.views.delete_assembly">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">delete_assembly</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#delete_assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.delete_assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the assembly specified by its name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>Call <tt class="docutils literal"><span class="pre">delete_assembly</span></tt> with a &#8220;name&#8221; defining an existing assembly of this user.</p>
+<p><tt class="docutils literal"><span class="pre">delete_assembly</span></tt> returns <tt class="docutils literal"><span class="pre">{&quot;success&quot;:</span> <span class="pre">true}</span></tt> if the assembly is deleted.</p>
+</div>
+<div class="section" id="list-own-assemblies">
+<h3>list_own_assemblies<a class="headerlink" href="#list-own-assemblies" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pinytoCloud.views.list_own_assemblies">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">list_own_assemblies</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#list_own_assemblies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.list_own_assemblies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the assemblies of the user specified through the token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="list-all-assemblies">
+<h3>list_all_assemblies<a class="headerlink" href="#list-all-assemblies" title="Permalink to this headline">¶</a></h3>
+<p>This function lists all assemblies, the ones of the user and all assemblies which could be installed by the user,</p>
+<dl class="function">
+<dt id="pinytoCloud.views.list_all_assemblies">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">list_all_assemblies</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#list_all_assemblies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.list_all_assemblies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all assemblies.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="get-assembly-source">
+<h3>get_assembly_source<a class="headerlink" href="#get-assembly-source" title="Permalink to this headline">¶</a></h3>
+<p>In many cases the description of an assembly is not sufficient for the user to decide if she can safely install
+the assembly. With the following function the complete sourcecode of the assembly can be loaded:</p>
+<dl class="function">
+<dt id="pinytoCloud.views.get_assembly_source">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">get_assembly_source</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#get_assembly_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.get_assembly_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches the sourcecode of the assebly specified by author and name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The assembly is specified with an &#8220;author&#8221; and a &#8220;name&#8221;. If written as a combination it is <tt class="docutils literal"><span class="pre">author/name</span></tt>.</p>
+</div>
+<div class="section" id="install-assembly">
+<h3>install_assembly<a class="headerlink" href="#install-assembly" title="Permalink to this headline">¶</a></h3>
+<p>If the user decides that an assembly is useful and not harmful she can install the assembly with
+<tt class="docutils literal"><span class="pre">install_assembly</span></tt>.</p>
+<dl class="function">
+<dt id="pinytoCloud.views.install_assembly">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">install_assembly</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#install_assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.install_assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the assembly specified by author and name to the installed assemblies of the user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The assembly is specified with an &#8220;author&#8221; and a &#8220;name&#8221;. If written as a combination it is <tt class="docutils literal"><span class="pre">author/name</span></tt>.</p>
+</div>
+<div class="section" id="uninstall-assembly">
+<h3>uninstall_assembly<a class="headerlink" href="#uninstall-assembly" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="pinytoCloud.views.uninstall_assembly">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">uninstall_assembly</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#uninstall_assembly"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.uninstall_assembly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the assembly specified by author and name from the installed assemblies of the user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The assembly is specified with an &#8220;author&#8221; and a &#8220;name&#8221;. If written as a combination it is <tt class="docutils literal"><span class="pre">author/name</span></tt>.</p>
+</div>
+<div class="section" id="list-installed-assemblies">
+<h3>list_installed_assemblies<a class="headerlink" href="#list-installed-assemblies" title="Permalink to this headline">¶</a></h3>
+<p>This function lists only the installed assemblies of the user.</p>
+<dl class="function">
+<dt id="pinytoCloud.views.list_installed_assemblies">
+<tt class="descclassname">pinytoCloud.views.</tt><tt class="descname">list_installed_assemblies</tt><big>(</big><em>request</em><big>)</big><a class="reference internal" href="_modules/pinytoCloud/views.html#list_installed_assemblies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinytoCloud.views.list_installed_assemblies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the assemblies the user marked as installed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> (<em>HttpRequest</em>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">json</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="keyserver.html" class="btn btn-neutral float-right" title="Keyserver"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral" title="Introduction"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Johannes Merkert.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0-alpha1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

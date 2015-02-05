@@ -114,7 +114,7 @@ class StoredPublicKey(models.Model):
         :param user:
         :type user: pinytoCloud.models.User
         :param n:
-        :type n: string
+        :type n: str
         :param e:
         :type e: int
         :rtype: StoredPublicKey
@@ -156,7 +156,7 @@ class Session(models.Model):
         This method returns the session token encrypted with the key.
 
         :returns: base16 encoded encrypted token
-        :rtype: string
+        :rtype: str
         """
         cipher = PKCS1_OAEP.new(self.key.get_key())
         return str(b16encode(cipher.encrypt(self.token.encode('ascii'))), encoding='utf-8')
