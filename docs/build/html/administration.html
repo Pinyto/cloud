@@ -72,9 +72,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#logout">Logout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#key-management">Key Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#assembly-management">Assembly Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pinytoCloud.urls">Urls</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html#module-keyserver.views">Administration-API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
@@ -897,6 +901,68 @@ the assembly. With the following function the complete sourcecode of the assembl
 </table>
 </dd></dl>
 
+</div>
+</div>
+<div class="section" id="module-pinytoCloud.urls">
+<span id="urls"></span><h2>Urls<a class="headerlink" href="#module-pinytoCloud.urls" title="Permalink to this headline">¶</a></h2>
+<p>Below is the main URL configuration in <tt class="docutils literal"><span class="pre">pinytoCloud/urls.py</span></tt> which also includes the urls from keyserver and
+the api calls handeled in api_prototype.</p>
+<dl class="data">
+<dt id="pinytoCloud.urls.urlpatterns">
+<tt class="descclassname">pinytoCloud.urls.</tt><tt class="descname">urlpatterns</tt><a class="headerlink" href="#pinytoCloud.urls.urlpatterns" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># coding=utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This File is part of Pinyto</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">django.conf.urls</span> <span class="kn">import</span> <span class="n">patterns</span><span class="p">,</span> <span class="n">include</span><span class="p">,</span> <span class="n">url</span>
+
+<span class="n">urlpatterns</span> <span class="o">=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="s">&#39;pinytoCloud.views&#39;</span><span class="p">,</span>
+
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^authenticate$&#39;</span><span class="p">,</span> <span class="s">&#39;authenticate_request&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;authenticate&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^logout$&#39;</span><span class="p">,</span> <span class="s">&#39;logout&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;logout&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^list_keys$&#39;</span><span class="p">,</span> <span class="s">&#39;list_keys&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;list_keys&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^set_key_active$&#39;</span><span class="p">,</span> <span class="s">&#39;set_key_active&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;set_key_active&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^delete_key$&#39;</span><span class="p">,</span> <span class="s">&#39;delete_key&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;delete_key&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^register_new_key$&#39;</span><span class="p">,</span> <span class="s">&#39;register_new_key&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;register_new_key&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^register$&#39;</span><span class="p">,</span> <span class="s">&#39;register_request&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;register&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^list_own_assemblies$&#39;</span><span class="p">,</span> <span class="s">&#39;list_own_assemblies&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;list_own_assemblies&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^save_assembly$&#39;</span><span class="p">,</span> <span class="s">&#39;save_assembly&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;save_assembly&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^delete_assembly$&#39;</span><span class="p">,</span> <span class="s">&#39;delete_assembly&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;delete_assembly&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^list_installed_assemblies$&#39;</span><span class="p">,</span> <span class="s">&#39;list_installed_assemblies&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;list_installed_assemblies&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^list_all_assemblies$&#39;</span><span class="p">,</span> <span class="s">&#39;list_all_assemblies&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;list_all_assemblies&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^install_assembly$&#39;</span><span class="p">,</span> <span class="s">&#39;install_assembly&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;install_assembly&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^uninstall_assembly$&#39;</span><span class="p">,</span> <span class="s">&#39;uninstall_assembly&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;uninstall_assembly&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^get_assembly_source$&#39;</span><span class="p">,</span> <span class="s">&#39;get_assembly_source&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;get_assembly_source&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="s">&#39;&#39;</span><span class="p">,</span>
+
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^keyserver/&#39;</span><span class="p">,</span> <span class="n">include</span><span class="p">(</span><span class="s">&#39;keyserver.urls&#39;</span><span class="p">)),</span>
+<span class="p">)</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="s">&#39;database.views&#39;</span><span class="p">,</span>
+
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^(?P&lt;user_name&gt;\w+)/(?P&lt;assembly_name&gt;\w+)/store$&#39;</span><span class="p">,</span> <span class="s">&#39;store&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;store&#39;</span><span class="p">),</span>
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^statistics$&#39;</span><span class="p">,</span> <span class="s">&#39;statistics&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;statistics&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="s">&#39;api_prototype.views&#39;</span><span class="p">,</span>
+
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^(?P&lt;user_name&gt;\w+)/(?P&lt;assembly_name&gt;\w+)/(?P&lt;function_name&gt;\w+)$&#39;</span><span class="p">,</span> <span class="s">&#39;api_call&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;api_call&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">urlpatterns</span> <span class="o">+=</span> <span class="n">patterns</span><span class="p">(</span>
+    <span class="s">&#39;pinytoCloud.views&#39;</span><span class="p">,</span>
+
+    <span class="n">url</span><span class="p">(</span><span class="s">r&#39;^.*&#39;</span><span class="p">,</span> <span class="s">&#39;home&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&#39;home&#39;</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
 </div>
 </div>
 </div>

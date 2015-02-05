@@ -34,14 +34,19 @@ class Account(models.Model):
     d = models.CharField(max_length=1000)
 
     @classmethod
-    def create(cls, name, password=u'', hash_iterations=420):
+    def create(cls, name, password='', hash_iterations=420):
         """
         Creates an account with hashed password, new random salt and 3072 bit RSA key pair.
 
-        @param name: string
-        @param password: string
-        @param hash_iterations: int
-        @return: Account (already saved to the database)
+        :param name:
+        :type name: str
+        :param password: (technically this is an optional parameter but in reality you should not
+                          use empty passwords)
+        :type password: str
+        :param hash_iterations: (optional)
+        :type hash_iterations: int
+        :return: An Account instance already saved to the database
+        :rtype: keyserver.models.Account
         """
         salt = create_salt(10)
         hash_string = password + salt
@@ -64,8 +69,9 @@ class Account(models.Model):
         """
         This method checks if the given password is valid by comparing it to the stored hash.
 
-        @param password: string
-        @return: boolean
+        :param password:
+        :type password: str
+        :rtype: boolean
         """
         hash_string = password + self.salt
         for i in range(self.hash_iterations):
@@ -79,9 +85,10 @@ class Account(models.Model):
         Changes the password to the supplied one.
         hash_iterations are optional but can be used to upgrade the passwords to faster servers.
 
-        @param password: string
-        @param hash_iterations: int
-        @return: nothing
+        :param password:
+        :type password: str
+        :param hash_iterations: (optional)
+        :type hash_iterations: int
         """
         self.salt = create_salt(10)
         hash_string = (password + self.salt).encode('utf-8')

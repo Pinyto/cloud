@@ -71,9 +71,13 @@
 <li class="toctree-l2"><a class="reference internal" href="administration.html#logout">Logout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#key-management">Key Management</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#assembly-management">Assembly Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administration.html#module-pinytoCloud.urls">Urls</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html#module-keyserver.views">Administration-API</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
 <li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
@@ -136,6 +140,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="keyserver.html#keyserver.models.Account">Account (class in keyserver.models)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.active">active (pinytoCloud.models.StoredPublicKey attribute)</a>
   </dt>
 
@@ -147,6 +155,8 @@
   <dt><a href="administration.html#pinytoCloud.models.Assembly">Assembly (class in pinytoCloud.models)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.assembly">assembly (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
@@ -157,12 +167,16 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.views.authenticate">authenticate() (in module pinytoCloud.views)</a>
+  <dt><a href="keyserver.html#keyserver.views.authenticate">authenticate() (in module keyserver.views)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="administration.html#pinytoCloud.views.authenticate">(in module pinytoCloud.views)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.views.authenticate_request">authenticate_request() (in module pinytoCloud.views)</a>
   </dt>
@@ -182,6 +196,22 @@
   </dt>
 
       
+  <dt><a href="keyserver.html#keyserver.views.change_password">change_password() (in module keyserver.views)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="keyserver.html#keyserver.models.Account.change_password">(keyserver.models.Account method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="keyserver.html#keyserver.models.Account.check_password">check_password() (keyserver.models.Account method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.code">code (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
 
@@ -191,12 +221,16 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.create">create() (pinytoCloud.models.StoredPublicKey class method)</a>
+  <dt><a href="keyserver.html#keyserver.models.Account.create">create() (keyserver.models.Account class method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.create">(pinytoCloud.models.StoredPublicKey class method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.models.User.current_storage">current_storage (pinytoCloud.models.User attribute)</a>
   </dt>
@@ -301,10 +335,22 @@
   <dt><a href="administration.html#pinytoCloud.models.Session.key">key (pinytoCloud.models.Session attribute)</a>
   </dt>
 
+      
+  <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.key_hash">key_hash (pinytoCloud.models.StoredPublicKey attribute)</a>
+  </dt>
+
+      
+  <dt><a href="keyserver.html#module-keyserver.models">keyserver.models (module)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.key_hash">key_hash (pinytoCloud.models.StoredPublicKey attribute)</a>
+  <dt><a href="keyserver.html#module-keyserver.urls">keyserver.urls (module)</a>
+  </dt>
+
+      
+  <dt><a href="keyserver.html#module-keyserver.views">keyserver.views (module)</a>
   </dt>
 
   </dl></td>
@@ -389,6 +435,10 @@
   <dt><a href="administration.html#module-pinytoCloud.models">pinytoCloud.models (module)</a>
   </dt>
 
+      
+  <dt><a href="administration.html#module-pinytoCloud.urls">pinytoCloud.urls (module)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -402,9 +452,15 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.views.register">register() (in module pinytoCloud.views)</a>
+  <dt><a href="keyserver.html#keyserver.views.register">register() (in module keyserver.views)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="administration.html#pinytoCloud.views.register">(in module pinytoCloud.views)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.views.register_new_key">register_new_key() (in module pinytoCloud.views)</a>
   </dt>
@@ -482,11 +538,21 @@
   </dt>
 
       
+  <dt><a href="keyserver.html#keyserver.urls.urlpatterns">urlpatterns (in module keyserver.urls)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="administration.html#pinytoCloud.urls.urlpatterns">(in module pinytoCloud.urls)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
   <dt><a href="administration.html#pinytoCloud.models.User">User (class in pinytoCloud.models)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.Session.user">user (pinytoCloud.models.Session attribute)</a>
   </dt>

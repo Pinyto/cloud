@@ -238,3 +238,15 @@ list_installed_assemblies
 This function lists only the installed assemblies of the user.
 
 .. autofunction:: list_installed_assemblies
+
+Urls
+----
+
+.. py:module:: pinytoCloud.urls
+
+Below is the main URL configuration in ``pinytoCloud/urls.py`` which also includes the urls from keyserver and
+the api calls handeled in api_prototype.
+
+.. py:data:: urlpatterns
+
+.. literalinclude:: ../../pinytoCloud/urls.py

@@ -21,8 +21,10 @@ def authenticate(request):
     """
     Authenticate at the keyserver.
 
-    @param request:
-    @return:
+    :param request: Django request
+    :type request: HttpRequest
+    :return: json response
+    :rtype: HttpResponse
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -86,8 +88,10 @@ def register(request):
     """
     Register a new account at the keyserver.
 
-    @param request:
-    @return:
+    :param request: Django request
+    :type request: HttpRequest
+    :return: json response
+    :rtype: HttpResponse
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -128,8 +132,10 @@ def change_password(request):
     """
     Change the password of the account specified by the token.
 
-    @param request: Django request
-    @return: json response
+    :param request: Django request
+    :type request: HttpRequest
+    :return: json response
+    :rtype: HttpResponse
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
