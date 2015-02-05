@@ -84,7 +84,13 @@
 <li class="toctree-l2"><a class="reference internal" href="database.html#database-statistics">Database statistics</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#installing-assemblies">Installing assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#module-api_prototype.views">Calling Assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#executing-jobs">Executing Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#module-api_prototype.sandbox">The Sandbox</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
 </ul>
 
@@ -139,6 +145,7 @@
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -153,6 +160,32 @@
   </dt>
 
       
+  <dt><a href="assemblies.html#api_prototype.views.api_call">api_call() (in module api_prototype.views)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#module-api_prototype.models">api_prototype.models (module)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#module-api_prototype.sandbox">api_prototype.sandbox (module)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#module-api_prototype.sandbox_helpers">api_prototype.sandbox_helpers (module)</a>, <a href="assemblies.html#module-api_prototype.sandbox_helpers">[1]</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#module-api_prototype.seccomp_process">api_prototype.seccomp_process (module)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#module-api_prototype.views">api_prototype.views (module)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction">ApiFunction (class in pinytoCloud.models)</a>
   </dt>
 
@@ -160,8 +193,6 @@
   <dt><a href="administration.html#pinytoCloud.models.Assembly">Assembly (class in pinytoCloud.models)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.assembly">assembly (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
@@ -201,6 +232,10 @@
   </dt>
 
       
+  <dt><a href="assemblies.html#api_prototype.models.CanNotCreateNewInstanceInTheSandbox">CanNotCreateNewInstanceInTheSandbox (class in api_prototype.models)</a>
+  </dt>
+
+      
   <dt><a href="keyserver.html#keyserver.views.change_password">change_password() (in module keyserver.views)</a>
   </dt>
 
@@ -211,9 +246,23 @@
 
       </dl></dd>
       
+  <dt><a href="assemblies.html#api_prototype.views.check_for_jobs">check_for_jobs() (in module api_prototype.views)</a>
+  </dt>
+
+      
   <dt><a href="keyserver.html#keyserver.models.Account.check_password">check_password() (keyserver.models.Account method)</a>
   </dt>
 
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.claim_and_free_memory">claim_and_free_memory() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.claim_memory">claim_memory() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.code">code (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
@@ -224,21 +273,33 @@
   </dt>
 
       </dl></dd>
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="database.html#service.database.CollectionWrapper">CollectionWrapper (class in service.database)</a>
   </dt>
 
       
-  <dt><a href="database.html#service.database.CollectionWrapper.count">count() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.contains">contains() (api_prototype.models.SandboxParseHtml method)</a>
   </dt>
 
       
-  <dt><a href="keyserver.html#keyserver.models.Account.create">create() (keyserver.models.Account class method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.count">count() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
 
       <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.count">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="assemblies.html#api_prototype.models.Factory.create">create() (api_prototype.models.Factory method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="keyserver.html#keyserver.models.Account.create">(keyserver.models.Account class method)</a>
+  </dt>
+
         
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.create">(pinytoCloud.models.StoredPublicKey class method)</a>
   </dt>
@@ -262,14 +323,18 @@
   <dt><a href="administration.html#pinytoCloud.views.delete_assembly">delete_assembly() (in module pinytoCloud.views)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.views.delete_key">delete_key() (in module pinytoCloud.views)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.Assembly.description">description (pinytoCloud.models.Assembly attribute)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.do_exec">do_exec() (api_prototype.seccomp_process.SecureHost static method)</a>
   </dt>
 
   </dl></td>
@@ -283,6 +348,10 @@
   </dt>
 
       
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.EmptyRequest">EmptyRequest (class in api_prototype.sandbox_helpers)</a>
+  </dt>
+
+      
   <dt><a href="database.html#service.database.encode_underscore_fields">encode_underscore_fields() (in module service.database)</a>
   </dt>
 
@@ -292,6 +361,14 @@
   <dt><a href="database.html#service.database.encode_underscore_fields_list">encode_underscore_fields_list() (in module service.database)</a>
   </dt>
 
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.escape_all_objectids_and_datetime">escape_all_objectids_and_datetime() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.execute">execute() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -299,21 +376,57 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="database.html#service.database.CollectionWrapper.find">find() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.Factory">Factory (class in api_prototype.models)</a>
   </dt>
 
       
-  <dt><a href="database.html#service.database.CollectionWrapper.find_distinct">find_distinct() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.find">find() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.find">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
       
-  <dt><a href="database.html#service.database.CollectionWrapper.find_document_for_id">find_document_for_id() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.find_distinct">find_distinct() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.find_distinct">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.find_document_for_id">find_document_for_id() (api_prototype.models.SandboxCollectionWrapper method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.find_document_for_id">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="database.html#service.database.CollectionWrapper.find_documents">find_documents() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.find_documents">find_documents() (api_prototype.models.SandboxCollectionWrapper method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.find_documents">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.find_element_and_collect_table_like_information">find_element_and_collect_table_like_information() (api_prototype.models.SandboxParseHtml method)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.find_element_and_get_attribute_value">find_element_and_get_attribute_value() (api_prototype.models.SandboxParseHtml method)</a>
   </dt>
 
       
@@ -327,15 +440,25 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.views.get_assembly_source">get_assembly_source() (in module pinytoCloud.views)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxHttp.get">get() (api_prototype.models.SandboxHttp method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="assemblies.html#api_prototype.models.SandboxRequestPost.get">(api_prototype.models.SandboxRequestPost method)</a>
+  </dt>
+
+      </dl></dd>
       
-  <dt><a href="administration.html#pinytoCloud.models.Session.get_encrypted_token">get_encrypted_token() (pinytoCloud.models.Session method)</a>
+  <dt><a href="administration.html#pinytoCloud.views.get_assembly_source">get_assembly_source() (in module pinytoCloud.views)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="administration.html#pinytoCloud.models.Session.get_encrypted_token">get_encrypted_token() (pinytoCloud.models.Session method)</a>
+  </dt>
+
       
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.get_key">get_key() (pinytoCloud.models.StoredPublicKey method)</a>
   </dt>
@@ -347,6 +470,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="assemblies.html#api_prototype.models.SandboxRequest.init_body">init_body() (api_prototype.models.SandboxRequest method)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.models.initialize_budgets">initialize_budgets() (in module pinytoCloud.models)</a>
   </dt>
 
@@ -354,12 +481,18 @@
   <dt><a href="database.html#service.database.inject_object_id">inject_object_id() (in module service.database)</a>
   </dt>
 
-      
-  <dt><a href="database.html#service.database.CollectionWrapper.insert">insert() (service.database.CollectionWrapper method)</a>
-  </dt>
-
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.insert">insert() (api_prototype.models.SandboxCollectionWrapper method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.insert">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.views.install_assembly">install_assembly() (in module pinytoCloud.views)</a>
   </dt>
@@ -406,6 +539,10 @@
   <dt><a href="keyserver.html#module-keyserver.views">keyserver.views (module)</a>
   </dt>
 
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.kill_child">kill_child() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -414,6 +551,10 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.User.last_calculation_time">last_calculation_time (pinytoCloud.models.User attribute)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.libc_exit">libc_exit() (in module api_prototype.sandbox_helpers)</a>
   </dt>
 
       
@@ -435,6 +576,10 @@
   </dt>
 
       
+  <dt><a href="assemblies.html#api_prototype.views.load_api">load_api() (in module api_prototype.views)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.views.logout">logout() (in module pinytoCloud.views)</a>
   </dt>
 
@@ -448,8 +593,6 @@
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.N">N (pinytoCloud.models.StoredPublicKey attribute)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.name">name (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
@@ -468,6 +611,12 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.NoResponseFromHostException">NoResponseFromHostException (class in api_prototype.sandbox_helpers)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -492,10 +641,18 @@
   <dt><a href="administration.html#module-pinytoCloud.urls">pinytoCloud.urls (module)</a>
   </dt>
 
+      
+  <dt><a href="administration.html#module-pinytoCloud.views">pinytoCloud.views (module)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#module-pinytoCloud.views">pinytoCloud.views (module)</a>
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.piped_command">piped_command() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxHttp.post">post() (api_prototype.models.SandboxHttp method)</a>
   </dt>
 
   </dl></td>
@@ -504,6 +661,14 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.read_exact">read_exact() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.read_from_pipe">read_from_pipe() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
       
   <dt><a href="keyserver.html#keyserver.views.register">register() (in module keyserver.views)</a>
   </dt>
@@ -514,20 +679,26 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.views.register_new_key">register_new_key() (in module pinytoCloud.views)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.views.register_request">register_request() (in module pinytoCloud.views)</a>
   </dt>
 
       
-  <dt><a href="database.html#service.database.CollectionWrapper.remove">remove() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.remove">remove() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.remove">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -535,15 +706,55 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="database.html#service.database.CollectionWrapper.save">save() (service.database.CollectionWrapper method)</a>
+  <dt><a href="assemblies.html#api_prototype.sandbox.safely_exec">safely_exec() (in module api_prototype.sandbox)</a>
   </dt>
 
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox.sandbox">sandbox() (in module api_prototype.sandbox)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper">SandboxCollectionWrapper (class in api_prototype.models)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxHttp">SandboxHttp (class in api_prototype.models)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml">SandboxParseHtml (class in api_prototype.models)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxRequest">SandboxRequest (class in api_prototype.models)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxRequestPost">SandboxRequestPost (class in api_prototype.models)</a>
+  </dt>
+
+      
+  <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.save">save() (api_prototype.models.SandboxCollectionWrapper method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="database.html#service.database.CollectionWrapper.save">(service.database.CollectionWrapper method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.views.save_assembly">save_assembly() (in module pinytoCloud.views)</a>
   </dt>
 
       
   <dt><a href="administration.html#pinytoCloud.models.Job.schedule">schedule (pinytoCloud.models.Job attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost">SecureHost (class in api_prototype.seccomp_process)</a>
   </dt>
 
       
@@ -558,8 +769,10 @@
   <dt><a href="administration.html#pinytoCloud.views.set_key_active">set_key_active() (in module pinytoCloud.views)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.start_child">start_child() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
       
   <dt><a href="administration.html#pinytoCloud.models.User.start_session">start_session() (pinytoCloud.models.User method)</a>
   </dt>
@@ -607,6 +820,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.unescape_all_objectids_and_datetime">unescape_all_objectids_and_datetime() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.views.uninstall_assembly">uninstall_assembly() (in module pinytoCloud.views)</a>
   </dt>
 
@@ -636,6 +853,22 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.write_exact">write_exact() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="assemblies.html#api_prototype.sandbox_helpers.write_to_pipe">write_to_pipe() (in module api_prototype.sandbox_helpers)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 

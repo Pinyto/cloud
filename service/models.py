@@ -25,9 +25,12 @@ class Factory():
         be created in the sandbox it throws an Exception. The Exception
         gets thrown even if this is not executed inside the sandbox
         because every code should be executable in the sandbox.
-        @param class_name: string
-        @param args: additional arguments
-        @return: Object
+
+        :param class_name:
+        :type class_name: str
+        :param args: additional arguments
+        :return: Objects of the type specified in class_name
+        :rtype: Object
         """
         if class_name == 'ParseHtml':
             return ParseHtml(*args)

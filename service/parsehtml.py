@@ -18,9 +18,11 @@ class ParseHtml():
         """
         Use this function to check if the html contains the described tag.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tagname', 'attrs': dict}
-        @param descriptions: [dict]
-        @return: bool
+        ``{'tag': 'tagname', 'attrs': dict}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :rtype: boolean
         """
         if type(descriptions) == dict:
             descriptions = [descriptions]
@@ -44,10 +46,13 @@ class ParseHtml():
         attribute if the tag is found. Returns empty string if the tag or the
         attribute is not found.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tag name', 'attrs': dict}
-        @param descriptions: [dict]
-        @param attribute: string
-        @return: string or list if attribute is class
+        ``{'tag': 'tag name', 'attrs': dict}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :param attribute:
+        :type attribute: str
+        :return: string or list if attribute is class
         """
         if type(descriptions) == dict:
             descriptions = [descriptions]
@@ -74,16 +79,19 @@ class ParseHtml():
         If you are retrieving data from websites you might need to get the contents
         of a table or a similar structure. This is the function to get that information.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tag name', 'attrs': dict}. The last description in this list will
+        ``{'tag': 'tag name', 'attrs': dict}``. The last description in this list will
         be used for a findAll of that element. This should select all the rows of the
         table you want to read.
         specify all the information you are searching for in searched_information in the
-        following format: {'name': {'search tag': 'td', 'search attrs': dict,
-        'captions': ['list', 'of', 'captions'], 'content tag': 'td', 'content attrs': dict},
-        'next name': ...}
-        @param descriptions: [dict]
-        @param searched_information: dict
-        @return: dict
+        following format: ``{'name': {'search tag': 'td', 'search attrs': dict,``
+        ``'captions': ['list', 'of', 'captions'], 'content tag': 'td', 'content attrs': dict},``
+        ``'next name': ...}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :param searched_information:
+        :type searched_information: dict
+        :rtype: dict
         """
         if type(descriptions) == dict:
             descriptions = [descriptions]

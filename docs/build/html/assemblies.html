@@ -71,11 +71,27 @@
 <li class="toctree-l2"><a class="reference internal" href="administration.html#authentication">Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#logout">Logout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#key-management">Key Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administration.html#assembly-management">Assembly Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administration.html#module-pinytoCloud.urls">Urls</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Assemblies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html#module-keyserver.views">Administration-API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#module-service.database">Wrapper-Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#default-api">Default-API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#database-statistics">Database statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Assemblies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installing-assemblies">Installing assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-api_prototype.views">Calling Assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executing-jobs">Executing Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-api_prototype.sandbox">The Sandbox</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
 </ul>
 
@@ -113,7 +129,852 @@
             
   <div class="section" id="assemblies">
 <h1>Assemblies<a class="headerlink" href="#assemblies" title="Permalink to this headline">¶</a></h1>
-<p>stub</p>
+<p>Assemblies are the key element of Pinyto as they empower the user to do with her data as she likes. Users
+can write their own assemblies but they also can install assemblies from other users. If those other users
+update their assembly the user automatically uses the new version without having to change anything.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>It is crucial that users can trust the authors of the assemblies they have installed. They can check
+the sourcecode of the all assemblies as they install them but if an update changes the assembly the
+user gets no notification and the changed assembly may leak or delete data.</p>
+<p class="last">Users can prevent that by forking assemblies of other users which makes the assembly in the state as it
+is one of their own. By doing that their assembly does not change if the original author changes her
+assembly and the user can be sure that no harmful code is executed. This method has the downside that
+updates with bugfixes or new features do not get installed automatically. The user may delete the forked
+assembly in case of a good update and fork the original again. The usability of this procedure could be
+improved in future versions.</p>
+</div>
+<div class="section" id="installing-assemblies">
+<h2>Installing assemblies<a class="headerlink" href="#installing-assemblies" title="Permalink to this headline">¶</a></h2>
+<p>If you run your own Pinyto server there are two ways to install new assemblies. The first possibility is to
+store them in your database. You may want to create user accounts to have telling names for the assemblies.
+For example for the assembly <tt class="docutils literal"><span class="pre">pinyto/Todo</span></tt> a user with the name &#8220;pinyto&#8221; must be present.</p>
+<p>If you check out a new version of Pinyto there might be new default assemblies in the <tt class="docutils literal"><span class="pre">api</span></tt> module. With this
+version come three bundled assemblies:</p>
+<ul class="simple">
+<li><strong>pinyto/DocumentsAdmin</strong> is used for the backoffice to let you browse all your documents there.</li>
+<li><strong>pinyto/Todo</strong> is the assembly for the example app for Pinyto which is a simple TODO-list.</li>
+<li><strong>bborsalino/Librarian</strong> is an assembly for a app used to manage the books in your flat. This assembly
+uses a job which completes incomplete data for books by asking a publicly available database. This could be
+a good example for your next assembly because the TODO-app does not need a job.</li>
+</ul>
+<p>The assemblies in the <tt class="docutils literal"><span class="pre">api</span></tt> module provide data migrations which insert the user and the assembly itself into
+the database.</p>
+<p>Normally the code of every assembly gets executed in a seccomp secured sandbox. Using the sandbox might decrease
+the performance of the assembly execution. So Pinyto gives administrators the opportunity to install assemblies
+as Django apps inside the <tt class="docutils literal"><span class="pre">api</span></tt> module. If an assembly is called and a directly installed assembly in the
+<tt class="docutils literal"><span class="pre">api</span></tt> module is found the code from there gets executed without a sandbox. In order to have this working
+an assembly with the same name has to exist in the database.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>A bad admin could trick users in thinking that an assembly is not harmful by having different code saved
+in the database than in the Django app in <tt class="docutils literal"><span class="pre">api</span></tt>. We considered this a minor threat because if your admin
+wants to harm you she could do all sorts of bad things to your data. It is certainly best to have an admin
+you can trust. If you do not trust your admin become your own admin on your own server.</p>
+<p class="last">If you write an assembly inside of <tt class="docutils literal"><span class="pre">api</span></tt> make sure to insert the correct code of the assembly in the data
+migration.</p>
+</div>
+<p>For users there is no visible difference between assemblies executed in the sandbox and assemblies executed
+directly. If you have benchmarks showing how big the difference is please share them.</p>
+</div>
+<div class="section" id="module-api_prototype.views">
+<span id="calling-assemblies"></span><h2>Calling Assemblies<a class="headerlink" href="#module-api_prototype.views" title="Permalink to this headline">¶</a></h2>
+<p>Assemblies are called with the <tt class="docutils literal"><span class="pre">api_call</span></tt> view in the <tt class="docutils literal"><span class="pre">api_prototype</span></tt> module.</p>
+<dl class="function">
+<dt id="api_prototype.views.api_call">
+<tt class="descclassname">api_prototype.views.</tt><tt class="descname">api_call</tt><big>(</big><em>request</em>, <em>user_name</em>, <em>assembly_name</em>, <em>function_name</em><big>)</big><a class="reference internal" href="_modules/api_prototype/views.html#api_call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.views.api_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>This selects a ApiFunction and executes it if possible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>HttpRequest</em>) &#8211; Django Request object</li>
+<li><strong>user_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>assembly_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>function_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">json response</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">HttpResponse</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">api_call</span></tt> checks in the <tt class="docutils literal"><span class="pre">api</span></tt> module if there is a directly executable version of the assembly. If there
+is none <tt class="docutils literal"><span class="pre">load_api</span></tt> is called.</p>
+<dl class="function">
+<dt id="api_prototype.views.load_api">
+<tt class="descclassname">api_prototype.views.</tt><tt class="descname">load_api</tt><big>(</big><em>request</em>, <em>session</em>, <em>assembly</em>, <em>function_name</em><big>)</big><a class="reference internal" href="_modules/api_prototype/views.html#load_api"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.views.load_api" title="Permalink to this definition">¶</a></dt>
+<dd><p>There is no statically defined api function for this call. Proceed to
+loading the code from the database and executing it in the sandbox.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>request</strong> (<em>HttpRequest</em>) &#8211; Django Request object</li>
+<li><strong>session</strong> (<a class="reference internal" href="administration.html#pinytoCloud.models.Session" title="pinytoCloud.models.Session"><em>pinytoCloud.models.Session</em></a>) &#8211; </li>
+<li><strong>assembly</strong> (<a class="reference internal" href="administration.html#pinytoCloud.models.Assembly" title="pinytoCloud.models.Assembly"><em>pinytoCloud.models.Assembly</em></a>) &#8211; </li>
+<li><strong>function_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">json response</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">HttpResponse</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="executing-jobs">
+<h2>Executing Jobs<a class="headerlink" href="#executing-jobs" title="Permalink to this headline">¶</a></h2>
+<p>API calls can save documents of different type. The &#8220;type&#8221;: &#8220;job&#8221; is special as it is the type of a document
+describing a scheduled job. A job scheduled this way gets executed immediately after the request saving the
+document is finished. The scheduling document must have the following structure:</p>
+<ul class="simple">
+<li>&#8220;type&#8221;: &#8220;job&#8221;</li>
+<li>&#8220;data&#8221;: A dictionary containing the following attributes and data:<ul>
+<li>&#8220;assembly_user&#8221;: The username of the author of the assembly.</li>
+<li>&#8220;assembly_name&#8221;: The name of the assembly.</li>
+<li>&#8220;job_name&#8221;: The name of the job.</li>
+</ul>
+</li>
+</ul>
+<p>After each finished request Django calls <tt class="docutils literal"><span class="pre">check_for_jobs</span></tt>.</p>
+<dl class="function">
+<dt id="api_prototype.views.check_for_jobs">
+<tt class="descclassname">api_prototype.views.</tt><tt class="descname">check_for_jobs</tt><big>(</big><em>sender</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/api_prototype/views.html#check_for_jobs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.views.check_for_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check in the collection of all users if there are any scheduled jobs.</p>
+<p>This is done with a query for documents of the &#8220;type&#8221;: &#8220;job&#8221;. If documents are found the job specified
+by the document gets executed. The document describing the job gets deleted after the execution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sender</strong> &#8211; </li>
+<li><strong>kwargs</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-api_prototype.sandbox">
+<span id="the-sandbox"></span><h2>The Sandbox<a class="headerlink" href="#module-api_prototype.sandbox" title="Permalink to this headline">¶</a></h2>
+<p>The Pinyto sandbox is used if <tt class="docutils literal"><span class="pre">safely_exec</span></tt> is called.</p>
+<dl class="function">
+<dt id="api_prototype.sandbox.safely_exec">
+<tt class="descclassname">api_prototype.sandbox.</tt><tt class="descname">safely_exec</tt><big>(</big><em>code</em>, <em>request</em>, <em>db</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox.html#safely_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox.safely_exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>If you want to execute something in the sandbox, call this method.
+It will setup a process and execute the code there with seccomp. The passed database connections
+will used to access the users collection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>code</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The python code which should be executed in the sandbox</li>
+<li><strong>request</strong> (<em>HttpRequest</em>) &#8211; Django&#8217;s request object which is passed into the sandbox process</li>
+<li><strong>db</strong> (<a class="reference internal" href="database.html#service.database.CollectionWrapper" title="service.database.CollectionWrapper"><em>service.database.CollectionWrapper</em></a>) &#8211; The already opened database connection</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple containing the result and the time needed to calculate the result.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(dict, timedelta)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">safely_exec</span></tt> starts a process and executes <tt class="docutils literal"><span class="pre">sandbox</span></tt> there.</p>
+<dl class="function">
+<dt id="api_prototype.sandbox.sandbox">
+<tt class="descclassname">api_prototype.sandbox.</tt><tt class="descname">sandbox</tt><big>(</big><em>code</em>, <em>request</em>, <em>real_db</em>, <em>queue</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox.html#sandbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox.sandbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets executed in a separate subprocess which does not share the memory with the main
+Django process. This is done a) for security reasons to minimize the risk that code inside of the
+sandbox is able to do anything harmful and b) for cleanly measuring the execution time for the code
+because the user may have to pay for it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>code</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The python code which should be executed in the sandbox</li>
+<li><strong>request</strong> (<em>HttpRequest</em>) &#8211; Django&#8217;s request object</li>
+<li><strong>real_db</strong> (<a class="reference internal" href="database.html#service.database.CollectionWrapper" title="service.database.CollectionWrapper"><em>service.database.CollectionWrapper</em></a>) &#8211; The database connection</li>
+<li><strong>queue</strong> (<a class="reference external" href="http://docs.python.org/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><em>multiprocessing.Queue</em></a>) &#8211; Queue for communicating with the main process</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nothing (the queue is used for returning the results)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The process executing <tt class="docutils literal"><span class="pre">sandbox</span></tt> creates a new instance of <tt class="docutils literal"><span class="pre">SecureHost</span></tt>. The initialization of this class
+forks the sandbox process into two parts:</p>
+<ol class="arabic simple">
+<li>The host process which has access to the database the request and the services.</li>
+<li>The child which has only a pipe to communicate to the host process. All open file descriptors in the child
+process get closed and the database, request and service objects get replaced by sandbox versions. Those
+sandbox versions of the services have the same signatures but communicate only to the host process which
+asks the real services for answers which get returned into the child process. This is done because the
+sandbox is secured using <em>seccomp</em> and seccomp only allows reading an writing to already open file
+descriptors. The access to any other function of the kernel is blocked by the kernel. If the exec call
+in the child process tries to do anything other than calculations with the data in its memory or
+communication to the services over the pipe to the host process it will get terminated by the kernel.</li>
+</ol>
+<span class="target" id="module-api_prototype.seccomp_process"></span><dl class="class">
+<dt id="api_prototype.seccomp_process.SecureHost">
+<em class="property">class </em><tt class="descclassname">api_prototype.seccomp_process.</tt><tt class="descname">SecureHost</tt><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an instance of this class to fork this process and secure the child with seccomp.
+This can be used to exec possibly insecure code without risking data loss or system
+instability.</p>
+<dl class="method">
+<dt id="api_prototype.seccomp_process.SecureHost.claim_and_free_memory">
+<tt class="descname">claim_and_free_memory</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.claim_and_free_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.claim_and_free_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function uses claim_memory to claim memory on the heap and starts the garbage
+collector to free this memory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.seccomp_process.SecureHost.claim_memory">
+<tt class="descname">claim_memory</tt><big>(</big><em>iteration=0</em><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.claim_memory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.claim_memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This claims some memory to insure the heap is big enough for most api scripts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>iteration</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="api_prototype.seccomp_process.SecureHost.do_exec">
+<em class="property">static </em><tt class="descname">do_exec</tt><big>(</big><em>msg</em>, <em>request</em>, <em>db</em>, <em>factory</em><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.do_exec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.do_exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute arbitrary code sent to the child process and return the printed results
+of that code.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not call this method from the host process because the code in
+the message gets executed with the permissions of the process!</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>msg</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; msg should have a &#8220;body&#8221;</li>
+<li><strong>request</strong> (<em>api_prototype.models.SandboxedRequest</em>) &#8211; </li>
+<li><strong>db</strong> (<em>api_prototype.models.SandboxedCollectionWrapper</em>) &#8211; </li>
+<li><strong>factory</strong> (<a class="reference internal" href="#api_prototype.models.Factory" title="api_prototype.models.Factory"><em>api_prototype.models.Factory</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A result or an exception if an error occurred.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.seccomp_process.SecureHost.execute">
+<tt class="descname">execute</tt><big>(</big><em>code</em>, <em>request</em>, <em>real_db</em><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the host end for executing code in the child process. Code in s will be encoded as
+json and sent to the child through the open file descriptor. The host process waits till the
+result message is written to the pipe by the child process. Then the result is decoded and
+returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>code</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; python code which may contain multiple lines</li>
+<li><strong>request</strong> (<em>HttpRequest</em>) &#8211; Django&#8217;s real request object</li>
+<li><strong>real_db</strong> (<a class="reference internal" href="database.html#service.database.CollectionWrapper" title="service.database.CollectionWrapper"><em>service.database.CollectionWrapper</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dict with a &#8220;result&#8221; or an &#8220;error&#8221; if something went wrong</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.seccomp_process.SecureHost.kill_child">
+<tt class="descname">kill_child</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.kill_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.kill_child" title="Permalink to this definition">¶</a></dt>
+<dd><p>This kills the child process.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.seccomp_process.SecureHost.start_child">
+<tt class="descname">start_child</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api_prototype/seccomp_process.html#SecureHost.start_child"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.seccomp_process.SecureHost.start_child" title="Permalink to this definition">¶</a></dt>
+<dd><p>This starts the child process and executes the _child_main on the child process.
+The socket used for communication gets closed afterwards.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>There are some helper functions and classes which may be relevant for understanding how the sandbox works:</p>
+<span class="target" id="module-api_prototype.sandbox_helpers"></span><dl class="function">
+<dt id="api_prototype.sandbox_helpers.libc_exit">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">libc_exit</tt><big>(</big><em>n=1</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#libc_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.libc_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invoke _exit(2) system call.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.read_exact">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">read_exact</tt><big>(</big><em>fp</em>, <em>n</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#read_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.read_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read only the specified number of bytes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>fp</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#file" title="(in Python v2.7)"><em>file</em></a>) &#8211; file pointer</li>
+<li><strong>n</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; number of bytes to read</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bytes</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.write_exact">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">write_exact</tt><big>(</big><em>fp</em>, <em>s</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#write_exact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.write_exact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write only the specified number of bytes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fp</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#file" title="(in Python v2.7)"><em>file</em></a>) &#8211; file pointer</li>
+<li><strong>s</strong> (<em>bytes</em>) &#8211; string to write and not a byte more than that</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.write_to_pipe">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">write_to_pipe</tt><big>(</big><em>pipe</em>, <em>data_dict</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#write_to_pipe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.write_to_pipe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the data_dict to the give pipe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pipe</strong> (<em>socket.Socket</em>) &#8211; one part of socket.socketpair()</li>
+<li><strong>data_dict</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.read_from_pipe">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">read_from_pipe</tt><big>(</big><em>pipe</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#read_from_pipe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.read_from_pipe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a json string from the pipe and decodes the json of that string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pipe</strong> (<em>socket.Socket</em>) &#8211; one part of socket.socketpair()</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.escape_all_objectids_and_datetime">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">escape_all_objectids_and_datetime</tt><big>(</big><em>conv_dict</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#escape_all_objectids_and_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.escape_all_objectids_and_datetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function escapes all ObjectId objects to make the dict json serializable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>conv_dict</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.unescape_all_objectids_and_datetime">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">unescape_all_objectids_and_datetime</tt><big>(</big><em>conv_dict</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#unescape_all_objectids_and_datetime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.unescape_all_objectids_and_datetime" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function reverses the escape of all ObjectId objects done by escape_all_objectids_and_datetime.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>conv_dict</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="api_prototype.sandbox_helpers.piped_command">
+<tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">piped_command</tt><big>(</big><em>pipe</em>, <em>command_dict</em><big>)</big><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#piped_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.piped_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the command_dict to the pipe end reads the answer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pipe</strong> (<em>socket.Socket</em>) &#8211; one part of socket.socketpair()</li>
+<li><strong>command_dict</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.sandbox_helpers.NoResponseFromHostException">
+<em class="property">class </em><tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">NoResponseFromHostException</tt><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#NoResponseFromHostException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.NoResponseFromHostException" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a custom exception which gets returned if no valid response is returned.</p>
+</dd></dl>
+
+<span class="target" id="module-api_prototype.models"></span><dl class="class">
+<dt id="api_prototype.models.SandboxCollectionWrapper">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">SandboxCollectionWrapper</tt><big>(</big><em>child_pipe</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrapper is user to expose the db to the users assemblies.
+This is the class with the same methods to be used in the sandbox.</p>
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.count">
+<tt class="descname">count</tt><big>(</big><em>query</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to get a count from the database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The number of documents matching the query</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.find">
+<tt class="descname">find</tt><big>(</big><em>query</em>, <em>skip=0</em>, <em>limit=0</em>, <em>sorting=None</em>, <em>sort_direction='asc'</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to read from the database. This method
+encodes all fields beginning with _ for returning a valid
+json response.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>skip</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Count of documents which should be skipped in the query. This is useful for pagination.</li>
+<li><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of documents which should be returned. This number is of course the maximum.</li>
+<li><strong>sorting</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; String identifying the key which is used for sorting.</li>
+<li><strong>sort_direction</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8216;asc&#8217; or &#8216;desc&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of found documents. If no document is found the list is empty.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.find_distinct">
+<tt class="descname">find_distinct</tt><big>(</big><em>query</em>, <em>attribute</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.find_distinct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.find_distinct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list representing the diversity of a given attribute in
+the documents matched by the query.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; json</li>
+<li><strong>attribute</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; String describing the attribute</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of values the attribute can have in the set of documents described by the query</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.find_document_for_id">
+<tt class="descname">find_document_for_id</tt><big>(</big><em>document_id</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.find_document_for_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.find_document_for_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the document with the given ID in the database. On
+success this returns a single document.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>document_id</strong> (<a class="reference external" href="http://docs.python.org/library/string.html#module-string" title="(in Python v2.7)"><em>string</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The document with the given _id</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.find_documents">
+<tt class="descname">find_documents</tt><big>(</big><em>query</em>, <em>skip=0</em>, <em>limit=0</em>, <em>sorting=None</em>, <em>sort_direction='asc'</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.find_documents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.find_documents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to read from the database. This method
+returns complete documents with _id fields. Do not use this
+to construct json responses!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>query</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>skip</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Count of documents which should be skipped in the query. This is useful for pagination.</li>
+<li><strong>limit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Number of documents which should be returned. This number is of course the maximum.</li>
+<li><strong>sorting</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; String identifying the key which is used for sorting.</li>
+<li><strong>sort_direction</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; &#8216;asc&#8217; or &#8216;desc&#8217;</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The list of found documents. If no document is found the list is empty.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.insert">
+<tt class="descname">insert</tt><big>(</big><em>document</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts a document. If the given document has a ID the
+ID is removed and a new ID will be generated. Time will
+be set to now.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>document</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The ObjectId of the insrted document</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.remove">
+<tt class="descname">remove</tt><big>(</big><em>document</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the document. The document must have a valid _id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>document</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxCollectionWrapper.save">
+<tt class="descname">save</tt><big>(</big><em>document</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxCollectionWrapper.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxCollectionWrapper.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the document. The document must have a valid _id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>document</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The ObjectId of the insrted document</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.SandboxRequestPost">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">SandboxRequestPost</tt><big>(</big><em>child_pipe</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxRequestPost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxRequestPost" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrapper is used to expose Django&#8217;s request object to the users assemblies.
+This class implements the most used methods of the request object.</p>
+<p>This class is used to emulate request.POST</p>
+<dl class="method">
+<dt id="api_prototype.models.SandboxRequestPost.get">
+<tt class="descname">get</tt><big>(</big><em>param</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxRequestPost.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxRequestPost.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the specified param</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>param</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.SandboxRequest">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">SandboxRequest</tt><big>(</big><em>child_pipe</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrapper is user to expose Django&#8217;s request object to the users assemblies.
+This class implements the most used methods of the request object.</p>
+<dl class="method">
+<dt id="api_prototype.models.SandboxRequest.init_body">
+<tt class="descname">init_body</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxRequest.init_body"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxRequest.init_body" title="Permalink to this definition">¶</a></dt>
+<dd><p>This needs to be called after the seccomp process is initialized to fill in valid body data for the request.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.CanNotCreateNewInstanceInTheSandbox">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">CanNotCreateNewInstanceInTheSandbox</tt><big>(</big><em>class_name</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#CanNotCreateNewInstanceInTheSandbox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.CanNotCreateNewInstanceInTheSandbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>This Exception is thrown if a script wants to create an object of a class
+that can not be created in the sandbox.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.Factory">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">Factory</tt><big>(</big><em>pipe_child_end</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#Factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.Factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this factory to create objects in the sandboxed process. Just
+pass the class name to the create method.</p>
+<dl class="method">
+<dt id="api_prototype.models.Factory.create">
+<tt class="descname">create</tt><big>(</big><em>class_name</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#Factory.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.Factory.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method will create an object of the class of classname
+with the arguments supplied after that. If the class can not
+be created in the sandbox it throws an Exception.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>class_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>args</strong> &#8211; additional arguments</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Objects of the type specified in class_name</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.SandboxParseHtml">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">SandboxParseHtml</tt><big>(</big><em>pipe_child_end</em>, <em>html</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxParseHtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxParseHtml" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrapper is user to expose html parsing functionality to the sandbox.
+This is the ParseHtml class with the same methods to be used in the sandbox.</p>
+<dl class="method">
+<dt id="api_prototype.models.SandboxParseHtml.contains">
+<tt class="descname">contains</tt><big>(</big><em>descriptions</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxParseHtml.contains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxParseHtml.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to check if the html contains the described tag.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tagname',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxParseHtml.find_element_and_collect_table_like_information">
+<tt class="descname">find_element_and_collect_table_like_information</tt><big>(</big><em>descriptions</em>, <em>searched_information</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxParseHtml.find_element_and_collect_table_like_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxParseHtml.find_element_and_collect_table_like_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>If you are retrieving data from websites you might need to get the contents
+of a table or a similar structure. This is the function to get that information.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tag</span> <span class="pre">name',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt>. The last description in this list will
+be used for a findAll of that element. This should select all the rows of the
+table you want to read.
+specify all the information you are searching for in searched_information in the
+following format: <tt class="docutils literal"><span class="pre">{'name':</span> <span class="pre">{'search</span> <span class="pre">tag':</span> <span class="pre">'td',</span> <span class="pre">'search</span> <span class="pre">attrs':</span> <span class="pre">dict,</span></tt>
+<tt class="docutils literal"><span class="pre">'captions':</span> <span class="pre">['list',</span> <span class="pre">'of',</span> <span class="pre">'captions'],</span> <span class="pre">'content</span> <span class="pre">tag':</span> <span class="pre">'td',</span> <span class="pre">'content</span> <span class="pre">attrs':</span> <span class="pre">dict},</span></tt>
+<tt class="docutils literal"><span class="pre">'next</span> <span class="pre">name':</span> <span class="pre">...}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>searched_information</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxParseHtml.find_element_and_get_attribute_value">
+<tt class="descname">find_element_and_get_attribute_value</tt><big>(</big><em>descriptions</em>, <em>attribute</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxParseHtml.find_element_and_get_attribute_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxParseHtml.find_element_and_get_attribute_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to find the described tag and return the value from
+attribute if the tag is found. Returns empty string if the tag or the
+attribute is not found.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tag</span> <span class="pre">name',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>attribute</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string or list if attribute is class</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="api_prototype.models.SandboxHttp">
+<em class="property">class </em><tt class="descclassname">api_prototype.models.</tt><tt class="descname">SandboxHttp</tt><big>(</big><em>pipe_child_end</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxHttp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxHttp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This wrapper is user to expose http requests to the sandbox.
+This is the Http class with the same methods to be used in the sandbox.</p>
+<dl class="method">
+<dt id="api_prototype.models.SandboxHttp.get">
+<tt class="descname">get</tt><big>(</big><em>url</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxHttp.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxHttp.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This issues a http request to the supplied url and returns
+the response as a string. If the request fails an empty
+string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> &#8211; Url with <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a> at the beginning</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="api_prototype.models.SandboxHttp.post">
+<tt class="descname">post</tt><big>(</big><em>url</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/api_prototype/models.html#SandboxHttp.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.models.SandboxHttp.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>This issues a http request to the supplied url and returns
+the response as a string. If the request fails an empty
+string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Url with <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a> at the beginning</li>
+<li><strong>data</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; payload data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-api_prototype.sandbox_helpers"></span><dl class="class">
+<dt id="api_prototype.sandbox_helpers.EmptyRequest">
+<em class="property">class </em><tt class="descclassname">api_prototype.sandbox_helpers.</tt><tt class="descname">EmptyRequest</tt><a class="reference internal" href="_modules/api_prototype/sandbox_helpers.html#EmptyRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#api_prototype.sandbox_helpers.EmptyRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is used for processing jobs. They need request.body but it can be empty.</p>
+</dd></dl>
+
+</div>
 </div>
 
 

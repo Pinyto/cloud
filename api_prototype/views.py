@@ -25,11 +25,16 @@ def api_call(request, user_name, assembly_name, function_name):
     """
     This selects a ApiFunction and executes it if possible.
 
-    @param user_name: string
-    @param assembly_name: string
-    @param function_name: string
-    @param request: Django Request object
-    @return: json response
+    :param request: Django Request object
+    :type request: HttpRequest
+    :param user_name:
+    :type user_name: str
+    :param assembly_name:
+    :type assembly_name: str
+    :param function_name:
+    :type function_name: str
+    :return: json response
+    :rtype: HttpResponse
     """
     try:
         json_data = json.loads(str(request.body, encoding='utf-8'))
@@ -100,11 +105,16 @@ def load_api(request, session, assembly, function_name):
     There is no statically defined api function for this call. Proceed to
     loading the code from the database and executing it in the sandbox.
 
-    @param request: Django's request object
-    @param session: Session
-    @param assembly: Assembly
-    @param function_name: string
-    @return: Response object
+    :param request: Django Request object
+    :type request: HttpRequest
+    :param session:
+    :type session: pinytoCloud.models.Session
+    :param assembly:
+    :type assembly: pinytoCloud.models.Assembly
+    :param function_name:
+    :type function_name: str
+    :return: json response
+    :rtype: HttpResponse
     """
     try:
         api_function = assembly.api_functions.filter(name=function_name).all()[0]
@@ -138,14 +148,17 @@ def check_for_jobs(sender, **kwargs):
     """
     Check in the collection of all users if there are any scheduled jobs.
 
-    @param sender:
-    @param kwargs:
+    This is done with a query for documents of the "type": "job". If documents are found the job specified
+    by the document gets executed. The document describing the job gets deleted after the execution.
+
+    :param sender:
+    :param kwargs:
     """
     for user in User.objects.all():
         collection = Collection(MongoClient().pinyto, user.name)
         for job in collection.find({'type': 'job'}):
             if 'data' not in job or 'assembly_user' not in job['data'] or 'assembly_name' not in job['data'] or \
-               'job_name' not in job['data']:
+               'job_name' not in job['data']:  # TODO: Check that the job is from the correct assembly.
                 continue
             try:
                 assembly = User.objects.filter(

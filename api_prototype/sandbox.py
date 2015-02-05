@@ -14,13 +14,17 @@ def sandbox(code, request, real_db, queue):
     This function gets executed in a separate subprocess which does not share the memory with the main
     Django process. This is done a) for security reasons to minimize the risk that code inside of the
     sandbox is able to do anything harmful and b) for cleanly measuring the execution time for the code
-    because the user will have to pay for this.
+    because the user may have to pay for it.
 
-    @param code: string
-    @param request: Django's request object
-    @param real_db: CollectionWrapper
-    @param queue: Queue
-    @return: nothing (the queue is used for returning the results)
+    :param code: The python code which should be executed in the sandbox
+    :type code: str
+    :param request: Django's request object
+    :type request: HttpRequest
+    :param real_db: The database connection
+    :type real_db: service.database.CollectionWrapper
+    :param queue: Queue for communicating with the main process
+    :type queue: multiprocessing.Queue
+    :return: nothing (the queue is used for returning the results)
     """
     start_time = time.clock()
     secure_host = SecureHost()
@@ -35,13 +39,18 @@ def sandbox(code, request, real_db, queue):
 
 def safely_exec(code, request, db):
     """
-    If you want to use this module call this method. It will setup a process and execute the code there
-    with seccomp. Database connections will be opened for the users collection.
+    If you want to execute something in the sandbox, call this method.
+    It will setup a process and execute the code there with seccomp. The passed database connections
+    will used to access the users collection.
 
-    @param code: string
-    @param request: Django's request object
-    @param db: CollectionWrapper
-    @return: json
+    :param code: The python code which should be executed in the sandbox
+    :type code: str
+    :param request: Django's request object which is passed into the sandbox process
+    :type request: HttpRequest
+    :param db: The already opened database connection
+    :type db: service.database.CollectionWrapper
+    :return: A tuple containing the result and the time needed to calculate the result.
+    :rtype: (dict, timedelta)
     """
     start_time = time.clock()
     queue = Queue(1)

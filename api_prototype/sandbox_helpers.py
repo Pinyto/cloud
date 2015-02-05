@@ -21,7 +21,8 @@ def libc_exit(n=1):
     """
     Invoke _exit(2) system call.
 
-    @param n: int
+    :param n:
+    :type n: int
     """
     _libc._exit(n)
 
@@ -30,9 +31,11 @@ def read_exact(fp, n):
     """
     Read only the specified number of bytes
 
-    @param fp: file pointer
-    @param n: (int) number of bytes to read
-    @return: byte string
+    :param fp: file pointer
+    :type fp: file
+    :param n: number of bytes to read
+    :type n: int
+    :rtype: bytes
     """
     buf = b''
     while len(buf) < n:
@@ -47,9 +50,10 @@ def write_exact(fp, s):
     """
     Write only the specified number of bytes
 
-    @param fp: file pointer
-    @param s: string to write and not a byte more than that
-    @return: nothing
+    :param fp: file pointer
+    :type fp: file
+    :param s: string to write and not a byte more than that
+    :type s: bytes
     """
     done = 0
     while done < len(s):
@@ -63,9 +67,10 @@ def write_to_pipe(pipe, data_dict):
     """
     Writes the data_dict to the give pipe.
 
-    @param pipe: one part of socket.socketpair()
-    @param data_dict: dict
-    @return: nothing
+    :param pipe: one part of socket.socketpair()
+    :type pipe: socket.Socket
+    :param data_dict:
+    :type data_dict: dict
     """
     data_json = json.dumps(data_dict).encode('utf-8')
     write_exact(pipe, struct.pack('>L', len(data_json)))
@@ -76,8 +81,9 @@ def read_from_pipe(pipe):
     """
     Reads a json string from the pipe and decodes the json of that string.
 
-    @param pipe: one part of socket.socketpair()
-    @return: dict
+    :param pipe: one part of socket.socketpair()
+    :type pipe: socket.Socket
+    :rtype: dict
     """
     sz, = struct.unpack('>L', read_exact(pipe, 4))
     return json.loads(str(read_exact(pipe, sz), encoding='utf-8'))
@@ -87,8 +93,8 @@ def escape_all_objectids_and_datetime(conv_dict):
     """
     This function escapes all ObjectId objects to make the dict json serializable.
 
-    @param conv_dict:
-    @return:
+    :param conv_dict:
+    :type conv_dict: dict
     """
     for key in conv_dict.keys():
         if type(conv_dict[key]) == dict:
@@ -104,8 +110,8 @@ def unescape_all_objectids_and_datetime(conv_dict):
     """
     This function reverses the escape of all ObjectId objects done by escape_all_objectids_and_datetime.
 
-    @param conv_dict:
-    @return:
+    :param conv_dict:
+    :type conv_dict: dict
     """
     for key in conv_dict.keys():
         if type(conv_dict[key]) == dict:
@@ -122,9 +128,10 @@ def piped_command(pipe, command_dict):
     """
     Writes the command_dict to the pipe end reads the answer.
 
-    @param pipe: one part of socket.socketpair()
-    @param command_dict: dict
-    @return:
+    :param pipe: one part of socket.socketpair()
+    :type pipe: socket.Socket
+    :param command_dict:
+    :type command_dict: dict
     """
     write_to_pipe(pipe, command_dict)
     answer = read_from_pipe(pipe)

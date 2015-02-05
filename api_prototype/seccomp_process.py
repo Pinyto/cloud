@@ -30,8 +30,7 @@ def stdout_io(stdout=None):
     """
     Sets stdout.
 
-    @param stdout:
-    @return:
+    :param stdout:
     """
     old = sys.stdout
     if stdout is None:
@@ -56,8 +55,6 @@ class SecureHost(object):
         """
         This starts the child process and executes the _child_main on the child process.
         The socket used for communication gets closed afterwards.
-
-        @return: nothing
         """
         assert not self.pid
         self.pid = os.fork()
@@ -68,8 +65,6 @@ class SecureHost(object):
     def kill_child(self):
         """
         This kills the child process.
-
-        @return: nothing
         """
         assert self.pid
         os.waitpid(self.pid, os.WNOHANG)
@@ -82,14 +77,22 @@ class SecureHost(object):
     def do_exec(msg, request, db, factory):
         """
         Execute arbitrary code sent to the child process and return the printed results
-        of that code. Do not call this method from the host process because the code in
-        the message gets executed with the permissions of the process!
+        of that code.
 
-        @param msg:
-        @param request: SandboxedRequest
-        @param db: SandboxedCollectionWrapper
-        @param factory: Factory
-        @return: json
+        .. warning::
+            Do not call this method from the host process because the code in
+            the message gets executed with the permissions of the process!
+
+        :param msg: msg should have a "body"
+        :type msg: dict
+        :param request:
+        :type request: api_prototype.models.SandboxedRequest
+        :param db:
+        :type db: api_prototype.models.SandboxedCollectionWrapper
+        :param factory:
+        :type factory: api_prototype.models.Factory
+        :return: A result or an exception if an error occurred.
+        :rtype: dict
         """
         with stdout_io() as s:
             try:
@@ -115,7 +118,7 @@ class SecureHost(object):
         message or exit. After each command the results are written to the file descriptor as
         json.
 
-        @return: nothing; the output is written to self.child
+        :return: nothing; the output is written to self.child
         """
         self.host.close()
         for fd in map(int, os.listdir('/proc/self/fd')):
@@ -148,8 +151,8 @@ class SecureHost(object):
         """
         This claims some memory to insure the heap is big enough for most api scripts.
 
-        @param iteration: integer
-        @return: nothing
+        :param iteration:
+        :type iteration: int
         """
         useless_list = []
         for i in range(100):
@@ -161,8 +164,6 @@ class SecureHost(object):
         """
         This function uses claim_memory to claim memory on the heap and starts the garbage
         collector to free this memory.
-
-        @return: nothing
         """
         self.claim_memory()
         gc.collect()
@@ -174,10 +175,14 @@ class SecureHost(object):
         result message is written to the pipe by the child process. Then the result is decoded and
         returned.
 
-        @param code: string (which is python code and may contain multiple lines)
-        @param request: Django's real request object
-        @param real_db: CollectionWrapper
-        @return: string
+        :param code: python code which may contain multiple lines
+        :type code: str
+        :param request: Django's real request object
+        :type request: HttpRequest
+        :param real_db:
+        :type real_db: service.database.CollectionWrapper
+        :return: A dict with a "result" or an "error" if something went wrong
+        :rtype: dict
         """
         result = ''
         write_to_pipe(self.host, {'cmd': 'exec', 'body': code})

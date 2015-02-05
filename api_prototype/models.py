@@ -23,12 +23,18 @@ class SandboxCollectionWrapper(object):
         encodes all fields beginning with _ for returning a valid
         json response.
 
-        @param query: json string
-        @param skip: integer
-        @param limit: int
-        @param sorting: string identifiying the key
-        @param sort_direction: 'asc' or 'desc'
-        @return: dict
+        :param query:
+        :type query: dict
+        :param skip: Count of documents which should be skipped in the query. This is useful for pagination.
+        :type skip: int
+        :param limit: Number of documents which should be returned. This number is of course the maximum.
+        :type limit: int
+        :param sorting: String identifying the key which is used for sorting.
+        :type sorting: str
+        :param sort_direction: 'asc' or 'desc'
+        :type sort_direction: str
+        :return: The list of found documents. If no document is found the list is empty.
+        :rtype: list
         """
         return piped_command(self.child, {'db.find': {
             'query': query,
@@ -42,8 +48,10 @@ class SandboxCollectionWrapper(object):
         """
         Use this function to get a count from the database.
 
-        @param query: json string
-        @return: dict
+        :param query:
+        :type query: dict
+        :return: The number of documents matching the query
+        :rtype: int
         """
         return int(piped_command(self.child, {'db.count': {'query': query}}))
 
@@ -53,12 +61,18 @@ class SandboxCollectionWrapper(object):
         returns complete documents with _id fields. Do not use this
         to construct json responses!
 
-        @param query: json string
-        @param skip: integer
-        @param limit: integer
-        @param sorting: string identifiying the key
-        @param sort_direction: 'asc' or 'desc'
-        @return: dict
+        :param query:
+        :type query: dict
+        :param skip: Count of documents which should be skipped in the query. This is useful for pagination.
+        :type skip: int
+        :param limit: Number of documents which should be returned. This number is of course the maximum.
+        :type limit: int
+        :param sorting: String identifying the key which is used for sorting.
+        :type sorting: str
+        :param sort_direction: 'asc' or 'desc'
+        :type sort_direction: str
+        :return: The list of found documents. If no document is found the list is empty.
+        :rtype: list
         """
         return [unescape_all_objectids_and_datetime(item) for item in piped_command(
             self.child,
@@ -78,8 +92,10 @@ class SandboxCollectionWrapper(object):
         Find the document with the given ID in the database. On
         success this returns a single document.
 
-        @param document_id: string
-        @return: dict
+        :param document_id:
+        :type document_id: string
+        :return: The document with the given _id
+        :rtype: dict
         """
         return unescape_all_objectids_and_datetime(
             piped_command(
@@ -93,9 +109,12 @@ class SandboxCollectionWrapper(object):
         Return a list representing the diversity of a given attribute in
         the documents matched by the query.
 
-        @param query: json string
-        @param attribute:
-        @return:
+        :param query: json
+        :type query: str
+        :param attribute: String describing the attribute
+        :type attribute: str
+        :return: A list of values the attribute can have in the set of documents described by the query
+        :rtype: list
         """
         return piped_command(self.child, {'db.find_distinct': {'query': query, 'attribute': attribute}})
 
@@ -103,8 +122,10 @@ class SandboxCollectionWrapper(object):
         """
         Saves the document. The document must have a valid _id
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
+        :return: The ObjectId of the insrted document
+        :rtype: str
         """
         document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.save': {'document': document}})
@@ -115,8 +136,10 @@ class SandboxCollectionWrapper(object):
         ID is removed and a new ID will be generated. Time will
         be set to now.
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
+        :return: The ObjectId of the insrted document
+        :rtype: str
         """
         document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.insert': {'document': document}})
@@ -125,8 +148,8 @@ class SandboxCollectionWrapper(object):
         """
         Deletes the document. The document must have a valid _id
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
         """
         document = escape_all_objectids_and_datetime(document)
         return piped_command(self.child, {'db.remove': {'document': document}})
@@ -153,7 +176,8 @@ class SandboxRequestPost(object):
         """
         Returns the specified param
 
-        @param param: string
+        :param param:
+        :type param: str
         """
         return piped_command(self.child, {'request.post.get': {'param': param}})
 
@@ -202,9 +226,12 @@ class Factory():
         This method will create an object of the class of classname
         with the arguments supplied after that. If the class can not
         be created in the sandbox it throws an Exception.
-        @param class_name: string
-        @param args: additional arguments
-        @return: Object
+
+        :param class_name:
+        :type class_name: str
+        :param args: additional arguments
+        :return: Objects of the type specified in class_name
+        :rtype: Object
         """
         if class_name == 'ParseHtml':
             return SandboxParseHtml(self.pipe_child_end, *args)
@@ -227,9 +254,11 @@ class SandboxParseHtml():
         """
         Use this function to check if the html contains the described tag.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tagname', 'attrs': dict}
-        @param descriptions: [dict]
-        @return: bool
+        ``{'tag': 'tagname', 'attrs': dict}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :rtype: boolean
         """
         return piped_command(
             self.child,
@@ -243,10 +272,13 @@ class SandboxParseHtml():
         attribute if the tag is found. Returns empty string if the tag or the
         attribute is not found.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tag name', 'attrs': dict}
-        @param descriptions: [dict]
-        @param attribute: string
-        @return: string or list if attribute is class
+        ``{'tag': 'tag name', 'attrs': dict}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :param attribute:
+        :type attribute: str
+        :return: string or list if attribute is class
         """
         return piped_command(
             self.child,
@@ -260,16 +292,19 @@ class SandboxParseHtml():
         If you are retrieving data from websites you might need to get the contents
         of a table or a similar structure. This is the function to get that information.
         The descriptions must be a list of python dictionaries with
-        {'tag': 'tag name', 'attrs': dict}. The last description in this list will
+        ``{'tag': 'tag name', 'attrs': dict}``. The last description in this list will
         be used for a findAll of that element. This should select all the rows of the
         table you want to read.
         specify all the information you are searching for in searched_information in the
-        following format: {'name': {'search tag': 'td', 'search attrs': dict,
-        'captions': ['list', 'of', 'captions'], 'content tag': 'td', 'content attrs': dict},
-        'next name': ...}
-        @param descriptions: [dict]
-        @param searched_information: dict
-        @return: dict
+        following format: ``{'name': {'search tag': 'td', 'search attrs': dict,``
+        ``'captions': ['list', 'of', 'captions'], 'content tag': 'td', 'content attrs': dict},``
+        ``'next name': ...}``
+
+        :param descriptions:
+        :type descriptions: dict
+        :param searched_information:
+        :type searched_information: dict
+        :rtype: dict
         """
         return piped_command(
             self.child,
