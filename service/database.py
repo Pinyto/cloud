@@ -24,12 +24,18 @@ class CollectionWrapper(object):
         encodes all fields beginning with _ for returning a valid
         json response.
 
-        @param query: json string
-        @param skip: integer
-        @param limit: int
-        @param sorting: string identifiying the key
-        @param sort_direction: 'asc' or 'desc'
-        @return: dict
+        :param query:
+        :type query: dict
+        :param skip: Count of documents which should be skipped in the query. This is useful for pagination.
+        :type skip: int
+        :param limit: Number of documents which should be returned. This number is of course the maximum.
+        :type limit: int
+        :param sorting: String identifying the key which is used for sorting.
+        :type sorting: str
+        :param sort_direction: 'asc' or 'desc'
+        :type sort_direction: str
+        :return: The list of found documents. If no document is found the list is empty.
+        :rtype: list
         """
         if self.only_own_data:
             query['assembly'] = self.assembly_name
@@ -45,8 +51,10 @@ class CollectionWrapper(object):
         """
         Use this function to get a count from the database.
 
-        @param query: json string
-        @return: dict
+        :param query:
+        :type query: dict
+        :return: The number of documents matching the query
+        :rtype: int
         """
         if self.only_own_data:
             query['assembly'] = self.assembly_name
@@ -62,12 +70,18 @@ class CollectionWrapper(object):
         returns complete documents with _id fields. Do not use this
         to construct json responses!
 
-        @param query: json string
-        @param skip: integer
-        @param limit: integer
-        @param sorting: string identifiying the key
-        @param sort_direction: 'asc' or 'desc'
-        @return: dict
+        :param query:
+        :type query: dict
+        :param skip: Count of documents which should be skipped in the query. This is useful for pagination.
+        :type skip: int
+        :param limit: Number of documents which should be returned. This number is of course the maximum.
+        :type limit: int
+        :param sorting: String identifying the key which is used for sorting.
+        :type sorting: str
+        :param sort_direction: 'asc' or 'desc'
+        :type sort_direction: str
+        :return: The list of found documents. If no document is found the list is empty.
+        :rtype: list
         """
         if self.only_own_data:
             query['assembly'] = self.assembly_name
@@ -85,8 +99,10 @@ class CollectionWrapper(object):
         Find the document with the given ID in the database. On
         success this returns a single document.
 
-        @param document_id: string
-        @return: dict
+        :param document_id:
+        :type document_id: string
+        :return: The document with the given _id
+        :rtype: dict
         """
         if self.only_own_data:
             return self.db.find_one(inject_object_id({'_id': document_id, 'assembly': self.assembly_name}))
@@ -98,9 +114,12 @@ class CollectionWrapper(object):
         Return a list representing the diversity of a given attribute in
         the documents matched by the query.
 
-        @param query: json string
-        @param attribute: string
-        @return:
+        :param query: json
+        :type query: str
+        :param attribute: String describing the attribute
+        :type attribute: str
+        :return: A list of values the attribute can have in the set of documents described by the query
+        :rtype: list
         """
         if self.only_own_data:
             query['assembly'] = self.assembly_name
@@ -110,8 +129,10 @@ class CollectionWrapper(object):
         """
         Saves the document. The document must have a valid _id
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
+        :return: The ObjectId of the insrted document
+        :rtype: str
         """
         document['assembly'] = self.assembly_name
         if not isinstance(document['_id'], ObjectId):
@@ -124,8 +145,10 @@ class CollectionWrapper(object):
         ID is removed and a new ID will be generated. Time will
         be set to now.
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
+        :return: The ObjectId of the insrted document
+        :rtype: str
         """
         if '_id' in document:
             del document['_id']
@@ -137,8 +160,8 @@ class CollectionWrapper(object):
         """
         Deletes the document. The document must have a valid _id
 
-        @param document:
-        @return:
+        :param document:
+        :type document: dict
         """
         if self.only_own_data:
             self.db.remove(spec_or_id=inject_object_id({"_id": document['_id'], 'assembly': self.assembly_name}))
@@ -150,8 +173,9 @@ def encode_underscore_fields(data):
     """
     Removes _id
 
-    @param data: dict
-    @return: dict
+    :param data:
+    :type data: dict
+    :rtype: dict
     """
     converted = {}
     for key in data:
@@ -169,8 +193,9 @@ def encode_underscore_fields_list(data_list):
     """
     Removes _id for every dict in the list
 
-    @param data_list: [dict]
-    @return: [dict]
+    :param data_list:
+    :type data_list: list
+    :rtype: list
     """
     converted_list = []
     for item in data_list:
@@ -182,8 +207,9 @@ def inject_object_id(query):
     """
     Traverses all fields of the query dict and converts all '_id' to ObjectId instances.
 
-    @param query: dict
-    @return: dict
+    :param query:
+    :type query: dict
+    :rtype: dict
     """
     if isinstance(query, list):
         for index, value in enumerate(query):

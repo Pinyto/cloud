@@ -22,10 +22,14 @@ def store(request, user_name, assembly_name):
     Store document in any format. The assembly, date of creation and request.user will be
     added automatically to the document
 
-    @param request: Django request
-    @param user_name: string
-    @param assembly_name: string
-    @return JSON
+    :param request: Django request
+    :type request: HttpRequest
+    :param user_name:
+    :type user_name: str
+    :param assembly_name:
+    :type assembly_name: str
+    :return: JSON
+    :rtype: str
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
@@ -74,8 +78,10 @@ def statistics(request):
     """
     Retrieve statistics about storage and computation time usage.
 
-    @param request: Django request
-    @return JSON
+    :param request: Django request
+    :type request: HttpRequest
+    :return: JSON
+    :rtype: str
     """
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))

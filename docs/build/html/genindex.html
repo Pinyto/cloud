@@ -78,7 +78,12 @@
 <li class="toctree-l2"><a class="reference internal" href="keyserver.html#module-keyserver.views">Administration-API</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#module-service.database">Wrapper-Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#default-api">Default-API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#database-statistics">Database statistics</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
 <li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
 </ul>
@@ -209,8 +214,6 @@
   <dt><a href="keyserver.html#keyserver.models.Account.check_password">check_password() (keyserver.models.Account method)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.ApiFunction.code">code (pinytoCloud.models.ApiFunction attribute)</a>
   </dt>
@@ -221,6 +224,16 @@
   </dt>
 
       </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="database.html#service.database.CollectionWrapper">CollectionWrapper (class in service.database)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.count">count() (service.database.CollectionWrapper method)</a>
+  </dt>
+
       
   <dt><a href="keyserver.html#keyserver.models.Account.create">create() (keyserver.models.Account class method)</a>
   </dt>
@@ -242,15 +255,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="administration.html#pinytoCloud.views.delete_assembly">delete_assembly() (in module pinytoCloud.views)</a>
+  <dt><a href="database.html#module-database.views">database.views (module)</a>
   </dt>
 
       
-  <dt><a href="administration.html#pinytoCloud.views.delete_key">delete_key() (in module pinytoCloud.views)</a>
+  <dt><a href="administration.html#pinytoCloud.views.delete_assembly">delete_assembly() (in module pinytoCloud.views)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="administration.html#pinytoCloud.views.delete_key">delete_key() (in module pinytoCloud.views)</a>
+  </dt>
+
       
   <dt><a href="administration.html#pinytoCloud.models.Assembly.description">description (pinytoCloud.models.Assembly attribute)</a>
   </dt>
@@ -265,12 +282,40 @@
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.e">e (pinytoCloud.models.StoredPublicKey attribute)</a>
   </dt>
 
+      
+  <dt><a href="database.html#service.database.encode_underscore_fields">encode_underscore_fields() (in module service.database)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="database.html#service.database.encode_underscore_fields_list">encode_underscore_fields_list() (in module service.database)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.find">find() (service.database.CollectionWrapper method)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.find_distinct">find_distinct() (service.database.CollectionWrapper method)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.find_document_for_id">find_document_for_id() (service.database.CollectionWrapper method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.find_documents">find_documents() (service.database.CollectionWrapper method)</a>
+  </dt>
+
       
   <dt><a href="administration.html#pinytoCloud.models.Assembly.fork">fork() (pinytoCloud.models.Assembly method)</a>
   </dt>
@@ -306,11 +351,19 @@
   </dt>
 
       
-  <dt><a href="administration.html#pinytoCloud.views.install_assembly">install_assembly() (in module pinytoCloud.views)</a>
+  <dt><a href="database.html#service.database.inject_object_id">inject_object_id() (in module service.database)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.insert">insert() (service.database.CollectionWrapper method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="administration.html#pinytoCloud.views.install_assembly">install_assembly() (in module pinytoCloud.views)</a>
+  </dt>
+
       
   <dt><a href="administration.html#pinytoCloud.models.Assembly.installed_at">installed_at (pinytoCloud.models.Assembly attribute)</a>
   </dt>
@@ -471,6 +524,10 @@
   <dt><a href="administration.html#pinytoCloud.views.register_request">register_request() (in module pinytoCloud.views)</a>
   </dt>
 
+      
+  <dt><a href="database.html#service.database.CollectionWrapper.remove">remove() (service.database.CollectionWrapper method)</a>
+  </dt>
+
   </dl></td>
 </tr></table>
 
@@ -478,11 +535,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="database.html#service.database.CollectionWrapper.save">save() (service.database.CollectionWrapper method)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.views.save_assembly">save_assembly() (in module pinytoCloud.views)</a>
   </dt>
 
       
   <dt><a href="administration.html#pinytoCloud.models.Job.schedule">schedule (pinytoCloud.models.Job attribute)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#module-service.database">service.database (module)</a>
   </dt>
 
       
@@ -500,7 +565,15 @@
   </dt>
 
       
+  <dt><a href="database.html#database.views.statistics">statistics() (in module database.views)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#pinytoCloud.models.User.storage_budget">storage_budget (pinytoCloud.models.User attribute)</a>
+  </dt>
+
+      
+  <dt><a href="database.html#database.views.store">store() (in module database.views)</a>
   </dt>
 
       
