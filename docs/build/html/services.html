@@ -70,12 +70,34 @@
 <li class="toctree-l2"><a class="reference internal" href="administration.html#authentication">Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#logout">Logout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="administration.html#key-management">Key Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administration.html#assembly-management">Assembly Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="administration.html#module-pinytoCloud.urls">Urls</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a></li>
-<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a></li>
-<li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="keyserver.html">Keyserver</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="keyserver.html#module-keyserver.views">Administration-API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database.html">Database</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="database.html#module-service.database">Wrapper-Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#default-api">Default-API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="database.html#database-statistics">Database statistics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="assemblies.html">Assemblies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#installing-assemblies">Installing assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#module-api_prototype.views">Calling Assemblies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#executing-jobs">Executing Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="assemblies.html#module-api_prototype.sandbox">The Sandbox</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-service.response">Response Helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-service.models">Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#http">Http</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parsehtml">ParseHtml</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -112,7 +134,222 @@
             
   <div class="section" id="services">
 <h1>Services<a class="headerlink" href="#services" title="Permalink to this headline">¶</a></h1>
-<p>stub</p>
+<p>Assemblies can only access some services explicitly exposed to them because the sandbox can not allow arbitrary
+calls to any library. The services integrated in Pinyto also try to be easy and pleasurable to use.</p>
+<p>The database wrapper is already explained in the <a class="reference external" href="database.html">Database section</a>.</p>
+<div class="section" id="module-service.response">
+<span id="response-helper"></span><h2>Response Helper<a class="headerlink" href="#module-service.response" title="Permalink to this headline">¶</a></h2>
+<p>Most requests in pinyto expect a response in the form of a HttpResponse object with type &#8220;application/json&#8221; and
+a JSON encoded string as payload. Because this is so common an easy to use helper function is used:</p>
+<dl class="function">
+<dt id="service.response.json_response">
+<tt class="descclassname">service.response.</tt><tt class="descname">json_response</tt><big>(</big><em>data</em><big>)</big><a class="reference internal" href="_modules/service/response.html#json_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.response.json_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the json as string with correct mimetype.</p>
+<p>&#64;param data: dict
+&#64;return: HttpResponse</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-service.models">
+<span id="factory"></span><h2>Factory<a class="headerlink" href="#module-service.models" title="Permalink to this headline">¶</a></h2>
+<p>In assemblies it is not allowed to include python modules or classes. Service classes can be instantiated using
+the <tt class="docutils literal"><span class="pre">Factory</span></tt> class which is accessible.</p>
+<dl class="class">
+<dt id="service.models.Factory">
+<em class="property">class </em><tt class="descclassname">service.models.</tt><tt class="descname">Factory</tt><a class="reference internal" href="_modules/service/models.html#Factory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.models.Factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this factory to create objects in outside the sandboxed
+process. Just pass the class name to the create method.</p>
+<dl class="staticmethod">
+<dt id="service.models.Factory.create">
+<em class="property">static </em><tt class="descname">create</tt><big>(</big><em>class_name</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/service/models.html#Factory.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.models.Factory.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method will create an object of the class of classname
+with the arguments supplied after that. If the class can not
+be created in the sandbox it throws an Exception. The Exception
+gets thrown even if this is not executed inside the sandbox
+because every code should be executable in the sandbox.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>class_name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>args</strong> &#8211; additional arguments</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Objects of the type specified in class_name</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>The factory can create the following classes:</p>
+<ul class="simple">
+<li>Http</li>
+<li>ParseHtml</li>
+</ul>
+</div>
+<div class="section" id="http">
+<h2>Http<a class="headerlink" href="#http" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">Http</span></tt> uses internally the <tt class="docutils literal"><span class="pre">requests</span></tt> library from Apache.</p>
+<span class="target" id="module-service.http"></span><dl class="class">
+<dt id="service.http.Http">
+<em class="property">class </em><tt class="descclassname">service.http.</tt><tt class="descname">Http</tt><a class="reference internal" href="_modules/service/http.html#Http"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.http.Http" title="Permalink to this definition">¶</a></dt>
+<dd><p>Objects of this class can be used to connect to remote websites.</p>
+<dl class="staticmethod">
+<dt id="service.http.Http.get">
+<em class="property">static </em><tt class="descname">get</tt><big>(</big><em>url</em><big>)</big><a class="reference internal" href="_modules/service/http.html#Http.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.http.Http.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>This issues a http request to the supplied url and returns
+the response as a string. If the request fails an empty
+string is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> &#8211; Url with <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a> at the beginning</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="service.http.Http.post">
+<em class="property">static </em><tt class="descname">post</tt><big>(</big><em>url=''</em>, <em>data=None</em><big>)</big><a class="reference internal" href="_modules/service/http.html#Http.post"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.http.Http.post" title="Permalink to this definition">¶</a></dt>
+<dd><p>This issues a http request to the supplied url and returns
+the response as a string. If the request fails an empty
+string is returned.</p>
+<p>For the params do not forget to add an &#64; to the beginning of each param name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Url with <a class="reference external" href="http://">http://</a> or <a class="reference external" href="https://">https://</a> at the beginning</li>
+<li><strong>data</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; payload data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parsehtml">
+<h2>ParseHtml<a class="headerlink" href="#parsehtml" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">ParseHtml</span></tt> is based on BeautifulSoup version 4. The interface is quite different as the wrapper does not use
+a fluid interface.</p>
+<span class="target" id="module-service.parsehtml"></span><dl class="class">
+<dt id="service.parsehtml.ParseHtml">
+<em class="property">class </em><tt class="descclassname">service.parsehtml.</tt><tt class="descname">ParseHtml</tt><big>(</big><em>html</em><big>)</big><a class="reference internal" href="_modules/service/parsehtml.html#ParseHtml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.parsehtml.ParseHtml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this service to get information from html documents.</p>
+<dl class="method">
+<dt id="service.parsehtml.ParseHtml.contains">
+<tt class="descname">contains</tt><big>(</big><em>descriptions</em><big>)</big><a class="reference internal" href="_modules/service/parsehtml.html#ParseHtml.contains"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.parsehtml.ParseHtml.contains" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to check if the html contains the described tag.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tagname',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">boolean</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="service.parsehtml.ParseHtml.find_element_and_collect_table_like_information">
+<tt class="descname">find_element_and_collect_table_like_information</tt><big>(</big><em>descriptions</em>, <em>searched_information</em><big>)</big><a class="reference internal" href="_modules/service/parsehtml.html#ParseHtml.find_element_and_collect_table_like_information"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.parsehtml.ParseHtml.find_element_and_collect_table_like_information" title="Permalink to this definition">¶</a></dt>
+<dd><p>If you are retrieving data from websites you might need to get the contents
+of a table or a similar structure. This is the function to get that information.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tag</span> <span class="pre">name',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt>. The last description in this list will
+be used for a findAll of that element. This should select all the rows of the
+table you want to read.
+specify all the information you are searching for in searched_information in the
+following format: <tt class="docutils literal"><span class="pre">{'name':</span> <span class="pre">{'search</span> <span class="pre">tag':</span> <span class="pre">'td',</span> <span class="pre">'search</span> <span class="pre">attrs':</span> <span class="pre">dict,</span></tt>
+<tt class="docutils literal"><span class="pre">'captions':</span> <span class="pre">['list',</span> <span class="pre">'of',</span> <span class="pre">'captions'],</span> <span class="pre">'content</span> <span class="pre">tag':</span> <span class="pre">'td',</span> <span class="pre">'content</span> <span class="pre">attrs':</span> <span class="pre">dict},</span></tt>
+<tt class="docutils literal"><span class="pre">'next</span> <span class="pre">name':</span> <span class="pre">...}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>searched_information</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="service.parsehtml.ParseHtml.find_element_and_get_attribute_value">
+<tt class="descname">find_element_and_get_attribute_value</tt><big>(</big><em>descriptions</em>, <em>attribute</em><big>)</big><a class="reference internal" href="_modules/service/parsehtml.html#ParseHtml.find_element_and_get_attribute_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#service.parsehtml.ParseHtml.find_element_and_get_attribute_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to find the described tag and return the value from
+attribute if the tag is found. Returns empty string if the tag or the
+attribute is not found.
+The descriptions must be a list of python dictionaries with
+<tt class="docutils literal"><span class="pre">{'tag':</span> <span class="pre">'tag</span> <span class="pre">name',</span> <span class="pre">'attrs':</span> <span class="pre">dict}</span></tt></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>descriptions</strong> (<a class="reference external" href="http://docs.python.org/library/stdtypes.html#dict" title="(in Python v2.7)"><em>dict</em></a>) &#8211; </li>
+<li><strong>attribute</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string or list if attribute is class</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>For this class the <tt class="docutils literal"><span class="pre">extract_content</span></tt> function from <tt class="docutils literal"><span class="pre">service.xml</span></tt> might become handy.</p>
+<span class="target" id="module-service.parsehtml"></span><dl class="function">
+<dt id="service.parsehtml.extract_content">
+<tt class="descclassname">service.parsehtml.</tt><tt class="descname">extract_content</tt><big>(</big><em>tag</em><big>)</big><a class="headerlink" href="#service.parsehtml.extract_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a tag and returns the string content without markup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tag</strong> &#8211; BeautifulSoup Tag</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 

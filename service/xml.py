@@ -10,15 +10,15 @@ def extract_content(tag):
         """
         Takes a tag and returns the string content without markup.
 
-        @param tag: BeautifulSoup Tag
-        @return: string
+        :param tag: BeautifulSoup Tag
+        :rtype: str
         """
-        content = u''
+        content = ''
         if not tag:
             return content
         for c in tag.contents:
             if not isinstance(c, NavigableString):
                 content += extract_content(c)
             else:
-                content += u' ' + str(c) + u' '
-        return u' '.join(content.split())
+                content += ' ' + str(c) + ' '
+        return ' '.join(content.split())

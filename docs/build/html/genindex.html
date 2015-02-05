@@ -91,7 +91,13 @@
 <li class="toctree-l2"><a class="reference internal" href="assemblies.html#module-api_prototype.sandbox">The Sandbox</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-service.response">Response Helper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-service.models">Factory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#http">Http</a></li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#parsehtml">ParseHtml</a></li>
+</ul>
+</li>
 </ul>
 
         
@@ -134,6 +140,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
  | <a href="#K"><strong>K</strong></a>
@@ -281,6 +288,12 @@
   <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.contains">contains() (api_prototype.models.SandboxParseHtml method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="services.html#service.parsehtml.ParseHtml.contains">(service.parsehtml.ParseHtml method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.count">count() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
@@ -302,6 +315,10 @@
 
         
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.create">(pinytoCloud.models.StoredPublicKey class method)</a>
+  </dt>
+
+        
+  <dt><a href="services.html#service.models.Factory.create">(service.models.Factory static method)</a>
   </dt>
 
       </dl></dd>
@@ -355,18 +372,22 @@
   <dt><a href="database.html#service.database.encode_underscore_fields">encode_underscore_fields() (in module service.database)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="database.html#service.database.encode_underscore_fields_list">encode_underscore_fields_list() (in module service.database)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="assemblies.html#api_prototype.sandbox_helpers.escape_all_objectids_and_datetime">escape_all_objectids_and_datetime() (in module api_prototype.sandbox_helpers)</a>
   </dt>
 
       
   <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost.execute">execute() (api_prototype.seccomp_process.SecureHost method)</a>
+  </dt>
+
+      
+  <dt><a href="services.html#service.parsehtml.extract_content">extract_content() (in module service.parsehtml)</a>
   </dt>
 
   </dl></td>
@@ -379,6 +400,12 @@
   <dt><a href="assemblies.html#api_prototype.models.Factory">Factory (class in api_prototype.models)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="services.html#service.models.Factory">(class in service.models)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="assemblies.html#api_prototype.models.SandboxCollectionWrapper.find">find() (api_prototype.models.SandboxCollectionWrapper method)</a>
   </dt>
@@ -425,10 +452,22 @@
   <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.find_element_and_collect_table_like_information">find_element_and_collect_table_like_information() (api_prototype.models.SandboxParseHtml method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="services.html#service.parsehtml.ParseHtml.find_element_and_collect_table_like_information">(service.parsehtml.ParseHtml method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="assemblies.html#api_prototype.models.SandboxParseHtml.find_element_and_get_attribute_value">find_element_and_get_attribute_value() (api_prototype.models.SandboxParseHtml method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="services.html#service.parsehtml.ParseHtml.find_element_and_get_attribute_value">(service.parsehtml.ParseHtml method)</a>
+  </dt>
+
+      </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.models.Assembly.fork">fork() (pinytoCloud.models.Assembly method)</a>
   </dt>
@@ -448,6 +487,10 @@
   <dt><a href="assemblies.html#api_prototype.models.SandboxRequestPost.get">(api_prototype.models.SandboxRequestPost method)</a>
   </dt>
 
+        
+  <dt><a href="services.html#service.http.Http.get">(service.http.Http static method)</a>
+  </dt>
+
       </dl></dd>
       
   <dt><a href="administration.html#pinytoCloud.views.get_assembly_source">get_assembly_source() (in module pinytoCloud.views)</a>
@@ -461,6 +504,16 @@
 
       
   <dt><a href="administration.html#pinytoCloud.models.StoredPublicKey.get_key">get_key() (pinytoCloud.models.StoredPublicKey method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="services.html#service.http.Http">Http (class in service.http)</a>
   </dt>
 
   </dl></td>
@@ -509,6 +562,12 @@
   <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#pinytoCloud.models.Job">Job (class in pinytoCloud.models)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="services.html#service.response.json_response">json_response() (in module service.response)</a>
   </dt>
 
   </dl></td>
@@ -634,6 +693,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
+  <dt><a href="services.html#service.parsehtml.ParseHtml">ParseHtml (class in service.parsehtml)</a>
+  </dt>
+
+      
   <dt><a href="administration.html#module-pinytoCloud.models">pinytoCloud.models (module)</a>
   </dt>
 
@@ -641,12 +704,12 @@
   <dt><a href="administration.html#module-pinytoCloud.urls">pinytoCloud.urls (module)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="administration.html#module-pinytoCloud.views">pinytoCloud.views (module)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="assemblies.html#api_prototype.sandbox_helpers.piped_command">piped_command() (in module api_prototype.sandbox_helpers)</a>
   </dt>
@@ -655,6 +718,12 @@
   <dt><a href="assemblies.html#api_prototype.models.SandboxHttp.post">post() (api_prototype.models.SandboxHttp method)</a>
   </dt>
 
+      <dd><dl>
+        
+  <dt><a href="services.html#service.http.Http.post">(service.http.Http static method)</a>
+  </dt>
+
+      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -751,14 +820,30 @@
   <dt><a href="administration.html#pinytoCloud.models.Job.schedule">schedule (pinytoCloud.models.Job attribute)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="assemblies.html#api_prototype.seccomp_process.SecureHost">SecureHost (class in api_prototype.seccomp_process)</a>
   </dt>
 
       
   <dt><a href="database.html#module-service.database">service.database (module)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="services.html#module-service.http">service.http (module)</a>
+  </dt>
+
+      
+  <dt><a href="services.html#module-service.models">service.models (module)</a>
+  </dt>
+
+      
+  <dt><a href="services.html#module-service.parsehtml">service.parsehtml (module)</a>, <a href="services.html#module-service.parsehtml">[1]</a>
+  </dt>
+
+      
+  <dt><a href="services.html#module-service.response">service.response (module)</a>
   </dt>
 
       

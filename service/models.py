@@ -10,7 +10,7 @@ from service.http import Http
 
 class Factory():
     """
-    Use this factory to create objects in the outside the sandboxed
+    Use this factory to create objects in outside the sandboxed
     process. Just pass the class name to the create method.
     """
 
