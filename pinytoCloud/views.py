@@ -101,6 +101,56 @@ def logout(request):
 
 
 @csrf_exempt
+def register_request(request):
+    """
+    Creates an account if possible and saves the public key.
+    This function only extracts the params from the request and calls register.
+
+    :param request:
+    :type request: HttpRequest
+    :rtype: json
+    """
+    try:
+        request_data = json.loads(str(request.body, encoding='utf-8'))
+    except ValueError:
+        return json_response({'error': "Please supply the username and public_key as JSON."})
+    if 'username' not in request_data or 'public_key' not in request_data:
+        return json_response({'error': "Please supply JSON with username and public_key."})
+    return json_response(register(request_data['username'], request_data['public_key']))
+
+
+def register(username, key_data):
+    """
+    Creates an account if possible and saves the public key.
+
+    :param username:
+    :type username: str
+    :param key_data:
+    :type key_data: str
+    :rtype: json
+    """
+    if User.objects.filter(name=username).count() > 0:
+        return {'error': "Username " + username + " is already taken. Try another username."}
+    if 'N' not in key_data or 'e' not in key_data:
+        return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
+    try:
+        n = int(key_data['N'])
+        if n < pow(2, 3071):
+            return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
+    except ValueError:
+        return {'error': "Factor N in the public key is not a number. " +
+                         "It has to be a long integer transferred as a string."}
+    try:
+        e = int(key_data['e'])
+    except ValueError:
+        return {'error': "Factor e in the public key is not a number. It has to be a long integer."}
+    new_user = User(name=username)
+    new_user.save()
+    StoredPublicKey.create(new_user, key_data['N'], e)
+    return {'success': True}
+
+
+@csrf_exempt
 def list_keys(request):
     """
     Returns a list of keys for the active account.
@@ -198,56 +248,6 @@ def delete_key(request):
     else:
         # session is not a session so it has to be response object with an error message
         return session
-
-
-@csrf_exempt
-def register_request(request):
-    """
-    Creates an account if possible and saves the public key.
-    This function only extracts the params from the request and calls register.
-
-    :param request:
-    :type request: HttpRequest
-    :rtype: json
-    """
-    try:
-        request_data = json.loads(str(request.body, encoding='utf-8'))
-    except ValueError:
-        return json_response({'error': "Please supply the username and public_key as JSON."})
-    if 'username' not in request_data or 'public_key' not in request_data:
-        return json_response({'error': "Please supply JSON with username and public_key."})
-    return json_response(register(request_data['username'], request_data['public_key']))
-
-
-def register(username, key_data):
-    """
-    Creates an account if possible and saves the public key.
-
-    :param username:
-    :type username: str
-    :param key_data:
-    :type key_data: str
-    :rtype: json
-    """
-    if User.objects.filter(name=username).count() > 0:
-        return {'error': "Username " + username + " is already taken. Try another username."}
-    if 'N' not in key_data or 'e' not in key_data:
-        return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
-    try:
-        n = int(key_data['N'])
-        if n < pow(2, 3071):
-            return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
-    except ValueError:
-        return {'error': "Factor N in the public key is not a number. " +
-                         "It has to be a long integer transferred as a string."}
-    try:
-        e = int(key_data['e'])
-    except ValueError:
-        return {'error': "Factor e in the public key is not a number. It has to be a long integer."}
-    new_user = User(name=username)
-    new_user.save()
-    StoredPublicKey.create(new_user, key_data['N'], e)
-    return {'success': True}
 
 
 @csrf_exempt
