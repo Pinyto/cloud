@@ -7,9 +7,10 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from pinytoCloud.models import User, Assembly, StoredPublicKey, ApiFunction
-from Crypto.Cipher import PKCS1_OAEP
-from keyserver.settings import PINYTO_PUBLICKEY
-from base64 import b16encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from keyserver.settings import PINYTO_PUBLIC_KEY
+from base64 import b64encode
 import json
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -37,11 +38,13 @@ class TestApiCall(TestCase):
         self.session = self.user.start_session(self.hugo_key)
         self.user.last_calculation_time = timezone.now()
         self.user.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(
-            b16encode(pinyto_cipher.encrypt(self.session.token.encode('utf-8'))),
-            encoding='utf-8'
-        )
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_json(self):
         response = self.client.post(
@@ -71,7 +74,7 @@ class TestApiCall(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], 'The token is not in valid base16-format.')
+        self.assertEqual(res['error'], 'The token is not in valid base64-format.')
 
     def test_non_existent_user(self):
         response = self.client.post(

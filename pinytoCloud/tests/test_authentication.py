@@ -6,41 +6,14 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from pinytoCloud.models import User, StoredPublicKey
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto import Random
-from Crypto.PublicKey import RSA
-from keyserver.settings import PINYTO_PUBLICKEY
-from base64 import b16encode
-import json
+from keyserver.settings import PINYTO_PUBLIC_KEY
+from base64 import b64encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 from unittest.mock import patch
 import json
 
 from pinytoCloud.models import User, StoredPublicKey
-
-
-def mock_get_random_string(length=16):
-    """
-    Returns length 'a'
-
-    @param length: int
-    @return: string
-    """
-    return ''.join(['a' for _ in range(length)])
-
-
-class MockCypher(object):
-    """
-    This class mocks Crypto.Cipher objects and does nothing.
-    """
-    @staticmethod
-    def encrypt(message):
-        """
-        This does nothing.
-
-        @param message: string
-        @return: string
-        """
-        return message
 
 
 class TestAuthenticate(TestCase):
@@ -104,11 +77,7 @@ class TestAuthenticate(TestCase):
         self.assertIn('error', res)
         self.assertEqual(res['error'], "This is not a registered and active public key of this user.")
 
-    @patch('pinytoCloud.models.PKCS1_OAEP')
-    @patch('pinytoCloud.views.get_random_bytes', mock_get_random_string)
-    @patch('pinytoCloud.models.create_token', mock_get_random_string)
-    def test_successful_response(self, cipher_mock):
-        cipher_mock.new.return_value = MockCypher()
+    def test_successful_response(self):
         response = self.client.post(
             reverse('authenticate'),
             json.dumps({'username': 'hugo', 'key_hash': 'b44c98daa8'}),
@@ -129,8 +98,8 @@ class TestAuthenticate(TestCase):
                     '39920674553250388195087163765781395455357883583143801994109316250182921816166246377696562385' + \
                     '79051392498934482555166917903811748609766782106967890875660934895187954392663388462785477239' + \
                     '52680'
-        self.assertEqual(res['encrypted_token'], encrypted_token)
-        self.assertEqual(res['signature'], signature)
+        self.assertEqual(encrypted_token, res['encrypted_token'])
+        self.assertEqual(signature, res['signature'])
 
 
 class TestLogout(TestCase):
@@ -149,10 +118,13 @@ class TestLogout(TestCase):
             "0939464832253228468472307931284129162453821959698949"
         key = StoredPublicKey.create(self.hugo, n, int(65537))
         self.session = self.hugo.start_session(key)
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -275,8 +247,8 @@ class TestRegister(TestCase):
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
-            res['error'],
-            "Factor N in the public key is too small. Please use at least 3072 bit."
+            "Factor N in the public key is too small. Please use at least 4096 bit.",
+            res['error']
         )
 
     def test_e_no_number(self):
@@ -304,8 +276,8 @@ class TestRegister(TestCase):
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
-            res['error'],
-            "Factor e in the public key is not a number. It has to be a long integer."
+            "Factor e in the public key is not a number. It has to be a long integer.",
+            res['error']
         )
 
     def test_successful(self):

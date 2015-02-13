@@ -15,7 +15,7 @@ class TokenCheckTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "The token is not in valid base16-format.")
+        self.assertEqual(res['error'], "The token is not in valid base64-format.")
 
     def test_wrong_length(self):
         response = check_token(
@@ -31,7 +31,10 @@ class TokenCheckTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "The token has an invalid length.")
+        self.assertEqual(
+            "The token could not be decoded: Ciphertext length must be equal to key size.",
+            res['error']
+        )
 
     def test_no_session(self):
         response = check_token(
@@ -47,7 +50,7 @@ class TokenCheckTest(TestCase):
         self.assertEqual(response.status_code, 200)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "Unknown token. Please authenticate.")
+        self.assertEqual("Unknown token. Please authenticate.", res['error'])
 
     def test_successful(self):
         hugo = User(name='hugo')

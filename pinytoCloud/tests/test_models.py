@@ -7,7 +7,7 @@ from django.db.transaction import non_atomic_requests, commit
 from pinytoCloud.models import User, StoredPublicKey
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
-from base64 import b16decode
+from base64 import b64decode
 from datetime import datetime
 from django.utils import timezone
 
@@ -131,7 +131,7 @@ class ModelTest(TestCase):
             '3639169'
         )))
         cipher = PKCS1_OAEP.new(private_key)
-        self.assertEqual(session.token, str(cipher.decrypt(b16decode(encrypted_token)), encoding='utf-8'))
+        self.assertEqual(session.token, str(cipher.decrypt(b64decode(encrypted_token)), encoding='utf-8'))
 
     def test_budget_update(self):
         hugo = User(name='hugo')

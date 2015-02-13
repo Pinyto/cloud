@@ -6,9 +6,10 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
-from Crypto.Cipher import PKCS1_OAEP
-from keyserver.settings import PINYTO_PUBLICKEY
-from base64 import b16encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from keyserver.settings import PINYTO_PUBLIC_KEY
+from base64 import b64encode
 import json
 
 
@@ -30,10 +31,13 @@ class TestListOwnAssemblies(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -156,10 +160,13 @@ class TestSaveAssembly(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -485,10 +492,13 @@ class TestDeleteAssembly(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -573,10 +583,13 @@ class TestListInstalledAssemblies(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -649,10 +662,13 @@ class TestListAllAssemblies(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -719,10 +735,13 @@ class TestInstallAssembly(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -834,10 +853,13 @@ class TestUninstallAssembly(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -924,10 +946,13 @@ class TestGetAssemblySource(TestCase):
         self.session = self.hugo.start_session(key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))
-        ), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_no_JSON(self):
         response = self.client.post(

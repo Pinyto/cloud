@@ -6,9 +6,10 @@ This File is part of Pinyto
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from pinytoCloud.models import User, StoredPublicKey, Assembly
-from Crypto.Cipher import PKCS1_OAEP
-from keyserver.settings import PINYTO_PUBLICKEY
-from base64 import b16encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from keyserver.settings import PINYTO_PUBLIC_KEY
+from base64 import b64encode
 from django.utils import timezone
 from pymongo import MongoClient
 from pymongo.collection import Collection
@@ -56,8 +57,13 @@ class StoreTest(TestCase):
         session = hugo.start_session(key)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        authentication_token = str(b16encode(pinyto_cipher.encrypt(session.token.encode('utf-8'))), encoding='utf-8')
+        authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
         return hugo, session, authentication_token
 
     def clear_collection(self, username):
@@ -333,11 +339,16 @@ class StatisticsTest(TestCase):
         session = hugo.start_session(key)
         hugo.last_calculation_time = timezone.now()
         hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        authentication_token = b16encode(pinyto_cipher.encrypt(session.token.encode('utf-8')))
+        authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
         response = self.client.post(
             reverse('statistics'),
-            json.dumps({'token': str(authentication_token, encoding='utf-8')}),
+            json.dumps({'token': authentication_token}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         res = json.loads(str(response.content, encoding='utf-8'))

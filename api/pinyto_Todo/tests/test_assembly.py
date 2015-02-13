@@ -9,9 +9,10 @@ from pymongo import MongoClient
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from pinytoCloud.models import User, StoredPublicKey, Assembly
-from Crypto.Cipher import PKCS1_OAEP
-from keyserver.settings import PINYTO_PUBLICKEY
-from base64 import b16encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from keyserver.settings import PINYTO_PUBLIC_KEY
+from base64 import b64encode
 from datetime import datetime
 import json
 
@@ -45,9 +46,13 @@ class TestTodo(TestCase):
         self.session = self.hugo.start_session(self.hugo_key)
         self.hugo.last_calculation_time = timezone.now()
         self.hugo.save()
-        pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-        self.authentication_token = str(b16encode(
-            pinyto_cipher.encrypt(self.session.token.encode('utf-8'))), encoding='utf-8')
+        self.authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+            self.session.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )), encoding='utf-8')
 
     def test_get_empty_list(self):
         response = self.client.post(
