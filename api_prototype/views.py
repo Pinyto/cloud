@@ -198,7 +198,7 @@ def check_for_jobs(sender, **kwargs):
                 )
                 continue
             for name, function in getmembers(api_class, predicate=isfunction):
-                if name.startswith(u'job_') and name == job['data']['job_name']:
+                if name.startswith('job_') and name == job['data']['job_name']:
                     collection_wrapper = CollectionWrapper(
                         collection,
                         assembly_name=job['data']['assembly_user'] + '/' + job['data']['assembly_name'],
