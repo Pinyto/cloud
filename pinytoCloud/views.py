@@ -79,7 +79,7 @@ def authenticate(username, key_hash):
     )
     signer.update(encrypted_token.encode('utf-8'))
     signature = signer.finalize()
-    return {'encrypted_token': encrypted_token, 'signature': b64encode(signature)}
+    return {'encrypted_token': encrypted_token, 'signature': str(b64encode(signature), encoding='utf-8')}
 
 
 @csrf_exempt

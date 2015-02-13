@@ -71,6 +71,8 @@ def authenticate(request):
             content_type='application/json'
         )
     encrypted_token = response['encrypted_token']
+    print("Token: " + encrypted_token)
+    print("Signature: " + response['signature'])
     signature = b64decode(response['signature'])
     verifier = PINYTO_PUBLIC_KEY.verifier(
         signature,
@@ -106,7 +108,6 @@ def authenticate(request):
             algorithm=hashes.SHA1(),
             label=None)
     )), encoding='utf-8')
-    print(authentication_token)
     return HttpResponse(json.dumps({'token': authentication_token}), content_type='application/json')
 
 
