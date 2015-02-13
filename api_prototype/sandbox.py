@@ -68,7 +68,7 @@ def safely_exec(code, request, db):
             wait_for_data = True
         if not sandbox_process.is_alive():
             termination = True
-            result = {u'error': u"The code could not be executed because it tried to do something illegal."}
+            result = {'error': "The code could not be executed because it tried to do something illegal."}
     sandbox_process.join()
     end_time = time.clock()
     return result, end_time - start_time + child_time
