@@ -4,13 +4,15 @@ This File is part of Pinyto
 """
 
 from keyserver.models import Account
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 from hashlib import sha256
-from base64 import b16decode, b16encode
 from django.http import HttpResponse
 import json
-from keyserver.settings import PINYTO_PUBLICKEY
+from base64 import b64encode, b64decode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.backends import default_backend
+from keyserver.settings import PINYTO_PUBLIC_KEY
 from pinytoCloud.views import authenticate as cloud_authenticate
 from pinytoCloud.views import register as cloud_register
 from pinytoCloud.checktoken import check_token
@@ -69,18 +71,42 @@ def authenticate(request):
             content_type='application/json'
         )
     encrypted_token = response['encrypted_token']
-    signature = (int(response['signature']),)
-    hasher = sha256()
-    hasher.update(encrypted_token.encode('utf-8'))
-    if not PINYTO_PUBLICKEY.verify(hasher.hexdigest().encode('utf-8'), signature):
+    signature = b64decode(response['signature'])
+    verifier = PINYTO_PUBLIC_KEY.verifier(
+        signature,
+        padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+        hashes.SHA256()
+    )
+    verifier.update(encrypted_token.encode('utf-8'))
+    try:
+        verifier.verify()
+    except InvalidSignature:
         return HttpResponse(json.dumps(
-            {'error': "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! "
-                      + "The developers will be informed. Authentication aborted."}), content_type='application/json')
-    key = RSA.construct((int(account.N), int(account.e), int(account.d)))
-    user_cipher = PKCS1_OAEP.new(key)
-    token = user_cipher.decrypt(b16decode(encrypted_token))
-    pinyto_cipher = PKCS1_OAEP.new(PINYTO_PUBLICKEY)
-    authentication_token = str(b16encode(pinyto_cipher.encrypt(token)), encoding='utf-8')
+            {'error': "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! " +
+                      "The developers will be informed. Authentication aborted."}), content_type='application/json')
+    public_numbers = rsa.RSAPublicNumbers(account.e, int(account.N))
+    p = int(account.p)
+    q = int(account.q)
+    d = int(account.d)
+    dmp1 = rsa.rsa_crt_dmp1(account.e, p)
+    dmq1 = rsa.rsa_crt_dmq1(account.e, q)
+    iqmp = rsa.rsa_crt_iqmp(p, q)
+    key = rsa.RSAPrivateNumbers(p, q, d, dmp1, dmq1, iqmp, public_numbers).private_key(default_backend())
+    token = key.decrypt(
+        b64decode(encrypted_token.encode('utf-8')),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA1()),
+            algorithm=hashes.SHA1(),
+            label=None)
+    )
+    authentication_token = str(b64encode(PINYTO_PUBLIC_KEY.encrypt(
+        token,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA1()),
+            algorithm=hashes.SHA1(),
+            label=None)
+    )), encoding='utf-8')
+    print(authentication_token)
     return HttpResponse(json.dumps({'token': authentication_token}), content_type='application/json')
 
 

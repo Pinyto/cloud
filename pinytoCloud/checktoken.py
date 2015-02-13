@@ -3,9 +3,10 @@
 This File is part of Pinyto
 """
 
-from Crypto.Cipher import PKCS1_OAEP
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 from pinytoCloud.settings import PINYTO_KEY
-from base64 import b16decode
+from base64 import b64decode
 from pinytoCloud.models import Session
 from service.response import json_response
 import logging
@@ -25,17 +26,22 @@ def check_token(encrypted_token):
     @param encrypted_token: string
     @return: Session
     """
-    cipher = PKCS1_OAEP.new(PINYTO_KEY)
     if type(encrypted_token) != str:
         encrypted_token = str(encrypted_token)
     try:
-        decoded_token = b16decode(encrypted_token)
+        decoded_token = b64decode(encrypted_token.encode('utf-8'))
     except binascii.Error:
-        return json_response({'error': "The token is not in valid base16-format."})
+        return json_response({'error': "The token is not in valid base64-format."})
     try:
-        token = cipher.decrypt(decoded_token)
-    except ValueError:
-        return json_response({'error': "The token has an invalid length."})
+        token = PINYTO_KEY.decrypt(
+            decoded_token,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None)
+        )
+    except ValueError as e:
+        return json_response({'error': "The token could not be decoded: " + str(e)})
     try:
         session = Session.objects.filter(token=token).all()[0]
     except IndexError:

@@ -5,9 +5,10 @@ In this file is the model definition for Pinyto users and for sessions.
 
 from django.db import models
 from django.dispatch import receiver
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
-from base64 import b16encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.backends import default_backend
+from base64 import b64encode
 from hashlib import sha256
 from django.utils import timezone
 from pinytoCloud.helpers import create_token
@@ -130,9 +131,9 @@ class StoredPublicKey(models.Model):
         Generates the RSA object from the stored data. Use this object for
         encryption and verification.
 
-        :rtype: Crypto.PublicKey.RSA
+        :rtype: cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey
         """
-        return RSA.construct((int(self.N), int(self.e)))
+        return rsa.RSAPublicNumbers(self.e, int(self.N)).public_key(default_backend())
 
 
 class Session(models.Model):
@@ -155,11 +156,18 @@ class Session(models.Model):
         """
         This method returns the session token encrypted with the key.
 
-        :returns: base16 encoded encrypted token
+        :returns: base64 encoded encrypted token
         :rtype: str
         """
-        cipher = PKCS1_OAEP.new(self.key.get_key())
-        return str(b16encode(cipher.encrypt(self.token.encode('ascii'))), encoding='utf-8')
+        encrypted_token = self.key.get_key().encrypt(
+            self.token.encode('utf-8'),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA1()),
+                algorithm=hashes.SHA1(),
+                label=None
+            )
+        )
+        return str(b64encode(encrypted_token), encoding='utf-8')
 
 
 class Assembly(models.Model):

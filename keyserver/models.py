@@ -5,8 +5,8 @@ This File is part of Pinyto
 
 from django.db import models
 from hashlib import sha256
-from Crypto import Random
-from Crypto.PublicKey import RSA
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 from keyserver.helper import create_salt
 
 
@@ -32,11 +32,13 @@ class Account(models.Model):
     N = models.CharField(max_length=1000)
     e = models.BigIntegerField()
     d = models.CharField(max_length=1000)
+    p = models.CharField(max_length=1000)
+    q = models.CharField(max_length=1000)
 
     @classmethod
     def create(cls, name, password='', hash_iterations=420):
         """
-        Creates an account with hashed password, new random salt and 3072 bit RSA key pair.
+        Creates an account with hashed password, new random salt and 4096 bit RSA key pair.
 
         :param name:
         :type name: str
@@ -54,14 +56,16 @@ class Account(models.Model):
             hasher = sha256()
             hasher.update(hash_string.encode('utf-8'))
             hash_string = hasher.hexdigest()
-        key = RSA.generate(3072, Random.new().read)
+        key = rsa.generate_private_key(public_exponent=65537, key_size=4096, backend=default_backend())
         account = cls(name=name,
                       salt=salt,
                       hash_iterations=hash_iterations,
                       hash=hash_string,
-                      N=key.n,
-                      e=key.e,
-                      d=key.d)
+                      N=key.public_key().public_numbers().n,
+                      e=key.public_key().public_numbers().e,
+                      d=key.private_numbers().d,
+                      p=key.private_numbers().p,
+                      q=key.private_numbers().q)
         account.save()
         return account
 

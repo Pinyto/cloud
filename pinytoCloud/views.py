@@ -2,8 +2,9 @@
 """
 This File is part of Pinyto
 """
-from hashlib import sha256
-from Crypto.Random import get_random_bytes
+from base64 import b64encode
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 import json
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -69,10 +70,16 @@ def authenticate(username, key_hash):
         return {'error': "This is not a registered and active public key of this user."}
     session = user.start_session(key)
     encrypted_token = session.get_encrypted_token()
-    hasher = sha256()
-    hasher.update(encrypted_token.encode('utf-8'))
-    signature = PINYTO_KEY.sign(hasher.hexdigest().encode('utf-8'), get_random_bytes(16))
-    return {'encrypted_token': encrypted_token, 'signature': str(signature[0])}
+    signer = PINYTO_KEY.signer(
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    signer.update(encrypted_token.encode('utf-8'))
+    signature = signer.finalize()
+    return {'encrypted_token': encrypted_token, 'signature': b64encode(signature)}
 
 
 @csrf_exempt
@@ -123,11 +130,11 @@ def register(username, key_data):
     """
     Creates an account if possible and saves the public key.
 
-    :param username:
+    :param username: The name of the new user.
     :type username: str
-    :param key_data:
-    :type key_data: str
-    :rtype: json
+    :param key_data: This dict contains the factors N and e from the public key of the new user.
+    :type key_data: dict
+    :rtype: dict
     """
     if User.objects.filter(name=username).count() > 0:
         return {'error': "Username " + username + " is already taken. Try another username."}
@@ -135,15 +142,15 @@ def register(username, key_data):
         return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
     try:
         n = int(key_data['N'])
-        if n < pow(2, 3071):
-            return {'error': "Factor N in the public key is too small. Please use at least 3072 bit."}
+        if n < pow(2, 4095):
+            return {'error': "Factor N in the public key is too small. Please use at least 4096 bit."}
     except ValueError:
         return {'error': "Factor N in the public key is not a number. " +
                          "It has to be a long integer transferred as a string."}
     try:
         e = int(key_data['e'])
     except ValueError:
-        return {'error': "Factor e in the public key is not a number. It has to be a long integer."}
+        return {'error': "Factor e in the public key is not a number. It has to be an integer."}
     new_user = User(name=username)
     new_user.save()
     StoredPublicKey.create(new_user, key_data['N'], e)
@@ -274,9 +281,9 @@ def register_new_key(request):
                 {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."})
         try:
             n = int(key_data['N'])
-            if n < pow(2, 3071):
+            if n < pow(2, 4095):
                 return json_response({
-                    'error': "Factor N in the public key is too small. Please use at least 3072 bit."})
+                    'error': "Factor N in the public key is too small. Please use at least 4096 bit."})
         except ValueError:
             return json_response({'error': "Factor N in the public key is not a number. " +
                                            "It has to be a long integer transferred as a string."})
