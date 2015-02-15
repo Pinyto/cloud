@@ -16,6 +16,7 @@ from pinytoCloud.models import Session
 from pinytoCloud.models import User
 from api_prototype.sandbox import safely_exec
 from api_prototype.sandbox_helpers import EmptyRequest
+from importlib import import_module
 from inspect import getmembers, isfunction
 import time
 import json
@@ -69,10 +70,7 @@ def api_call(request, user_name, assembly_name, function_name):
         return json_response({'error': "The assembly exists but it is not installed."})
     # Try to load statically defined api functions.
     try:
-        api_class = getattr(__import__(
-            'api.' + user_name + '_' + assembly_name + '.assembly',
-            fromlist=[assembly_name]
-        ), assembly_name)
+        api_class = getattr(import_module('api.' + user_name + '_' + assembly_name + '.assembly'), assembly_name)
     except ImportError:
         # There is no statically defined api function for this call. Proceed to
         # loading the code from the database and executing it in the sandbox.
@@ -171,10 +169,9 @@ def check_for_jobs(sender, **kwargs):
                 )
             try:
                 api_class = getattr(
-                    __import__(
-                        'api.' + job['data']['assembly_user'] + '_' + job['data']['assembly_name'] + '.assembly',
-                        fromlist=[job['data']['assembly_name']]),
-                    job['data']['assembly_name'])
+                    import_module(
+                        'api.' + job['data']['assembly_user'] + '_' + job['data']['assembly_name'] + '.assembly'
+                    ), job['data']['assembly_name'])
             except ImportError:
                 # There is no statically defined api function for this call. Proceed to
                 # loading the code from the database and executing it in the sandbox.
