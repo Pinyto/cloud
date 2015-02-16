@@ -1,8 +1,7 @@
 This is the Pinyto Backend. Install this application on your server and use its url at the pinyto
 clients on your devices to connect to it.
 
-![Documentation](https://readthedocs.org/projects/pinytocloud/badge/?version=latest)
-Format: ![go to the documentation](http://pinytocloud.readthedocs.org/en/latest/index.html)
+[![Documentation](https://readthedocs.org/projects/pinytocloud/badge/?version=latest "go to the documentation")](http://pinytocloud.readthedocs.org/en/latest/index.html)
 
 What is Pinyto?
 ===============
