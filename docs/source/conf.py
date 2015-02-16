@@ -19,6 +19,18 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if not on_rtd:
     import sphinx_rtd_theme
 
+from unittest.mock import MagicMock
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+if on_rtd:
+    MOCK_MODULES = ['python-prctl']
+    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
