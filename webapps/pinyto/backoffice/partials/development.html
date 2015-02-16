@@ -32,13 +32,41 @@
             wir <a href="http://www.postgresql.org/">PostgreSQL</a>. Prinzipiell arbeitet Pinyto mit allen
             SQL-Datenbanken, die von Django unterstützt werden. Eine genauere Beschreibung findest du in der
             <a href="https://docs.djangoproject.com/en/1.6/ref/databases/">Django Dokumentation</a>.</li>
-        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.6 oder neuer. Du brauchst einen
+        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.7 oder neuer. Du brauchst einen
             wsgi-wrapper, um Requests vom Webserver an Django weiter zu reichen. Wir empfehlen
             <a href="http://projects.unbit.it/uwsgi/">uWSGI</a> für diesen Zweck. Eine Installationsanleitung
             dafür findest du
             <a href="https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/uwsgi/">hier</a>.</li>
         <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 oder neuer</li>
+        <li><a href="https://www.python.org/">Python</a> 3.4 oder neuer</li>
         <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
+    </ul>
+    <h3>Aufsetzen eines virtualenv</h3>
+    <div>
+        Wir empfehlen ein virtualenv zu benutzen, um mit der Installation keine Systembibliotheken zu stören.
+        Das Virtualenv wird erstellt mit
+        <span style="font-family: monospace;">virtualenv venv -p /usr/bin/python3</span>.
+        Danach kann es mit <span style="font-family: monospace;">source venv/bin/activate</span> aktiviert werden.
+        Die folgenden Dependencies installiert man anschließend am leichtesten mit
+        <span style="font-family: monospace;">pip3 install ...</span>:
+    </div>
+    <ul>
+        <li>django</li>
+        <li>cryptography</li>
+        <li>django-cors-headers</li>
+        <li>cffi</li>
+        <li>pymongo</li>
+        <li>beautifulsoup4</li>
+        <li>pytz</li>
+        <li>python-prctl</li>
+        <li>requests</li>
+    </ul>
+    <div>
+        Diese letzte Dependency ist optional, da sie nur gebraucht wird, wenn man die Dokumentation selbst
+        erstellen will:
+    </div>
+    <ul>
+        <li>sphinx_rtd_theme</li>
     </ul>
     <h2>Bei Pinyto mithelfen</h2>
     <p>
@@ -112,12 +140,38 @@
             <a href="http://www.postgresql.org/">PostgreSQL</a> is recommended. For a full description of which
             database can be used see the <a href="https://docs.djangoproject.com/en/1.6/ref/databases/">Django
             documentation</a>.</li>
-        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.6 or newer. You need a wsgi-wrapper
+        <li><a href="https://www.djangoproject.com/download/">Django</a> 1.7 or newer. You need a wsgi-wrapper
             to pass requests to Django. We recommend using <a href="http://projects.unbit.it/uwsgi/">uWSGI</a>.
             Installation instructions for this setup are
             <a href="https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/uwsgi/">here</a>.</li>
         <li><a href="http://www.mongodb.org/">MongoDB</a> 2.4.9 or newer</li>
+        <li><a href="https://www.python.org/">Python</a> 3.4 or newer</li>
         <li><a href="http://api.mongodb.org/python/current/installation.html">PyMongo</a></li>
+    </ul>
+    <h3>Setting up a virtualenv</h3>
+    <div>
+        We recommend using a virtualenv which can be created with
+        <span style="font-family: monospace;">virtualenv venv -p /usr/bin/python3</span>.
+        After activating the virtual environment with
+        <span style="font-family: monospace;">source venv/bin/activate</span> you can install the
+        following dependencies with <span style="font-family: monospace;">pip3 install ...</span>:
+    </div>
+    <ul>
+        <li>django</li>
+        <li>cryptography</li>
+        <li>django-cors-headers</li>
+        <li>cffi</li>
+        <li>pymongo</li>
+        <li>beautifulsoup4</li>
+        <li>pytz</li>
+        <li>python-prctl</li>
+        <li>requests</li>
+    </ul>
+    <div>
+        This is optional. You only need this theme if you want to build the documentation yourself:
+    </div>
+    <ul>
+        <li>sphinx_rtd_theme</li>
     </ul>
     <h2>Contributing</h2>
     <p>
@@ -126,7 +180,7 @@
         coverage and overall code quality should be made.
     </p>
     <p>
-        Pinyto will reach version 1.0 if the following features are all working: (<del>those are done</del>)
+        Pinyto will reach version 2.0 if the following features are all working: (<del>those are done</del>)
     </p>
     <ul>
         <li><del>Saving of user data in a schema-free, easily queryable form</del></li>
@@ -144,7 +198,7 @@
         Feel free to contribute to any of these projects. We are planning to support Linux desktops and Android
         smartphones but it would be great if somebody brought Pinyto to Windows, Mac or iOS. Even if the backend
         is open-source the apps for the devices do not need to be free. However the daemon handling the connections
-        to the cloud should propably be open-source so users can trust that they do not do something funny.
+        to the cloud should probably be open-source so users can trust that they do not do something funny.
     </p>
     <p>
         Please <a href="mailto:jonny@pinyto.de">contact us</a> if you are developing an app using Pinyto. We would
