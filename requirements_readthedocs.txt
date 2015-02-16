@@ -1,0 +1,10 @@
+django
+cryptography
+django-cors-headers
+cffi
+pymongo
+beautifulsoup4
+pytz
+#python-prctl
+requests
+#sphinx_rtd_theme
