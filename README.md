@@ -79,6 +79,8 @@ This is optional. You only need this theme if you want to build the documentatio
 
 * `sphinx_rtd_theme`
 
+This will install all requirements: ``pip install -r requirements.txt``
+
 Developing Pinyto
 =================
 
