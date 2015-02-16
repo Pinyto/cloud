@@ -1,6 +1,7 @@
 This is the Pinyto Backend. Install this application on your server and use its url at the pinyto
 clients on your devices to connect to it.
 
+[![License](https://img.shields.io/badge/license-GPLv3-blue.svg "read the terms of the GPLv3")](http://choosealicense.com/licenses/gpl-3.0/)
 [![Documentation](https://readthedocs.org/projects/pinytocloud/badge/?version=latest "go to the documentation")](http://pinytocloud.readthedocs.org/en/latest/index.html)
 
 What is Pinyto?
