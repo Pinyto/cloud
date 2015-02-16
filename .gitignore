@@ -1,5 +1,5 @@
 management.sqlite
 .idea/
+venv/
 *.pyc
-database/static
 static/pinyto-bibliothek
