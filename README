@@ -2,8 +2,9 @@ This is the Pinyto Backend.
 
 Dependencies
 ------------
-* django
-* Crypto
+* Python 3.4
+* django 1.7
+* cryptography
 * django-cors-headers
 * cffi
 * pymongo
