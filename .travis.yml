@@ -5,7 +5,9 @@ python:
 # installation of dependencies outside of the virtualenv
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -y libcap-dev mongodb
+  - sudo apt-get install -y libcap-dev
+  - sudo export DEBIAN_FRONTEND=noninteractive
+  - sudo apt-get install -o Dpkg::Options::="--force-confnew" --force-yes -y mongodb
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: "pip install -r requirements.txt --use-mirrors"
 # command to run tests, e.g. python setup.py test
