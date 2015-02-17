@@ -717,6 +717,7 @@ for book in incomplete_books:
             json.dumps({'token': self.authentication_token, 'book': book}),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
+        self.assertIn('success', json.loads(str(response.content, encoding='utf-8')))
         self.assertTrue(json.loads(str(response.content, encoding='utf-8'))['success'])
         self.assertEqual(self.collection.find({'type': "book"}).count(), 0)
 
