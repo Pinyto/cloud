@@ -56,6 +56,8 @@ def check_token(encrypted_token):
         )
     except ValueError as e:
         return json_response({'error': "The token could not be decoded: " + str(e)})
+    except AssertionError as e:
+        return json_response({'error': "During decryption of the token an error occurred: " + str(e)})
     try:
         session = Session.objects.filter(token=token).all()[0]
     except IndexError:
