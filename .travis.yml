@@ -6,7 +6,7 @@ python:
 before_install:
   - sudo add-apt-repository ppa:ubuntu-lxc/stable -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y lxc libseccomp-dev
+  - sudo apt-get install -y libseccomp2
   - sudo apt-get install -y libcap-dev
   - sudo apt-get install -o Dpkg::Options::="--force-confnew" --force-yes -y mongodb
   - sudo rm /var/lib/mongodb/mongod.lock
