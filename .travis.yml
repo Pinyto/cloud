@@ -1,12 +1,12 @@
 language: python
 python:
-  - "3.3"
   - "3.4"
+  - "3.5"
 # installation of dependencies outside of the virtualenv
 before_install:
   - sudo add-apt-repository ppa:ubuntu-lxc/stable -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y lxc libseccomp2
+  - sudo apt-get install -y lxc libseccomp-dev
   - sudo apt-get install -y libcap-dev
   - sudo apt-get install -o Dpkg::Options::="--force-confnew" --force-yes -y mongodb
   - sudo rm /var/lib/mongodb/mongod.lock
