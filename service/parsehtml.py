@@ -26,7 +26,7 @@ class ParseHtml():
     Use this service to get information from html documents.
     """
     def __init__(self, html):
-        self.soup = BeautifulSoup(html)
+        self.soup = BeautifulSoup(html, "html.parser")
 
     def contains(self, descriptions):
         """
