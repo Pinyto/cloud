@@ -324,7 +324,7 @@ class TestBBorsalino(TestCase):
                 time.sleep(0.1)
         self.assertEqual(
             json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['title'],
-            "Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / " +
+            "Fettnäpfchenführer Japan : Die Axt im Chrysanthemenwald / " +
             "Kerstin Fels ; Andreas Fels"
         )
 
@@ -813,6 +813,6 @@ for book in incomplete_books:
                 time.sleep(0.1)
         self.assertEqual(
             json.loads(str(response.content, encoding='utf-8'))['index'][0]['data']['title'],
-            "Fettnäpfchenführer Japan [Elektronische Ressource] : Die Axt im Chrysanthemenwald / "
+            "Fettnäpfchenführer Japan : Die Axt im Chrysanthemenwald / "
             "Kerstin Fels ; Andreas Fels"
         )
