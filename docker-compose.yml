@@ -1,0 +1,48 @@
+version: "3.7"
+services:
+  pinyto_postgres:
+    image: postgres:alpine
+    volumes:
+     - ./pinytoPostgres:/var/lib/postgresql/data
+    environment:
+     - POSTGRES_DB=pinyto
+     - POSTGRES_USER=pinyto
+     - POSTGRES_PASSWORD=zb4akhKStr543mT_OB/r}actiTSNHOT
+    restart: always
+  pinyto_mongodb:
+    image: mongodb
+    volumes:
+     - ./pinytoMongoDB:/data/db
+    environment:
+     - MONGO_INITDB_ROOT_USERNAME=pinyto
+     - MONGO_INITDB_ROOT_PASSWORD=j8rK3/fgT1-2l3Hu7C]6GjWtxDq
+    restart: always
+  pinyto:
+    build: .
+    volumes:
+     - ./static:/usr/share/nginx/html
+    environment:
+     - PINYTO_SECRET_KEY=tirnotaeronuadtirnDTNTORSOEDR78745289756Nrtiansetirnae
+     - PINYTO_DEBUG_MODE=True
+     - PINYTO_SQL_DB_ENGINE=django.db.backends.postgresql
+     - PINYTO_SQL_DB_NAME=nutria
+     - PINYTO_SQL_DB_USER=nutria
+     - PINYTO_SQL_DB_PASSWORD=zb4akhKStr543mT_OB/r}actiTSNHOT
+     - PINYTO_SQL_DB_HOST=nutria_postgres
+     - PINYTO_SQL_DB_PORT=5432
+     - PINYTO_LANGUAGE_CODE=de-DE
+     - PINYTO_TIME_ZONE=Europe/Berlin
+    depends_on:
+     - pinyto_postgres
+     - pinyto_mongodb
+    restart: always
+  pinyto_nginx:
+    image: nginx:alpine
+    volumes:
+     - ./docker-setup/nginx-app.conf:/etc/nginx/conf.d/default.conf:ro
+     - ./static:/usr/share/nginx/html:ro
+    depends_on:
+     - pinyto
+    ports:
+     - "127.0.0.1:8504:80"
+    restart: always

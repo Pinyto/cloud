@@ -20,29 +20,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from project_path import project_path
+import os
 
 # Django settings for pinytoCloud project.
 
-DEBUG = True
+DEBUG = os.getenv('PINYTO_DEBUG_MODE', 'True') == 'True'
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('admin', 'jonny@pinyto.de'),
+    ('admin', 'pina@pinae.net'),
 )
 
 MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'management.sqlite',             # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',                              # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '',                              # Set to empty string for default.
+        'ENGINE': os.getenv('PINYTO_SQL_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('PINYTO_SQL_DB_NAME', project_path('management.sqlite')),
     }
 }
+dbuser = os.getenv('PINYTO_SQL_DB_USER')
+if dbuser:
+    DATABASES['default']['USER'] = dbuser
+dbpass = os.getenv('PINYTO_SQL_DB_PASSWORD')
+if dbpass:
+    DATABASES['default']['PASSWORD'] = dbpass
+dbhost = os.getenv('PINYTO_SQL_DB_HOST')
+if dbhost:
+    DATABASES['default']['HOST'] = dbhost
+dbport = os.getenv('PINYTO_SQL_DB_PORT')
+if dbport:
+    DATABASES['default']['PORT'] = dbport
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -52,11 +60,11 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = os.getenv('PINYTO_TIME_ZONE', 'Europe/Berlin')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'de-DE'
+LANGUAGE_CODE = os.getenv('PINYTO_LANGUAGE_CODE', 'de-DE')
 
 SITE_ID = 2
 
@@ -107,7 +115,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'w_stpdw@im!72s2^%ad5wz5&9mfd8n#95mc3)bqj3qd%f*)ile'
+SECRET_KEY = os.getenv('PINYTO_SECRET_KEY', 'w_stpdw@im!72s2^%ad5wz5&9mfd8n#95mc3)bqj3qd%f*)ile')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
