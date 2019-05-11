@@ -116,12 +116,12 @@ class StoredPublicKey(models.Model):
     #: (long) e is not a very big number so we store it as a big integer.
     e = models.BigIntegerField()
     #: (User) This is the foreign-key to the User who owns this key.
-    user = models.ForeignKey(User, related_name='keys')
+    user = models.ForeignKey(User, related_name='keys', on_delete=models.CASCADE)
     #: (boolean) Keys can be deactivated. By default keys are active.
     active = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.key_hash + ':: N: ' + self.N + ' e: ' + str(self.e) + ' ' + str(self.user)
+        return str(self.key_hash) + ':: N: ' + str(self.N) + ' e: ' + str(self.e) + ' ' + str(self.user)
 
     @classmethod
     def create(cls, user, n, e):
@@ -149,7 +149,7 @@ class StoredPublicKey(models.Model):
 
         :rtype: cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey
         """
-        return rsa.RSAPublicNumbers(self.e, int(self.N)).public_key(default_backend())
+        return rsa.RSAPublicNumbers(self.e, int(str(self.N))).public_key(default_backend())
 
 
 class Session(models.Model):
@@ -161,12 +161,13 @@ class Session(models.Model):
     #: (int) The timestamp is reset with every request. It can be used to delete old sessions with a cron job.
     timestamp = models.DateTimeField()
     #: (pinytoCloud.models.User) The reference to the user who own this session.
-    user = models.ForeignKey(User, related_name='sessions')
+    user = models.ForeignKey(User, related_name='sessions', on_delete=models.CASCADE)
     #: (pinytoCloud.models.StoredPublicKey) The reference to the key used to start the session.
-    key = models.OneToOneField(StoredPublicKey, related_name='related_session', unique=True)
+    key = models.OneToOneField(StoredPublicKey, related_name='related_session',
+                               unique=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.token + ' (' + str(self.timestamp) + ') ' + str(self.user) + ' Key: ' + self.key.key_hash
+        return str(self.token) + ' (' + str(self.timestamp) + ') ' + str(self.user) + ' Key: ' + str(self.key.key_hash)
 
     def get_encrypted_token(self):
         """
@@ -197,7 +198,7 @@ class Assembly(models.Model):
     #: (string) The name of the assembly is capped to 42 characters.
     name = models.CharField(max_length=42)
     #: (pinytoCloud.models.User) Foreign-key to the user who owns the assembly.
-    author = models.ForeignKey(User, related_name='assemblies')
+    author = models.ForeignKey(User, related_name='assemblies', on_delete=models.CASCADE)
     #: (string) A description what the assembly does. This is displayed when the assembly gets installed.
     description = models.TextField()
     #: A list of users who installed this assembly.
@@ -242,10 +243,10 @@ class ApiFunction(models.Model):
     #: `Assemblies <assemblies.html>`_ for more information.
     code = models.TextField()
     #: (pinytoCloud.models.Assembly) Reference to the Assembly the function belongs to.
-    assembly = models.ForeignKey(Assembly, related_name='api_functions')
+    assembly = models.ForeignKey(Assembly, related_name='api_functions', on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name
+        return str(self.name) + ' from Assembly: ' + str(self.assembly.author.name) + '/' + self.assembly.name
 
 
 class Job(models.Model):
@@ -262,10 +263,10 @@ class Job(models.Model):
     #: `Assemblies <assemblies.html>`_ for more information.
     code = models.TextField()
     #: (pinytoCloud.models.Assembly) Reference to the Assembly the job belongs to.
-    assembly = models.ForeignKey(Assembly, related_name='jobs')
+    assembly = models.ForeignKey(Assembly, related_name='jobs', on_delete=models.CASCADE)
     #: (int) Execute every schedule minutes (0 means never).
     schedule = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.name + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
+        return str(self.name) + ' from Assembly: ' + self.assembly.author.name + '/' + self.assembly.name + \
             ' Scheduled: ' + str(self.schedule)
