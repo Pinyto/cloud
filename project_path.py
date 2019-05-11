@@ -37,4 +37,5 @@ def project_path(filename):
     """
     return os.path.join(PROJECT_DIR, filename)
 
+
 __all__ = ['project_path']
