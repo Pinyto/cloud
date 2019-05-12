@@ -56,7 +56,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=42, primary_key=True, serialize=False)),
                 ('code', models.TextField()),
                 ('schedule', models.IntegerField(default=0)),
-                ('assembly', models.ForeignKey(to='pinytoCloud.Assembly', related_name='jobs')),
+                ('assembly', models.ForeignKey(to='pinytoCloud.Assembly', related_name='jobs',
+                                               on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -101,25 +102,26 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='storedpublickey',
             name='user',
-            field=models.ForeignKey(to='pinytoCloud.User', related_name='keys'),
+            field=models.ForeignKey(to='pinytoCloud.User', related_name='keys', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='session',
             name='key',
-            field=models.OneToOneField(to='pinytoCloud.StoredPublicKey', related_name='related_session'),
+            field=models.OneToOneField(to='pinytoCloud.StoredPublicKey', related_name='related_session',
+                                       on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='session',
             name='user',
-            field=models.ForeignKey(to='pinytoCloud.User', related_name='sessions'),
+            field=models.ForeignKey(to='pinytoCloud.User', related_name='sessions', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='assembly',
             name='author',
-            field=models.ForeignKey(to='pinytoCloud.User', related_name='assemblies'),
+            field=models.ForeignKey(to='pinytoCloud.User', related_name='assemblies', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -135,7 +137,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='apifunction',
             name='assembly',
-            field=models.ForeignKey(to='pinytoCloud.Assembly', related_name='api_functions'),
+            field=models.ForeignKey(to='pinytoCloud.Assembly', related_name='api_functions', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
