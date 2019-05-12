@@ -9,7 +9,7 @@ RUN apt-get update && \
 	python3-setuptools \
 	python3-pip \
 	python3-psycopg2 \
-	libmariadbclient-dev && \
+	libcap-dev && \
 	pip3 install uwsgi && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /home/docker/requirements.txt
