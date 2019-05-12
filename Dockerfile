@@ -8,8 +8,9 @@ RUN apt-get update && \
 	python3-dev \
 	python3-setuptools \
 	python3-pip \
+	python3-psycopg2 \
 	libmariadbclient-dev && \
-	pip3 install uwsgi psycopg2 && \
+	pip3 install uwsgi && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /home/docker/requirements.txt
 COPY nutriaDB /var/www/
