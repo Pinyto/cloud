@@ -13,15 +13,15 @@ RUN apt-get update && \
 	pip3 install uwsgi && \
     rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /home/docker/requirements.txt
-COPY api /var/www/
-COPY api_prototype /var/www/
-COPY database /var/www/
-COPY keyserver /var/www/
-COPY pinytoCloud /var/www/
-COPY service /var/www/
-COPY webapps /var/www/
-COPY manage.py /var/www/
-COPY project_path.py /var/www/
+COPY api /var/www/api
+COPY api_prototype /var/www/api_prototype
+COPY database /var/www/database
+COPY keyserver /var/www/keyserver
+COPY pinytoCloud /var/www/pinytoCloud
+COPY service /var/www/service
+COPY webapps /var/www/webapps
+COPY manage.py /var/www/manage.py
+COPY project_path.py /var/www/project_path.py
 COPY docker-setup/uwsgi-app.ini /etc/uwsgi/apps-enabled/uwsgi-app.ini
 COPY docker-setup/init_and_run.sh /home/docker/init_and_run.sh
 WORKDIR /home/docker/
