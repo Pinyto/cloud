@@ -25,10 +25,10 @@ services:
      - PINYTO_SECRET_KEY=tirnotaeronuadtirnDTNTORSOEDR78745289756Nrtiansetirnae
      - PINYTO_DEBUG_MODE=True
      - PINYTO_SQL_DB_ENGINE=django.db.backends.postgresql
-     - PINYTO_SQL_DB_NAME=nutria
-     - PINYTO_SQL_DB_USER=nutria
+     - PINYTO_SQL_DB_NAME=pinyto
+     - PINYTO_SQL_DB_USER=pinyto
      - PINYTO_SQL_DB_PASSWORD=zb4akhKStr543mT_OB/r}actiTSNHOT
-     - PINYTO_SQL_DB_HOST=nutria_postgres
+     - PINYTO_SQL_DB_HOST=pinyto_postgres
      - PINYTO_SQL_DB_PORT=5432
      - PINYTO_LANGUAGE_CODE=de-DE
      - PINYTO_TIME_ZONE=Europe/Berlin
