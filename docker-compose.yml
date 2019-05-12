@@ -44,5 +44,5 @@ services:
     depends_on:
      - pinyto
     ports:
-     - "127.0.0.1:8504:80"
+     - "127.0.0.1:8505:80"
     restart: always
