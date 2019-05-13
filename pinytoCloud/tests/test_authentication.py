@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from pinytoCloud.models import User, StoredPublicKey
 from keyserver.settings import PINYTO_PUBLIC_KEY
@@ -103,13 +103,12 @@ class TestAuthenticate(TestCase):
         ), encoding='utf-8')
         self.assertEqual(self.hugo.sessions.all()[0].token, token)
         signature = b64decode(res['signature'])
-        verifier = PINYTO_PUBLIC_KEY.verifier(
+        PINYTO_PUBLIC_KEY.verify(
             signature,
+            res['encrypted_token'].encode('utf-8'),
             padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
             hashes.SHA256()
         )
-        verifier.update(res['encrypted_token'].encode('utf-8'))
-        verifier.verify()
 
 
 class TestLogout(TestCase):

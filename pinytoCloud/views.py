@@ -85,15 +85,14 @@ def authenticate(username, key_hash):
         return {'error': "This is not a registered and active public key of this user."}
     session = user.start_session(key)
     encrypted_token = session.get_encrypted_token()
-    signer = PINYTO_KEY.signer(
+    signature = PINYTO_KEY.sign(
+        encrypted_token.encode('utf-8'),
         padding.PSS(
             mgf=padding.MGF1(hashes.SHA256()),
             salt_length=padding.PSS.MAX_LENGTH
         ),
         hashes.SHA256()
     )
-    signer.update(encrypted_token.encode('utf-8'))
-    signature = signer.finalize()
     return {'encrypted_token': encrypted_token, 'signature': str(b64encode(signature), encoding='utf-8')}
 
 
