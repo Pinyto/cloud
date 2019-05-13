@@ -86,14 +86,13 @@ def authenticate(request):
         )
     encrypted_token = response['encrypted_token']
     signature = b64decode(response['signature'].encode('utf-8'))
-    verifier = PINYTO_PUBLIC_KEY.verifier(
-        signature,
-        padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
-        hashes.SHA256()
-    )
-    verifier.update(encrypted_token.encode('utf-8'))
     try:
-        verifier.verify()
+        PINYTO_PUBLIC_KEY.verify(
+            signature,
+            encrypted_token.encode('utf-8'),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+            hashes.SHA256()
+        )
     except InvalidSignature:
         return HttpResponse(json.dumps(
             {'error': "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! " +

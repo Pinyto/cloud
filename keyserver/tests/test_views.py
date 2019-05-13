@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
 from unittest import mock
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from base64 import b64decode
 from cryptography.hazmat.primitives import hashes
