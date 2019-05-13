@@ -47,13 +47,13 @@ def check_token(encrypted_token):
     except binascii.Error:
         return json_response({'error': "The token is not in valid base64-format."})
     try:
-        token = PINYTO_KEY.decrypt(
+        token = str(PINYTO_KEY.decrypt(
             decoded_token,
             padding.OAEP(
                 mgf=padding.MGF1(algorithm=hashes.SHA1()),
                 algorithm=hashes.SHA1(),
                 label=None)
-        )
+        ), encoding='utf-8')
     except ValueError as e:
         return json_response({'error': "The token could not be decoded: " + str(e)})
     except AssertionError as e:
