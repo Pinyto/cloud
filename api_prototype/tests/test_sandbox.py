@@ -28,7 +28,7 @@ import json
 
 class TestSandbox(TestCase):
     def setUp(self):
-        self.db = MongoConnection.create_mongo_client()['test_pinyto']
+        self.db = MongoConnection.create_mongo_client()['pinyto']
         self.collection = Collection(self.db, 'hugo_test')
         self.collection_wrapper = CollectionWrapper(self.collection, 'some/assembly')
         self.factory = RequestFactory()
