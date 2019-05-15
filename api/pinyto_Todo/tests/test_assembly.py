@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.test import TestCase
 from django.utils import timezone
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from pinytoCloud.models import User, StoredPublicKey, Assembly
@@ -40,7 +40,7 @@ class TestTodo(TestCase):
         else:
             self.assembly = Assembly(name='Todo', author=self.pinyto, description='')
             self.assembly.save()
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection = Collection(MongoConnection.get_db(), 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'pinyto/Todo')
         self.hugo = User(name='Hugo')

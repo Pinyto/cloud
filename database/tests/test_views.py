@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from pinytoCloud.models import User, StoredPublicKey, Assembly
 from cryptography.hazmat.primitives import hashes
@@ -25,7 +25,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from keyserver.settings import PINYTO_PUBLIC_KEY
 from base64 import b64encode
 from django.utils import timezone
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 import json
 import datetime
@@ -34,6 +34,9 @@ import pytz
 
 
 class StoreTest(TestCase):
+    def setUp(self):
+        self.mongo_test_db = MongoConnection.create_mongo_client()['test_pinyto']
+
     def test_no_JSON(self):
         response = self.client.post(
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
@@ -81,7 +84,7 @@ class StoreTest(TestCase):
         return hugo, session, authentication_token
 
     def clear_collection(self, username):
-        db = Collection(MongoClient().pinyto, username)
+        db = Collection(self.mongo_test_db, username)
         db.remove({})
         self.assertEqual(db.count(), 0)
 
@@ -161,7 +164,7 @@ class StoreTest(TestCase):
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
-        db = Collection(MongoClient().pinyto, hugo.name)
+        db = Collection(self.mongo_test_db, hugo.name)
         self.assertEqual(db.count(), 1)
         for document in db.find({'type': 'test'}):
             self.assertEqual(document['assembly'], 'test/bla')
@@ -256,7 +259,7 @@ class StoreTest(TestCase):
         self.assertNotIn('error', res)
         self.assertIn('success', res)
         self.assertTrue(res['success'])
-        db = Collection(MongoClient().pinyto, hugo.name)
+        db = Collection(self.mongo_test_db, hugo.name)
         self.assertEqual(db.count(), 1)
         for document in db.find({'type': 'test'}):
             self.assertEqual(document['assembly'], 'test/bla')
@@ -299,7 +302,7 @@ class StoreTest(TestCase):
             self.assertNotIn('error', res)
             self.assertIn('success', res)
             self.assertTrue(res['success'])
-            db = Collection(MongoClient().pinyto, hugo.name)
+            db = Collection(self.mongo_test_db, hugo.name)
             self.assertEqual(db.count(), 1)
             for document in db.find({'type': 'test'}):
                 self.assertEqual(document['assembly'], 'test/bla')

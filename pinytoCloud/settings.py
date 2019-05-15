@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 Pinyto cloud - A secure cloud database for your personal data
-Copyright (C) 2105 Johannes Merkert <jonny@pinyto.de>
+Copyright (C) 2019 Pina Merkert <pina@pinae.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,18 +39,30 @@ DATABASES = {
         'NAME': os.getenv('PINYTO_SQL_DB_NAME', project_path('management.sqlite')),
     }
 }
-dbuser = os.getenv('PINYTO_SQL_DB_USER')
-if dbuser:
-    DATABASES['default']['USER'] = dbuser
-dbpass = os.getenv('PINYTO_SQL_DB_PASSWORD')
-if dbpass:
-    DATABASES['default']['PASSWORD'] = dbpass
-dbhost = os.getenv('PINYTO_SQL_DB_HOST')
-if dbhost:
-    DATABASES['default']['HOST'] = dbhost
-dbport = os.getenv('PINYTO_SQL_DB_PORT')
-if dbport:
-    DATABASES['default']['PORT'] = dbport
+sqldbuser = os.getenv('PINYTO_SQL_DB_USER')
+if sqldbuser:
+    DATABASES['default']['USER'] = sqldbuser
+sqldbpass = os.getenv('PINYTO_SQL_DB_PASSWORD')
+if sqldbpass:
+    DATABASES['default']['PASSWORD'] = sqldbpass
+sqldbhost = os.getenv('PINYTO_SQL_DB_HOST')
+if sqldbhost:
+    DATABASES['default']['HOST'] = sqldbhost
+sqldbport = os.getenv('PINYTO_SQL_DB_PORT')
+if sqldbport:
+    DATABASES['default']['PORT'] = sqldbport
+
+MONGO_DB = {
+    'NAME': os.getenv('PINYTO_MONGO_DB_NAME', 'pinyto'),
+    'HOST': os.getenv('PINYTO_MONGO_DB_HOST', 'localhost'),
+    'PORT': os.getenv('PINYTO_MONGO_DB_PORT', 27017)
+}
+mongodbuser = os.getenv('PINYTO_MONGO_DB_USER')
+if mongodbuser:
+    MONGO_DB['USER'] = mongodbuser
+mongodbpass = os.getenv('PINYTO_MONGO_DB_PASSWORD')
+if mongodbpass:
+    MONGO_DB['PASSWORD'] = mongodbpass
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

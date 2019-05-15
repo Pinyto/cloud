@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from django.views.decorators.csrf import csrf_exempt
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from service.response import json_response
 from pinytoCloud.checktoken import check_token
@@ -71,7 +71,7 @@ def store(request, user_name, assembly_name):
     else:
         tags = []
     if 'data' in request_data and data_type:
-        db = Collection(MongoClient().pinyto, session.user.name)
+        db = Collection(MongoConnection.get_db(), session.user.name)
         document = {'type': data_type,
                     'time': timezone.now().astimezone(pytz.timezone('UTC')),
                     'tags': tags,

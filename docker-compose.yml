@@ -15,7 +15,7 @@ services:
      - ./pinytoMongoDB:/data/db
     environment:
      - MONGO_INITDB_ROOT_USERNAME=pinyto
-     - MONGO_INITDB_ROOT_PASSWORD=j8rK3/fgT1-2l3Hu7C]6GjWtxDq
+     - MONGO_INITDB_ROOT_PASSWORD=0KkH2wqXhURcz1lp26ihUlp5ula4F
     restart: always
   pinyto:
     build: .
@@ -30,6 +30,11 @@ services:
      - PINYTO_SQL_DB_PASSWORD=zb4akhKStr543mT_OB/r}actiTSNHOT
      - PINYTO_SQL_DB_HOST=pinyto_postgres
      - PINYTO_SQL_DB_PORT=5432
+     - PINYTO_MONGO_DB_HOST=pinyto_mongodb
+     - PINYTO_MONGO_DB_NAME=pinyto
+     - PINYTO_MONGO_DB_USER=pinyto
+     - PINYTO_MONGO_DB_PASSWORD=0KkH2wqXhURcz1lp26ihUlp5ula4F
+     - PINYTO_MONGO_DB_PORT=27017
      - PINYTO_LANGUAGE_CODE=de-DE
      - PINYTO_TIME_ZONE=Europe/Berlin
     depends_on:
@@ -40,7 +45,7 @@ services:
     image: nginx:alpine
     volumes:
      - ./docker-setup/nginx-app.conf:/etc/nginx/conf.d/default.conf:ro
-     - ./static:/usr/share/nginx/html:ro
+     - ./static:/us<r/share/nginx/html:ro
     depends_on:
      - pinyto
     ports:

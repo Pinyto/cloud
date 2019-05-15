@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.test import TestCase
 from django.test.client import RequestFactory
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from api_prototype.sandbox import safely_exec
@@ -28,7 +28,8 @@ import json
 
 class TestSandbox(TestCase):
     def setUp(self):
-        self.collection = Collection(MongoClient().pinyto, 'hugo_test')
+        self.db = MongoConnection.create_mongo_client()['test_pinyto']
+        self.collection = Collection(self.db, 'hugo_test')
         self.collection_wrapper = CollectionWrapper(self.collection, 'some/assembly')
         self.factory = RequestFactory()
 

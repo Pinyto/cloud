@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from django.test import TestCase
 from django.utils import timezone
 from django.test.client import Client
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from service.database import CollectionWrapper
 from pinytoCloud.models import User, StoredPublicKey, Assembly, ApiFunction, Job
@@ -68,7 +68,7 @@ class TestBBorsalino(TestCase):
                 algorithm=hashes.SHA1(),
                 label=None)
         )), encoding='utf-8')
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection = Collection(MongoConnection.get_db(), 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 
@@ -548,7 +548,7 @@ for book in incomplete_books:
                 algorithm=hashes.SHA1(),
                 label=None)
         )), encoding='utf-8')
-        self.collection = Collection(MongoClient().pinyto, 'Hugo')
+        self.collection = Collection(MongoConnection.get_db(), 'Hugo')
         self.collection.remove({})
         self.collection_wrapper = CollectionWrapper(self.collection, 'bborsalino/Librarian')
 

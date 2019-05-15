@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from keyserver.settings import PINYTO_PUBLIC_KEY
 from base64 import b64encode
 import json
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 
 
@@ -135,7 +135,7 @@ class TestApiCall(TestCase):
         self.user.installed_assemblies.add(self.assembly)
         function = ApiFunction(name='test', code="return json.dumps({'badam': 42})", assembly=self.assembly)
         function.save()
-        self.collection = Collection(MongoClient().pinyto, self.user.name)
+        self.collection = Collection(MongoConnection.create_mongo_client()['test_pinyto'], self.user.name)
         response = self.client.post(
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'token': self.authentication_token}),

@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from django.test import TestCase
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
@@ -27,7 +27,7 @@ from service.database import encode_underscore_fields, encode_underscore_fields_
 
 class TestCollectionWrapper(TestCase):
     def setUp(self):
-        self.collection = Collection(MongoClient().pinyto, 'collection_wrapper_test')
+        self.collection = Collection(MongoConnection.get_db(), 'collection_wrapper_test')
 
     def tearDown(self):
         self.collection.drop()

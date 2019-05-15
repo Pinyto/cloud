@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from django.dispatch import receiver
 from django.core.signals import request_finished
 from django.http import HttpResponse
-from pymongo import MongoClient
+from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
@@ -92,10 +92,10 @@ def api_call(request, user_name, assembly_name, function_name):
         return load_api(request, session=session, assembly=assembly, function_name=function_name)
     for name, function in getmembers(api_class, predicate=isfunction):
         if not name.startswith('job_') and name == function_name:
-            if session.user.name in MongoClient().pinyto.collection_names():
-                collection = Collection(MongoClient().pinyto, session.user.name)
+            if session.user.name in MongoConnection.get_db().collection_names():
+                collection = Collection(MongoConnection.get_db(), session.user.name)
             else:
-                collection = Collection(MongoClient().pinyto, session.user.name, create=True)
+                collection = Collection(MongoConnection.get_db(), session.user.name, create=True)
             collection_wrapper = CollectionWrapper(
                 collection,
                 assembly_name=user_name + '/' + assembly_name,
@@ -105,7 +105,7 @@ def api_call(request, user_name, assembly_name, function_name):
             end_time = time.clock()
             session.user.calculate_time_and_storage(
                 end_time - start_time,
-                MongoClient().pinyto.command('collstats', session.user.name)['size']
+                MongoConnection.get_db().command('collstats', session.user.name)['size']
             )
             return HttpResponse(response, content_type='application/json')
     # If we reach this point the api_class was found but the function was not defined in the class.
@@ -136,10 +136,10 @@ def load_api(request, session, assembly, function_name):
             {'error': "The assembly " + assembly.author.name + "/" + assembly.name +
                       ' exists but has no API function "' + function_name + '".'}
         )
-    if session.user.name in MongoClient().pinyto.collection_names():
-        collection = Collection(MongoClient().pinyto, session.user.name)
+    if session.user.name in MongoConnection.get_db().collection_names():
+        collection = Collection(MongoConnection.get_db(), session.user.name)
     else:
-        collection = Collection(MongoClient().pinyto, session.user.name, create=True)
+        collection = Collection(MongoConnection.get_db(), session.user.name, create=True)
     collection_wrapper = CollectionWrapper(
         collection,
         assembly_name=assembly.author.name + '/' + assembly.name,
@@ -151,7 +151,7 @@ def load_api(request, session, assembly, function_name):
         response_data = json.dumps(response_data)
     session.user.calculate_time_and_storage(
         elapsed_time,
-        MongoClient().pinyto.command('collstats', session.user.name)['size']
+        MongoConnection.get_db().command('collstats', session.user.name)['size']
     )
     return HttpResponse(response_data, content_type='application/json')
 
@@ -168,7 +168,7 @@ def check_for_jobs(sender, **kwargs):
     :param kwargs:
     """
     for user in User.objects.all():
-        collection = Collection(MongoClient().pinyto, user.name)
+        collection = Collection(MongoConnection.get_db(), user.name)
         for job in collection.find({'type': 'job'}):
             if 'data' not in job or 'assembly_user' not in job['data'] or 'assembly_name' not in job['data'] or \
                'job_name' not in job['data']:  # TODO: Check that the job is from the correct assembly.
@@ -206,7 +206,7 @@ def check_for_jobs(sender, **kwargs):
                 collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
                     elapsed_time,
-                    MongoClient().pinyto.command('collstats', user.name)['size']
+                    MongoConnection.get_db().command('collstats', user.name)['size']
                 )
                 continue
             for name, function in getmembers(api_class, predicate=isfunction):
@@ -221,5 +221,5 @@ def check_for_jobs(sender, **kwargs):
                     end_time = time.clock()
                     user.calculate_time_and_storage(
                         end_time - start_time,
-                        MongoClient().pinyto.command('collstats', user.name)['size']
+                        MongoConnection.get_db().command('collstats', user.name)['size']
                     )
