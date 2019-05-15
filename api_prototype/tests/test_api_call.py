@@ -135,7 +135,7 @@ class TestApiCall(TestCase):
         self.user.installed_assemblies.add(self.assembly)
         function = ApiFunction(name='test', code="return json.dumps({'badam': 42})", assembly=self.assembly)
         function.save()
-        self.collection = Collection(MongoConnection.create_mongo_client()['test_pinyto'], self.user.name)
+        self.collection = Collection(MongoConnection.create_mongo_client()['pinyto'], self.user.name)
         response = self.client.post(
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'token': self.authentication_token}),

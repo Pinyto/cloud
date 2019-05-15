@@ -83,19 +83,21 @@ def api_call(request, user_name, assembly_name, function_name):
         )
     if assembly not in session.user.installed_assemblies.all():
         return json_response({'error': "The assembly exists but it is not installed."})
+    mongo_db = MongoConnection.get_db()
     # Try to load statically defined api functions.
     try:
         api_class = getattr(import_module('api.' + user_name + '_' + assembly_name + '.assembly'), assembly_name)
     except ImportError:
         # There is no statically defined api function for this call. Proceed to
         # loading the code from the database and executing it in the sandbox.
-        return load_api(request, session=session, assembly=assembly, function_name=function_name)
+        return load_api(request, session=session, assembly=assembly, function_name=function_name,
+                        mongo_db=mongo_db)
     for name, function in getmembers(api_class, predicate=isfunction):
         if not name.startswith('job_') and name == function_name:
-            if session.user.name in MongoConnection.get_db().collection_names():
-                collection = Collection(MongoConnection.get_db(), session.user.name)
+            if session.user.name in mongo_db.collection_names():
+                collection = Collection(mongo_db, session.user.name)
             else:
-                collection = Collection(MongoConnection.get_db(), session.user.name, create=True)
+                collection = Collection(mongo_db, session.user.name, create=True)
             collection_wrapper = CollectionWrapper(
                 collection,
                 assembly_name=user_name + '/' + assembly_name,
@@ -110,10 +112,11 @@ def api_call(request, user_name, assembly_name, function_name):
             return HttpResponse(response, content_type='application/json')
     # If we reach this point the api_class was found but the function was not defined in the class.
     # So we try to load this code from the database.
-    return load_api(request, session=session, assembly=assembly, function_name=function_name)
+    return load_api(request, session=session, assembly=assembly, function_name=function_name,
+                    mongo_db=mongo_db)
 
 
-def load_api(request, session, assembly, function_name):
+def load_api(request, session, assembly, function_name, mongo_db=MongoConnection.get_db()):
     """
     There is no statically defined api function for this call. Proceed to
     loading the code from the database and executing it in the sandbox.
@@ -126,6 +129,8 @@ def load_api(request, session, assembly, function_name):
     :type assembly: pinytoCloud.models.Assembly
     :param function_name:
     :type function_name: str
+    :param mongo_db:
+    :type mongo_db: pymongo.database.Database
     :return: json response
     :rtype: HttpResponse
     """
@@ -136,10 +141,10 @@ def load_api(request, session, assembly, function_name):
             {'error': "The assembly " + assembly.author.name + "/" + assembly.name +
                       ' exists but has no API function "' + function_name + '".'}
         )
-    if session.user.name in MongoConnection.get_db().collection_names():
-        collection = Collection(MongoConnection.get_db(), session.user.name)
+    if session.user.name in mongo_db.collection_names():
+        collection = Collection(mongo_db, session.user.name)
     else:
-        collection = Collection(MongoConnection.get_db(), session.user.name, create=True)
+        collection = Collection(mongo_db, session.user.name, create=True)
     collection_wrapper = CollectionWrapper(
         collection,
         assembly_name=assembly.author.name + '/' + assembly.name,
@@ -151,7 +156,7 @@ def load_api(request, session, assembly, function_name):
         response_data = json.dumps(response_data)
     session.user.calculate_time_and_storage(
         elapsed_time,
-        MongoConnection.get_db().command('collstats', session.user.name)['size']
+        mongo_db.command('collstats', session.user.name)['size']
     )
     return HttpResponse(response_data, content_type='application/json')
 
@@ -167,8 +172,9 @@ def check_for_jobs(sender, **kwargs):
     :param sender:
     :param kwargs:
     """
+    mongo_db = MongoConnection.get_db()
     for user in User.objects.all():
-        collection = Collection(MongoConnection.get_db(), user.name)
+        collection = Collection(mongo_db, user.name)
         for job in collection.find({'type': 'job'}):
             if 'data' not in job or 'assembly_user' not in job['data'] or 'assembly_name' not in job['data'] or \
                'job_name' not in job['data']:  # TODO: Check that the job is from the correct assembly.
@@ -203,10 +209,10 @@ def check_for_jobs(sender, **kwargs):
                     assembly_name=job['data']['assembly_user'] + '/' + job['data']['assembly_name'],
                     only_own_data=assembly.only_own_data)
                 response_data, elapsed_time = safely_exec(api_function.code, EmptyRequest(), collection_wrapper)
-                collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
+                collection.delete_one(filter={"_id": ObjectId(job['_id'])})
                 user.calculate_time_and_storage(
                     elapsed_time,
-                    MongoConnection.get_db().command('collstats', user.name)['size']
+                    mongo_db.command('collstats', user.name)['size']
                 )
                 continue
             for name, function in getmembers(api_class, predicate=isfunction):
@@ -217,9 +223,9 @@ def check_for_jobs(sender, **kwargs):
                         only_own_data=assembly.only_own_data)
                     start_time = time.clock()
                     function(collection_wrapper, DirectFactory())
-                    collection.remove(spec_or_id={"_id": ObjectId(job['_id'])})
+                    collection.delete_one(filter={"_id": ObjectId(job['_id'])})
                     end_time = time.clock()
                     user.calculate_time_and_storage(
                         end_time - start_time,
-                        MongoConnection.get_db().command('collstats', user.name)['size']
+                        mongo_db.command('collstats', user.name)['size']
                     )
