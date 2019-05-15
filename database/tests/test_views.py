@@ -35,7 +35,7 @@ import pytz
 
 class StoreTest(TestCase):
     def setUp(self):
-        self.mongo_test_db = MongoConnection.create_mongo_client()['test_pinyto']
+        self.mongo_test_db = MongoConnection.create_mongo_client()['pinyto']
 
     def test_no_JSON(self):
         response = self.client.post(
@@ -85,8 +85,8 @@ class StoreTest(TestCase):
 
     def clear_collection(self, username):
         db = Collection(self.mongo_test_db, username)
-        db.remove({})
-        self.assertEqual(db.count(), 0)
+        db.delete_many(filter={})
+        self.assertEqual(db.count_documents(filter={}), 0)
 
     def test_assembly_does_not_exist(self):
         hugo, session, authentication_token = self.create_user_session_and_token()
@@ -165,7 +165,7 @@ class StoreTest(TestCase):
         self.assertIn('success', res)
         self.assertTrue(res['success'])
         db = Collection(self.mongo_test_db, hugo.name)
-        self.assertEqual(db.count(), 1)
+        self.assertEqual(db.count_documents(filter={}), 1)
         for document in db.find({'type': 'test'}):
             self.assertEqual(document['assembly'], 'test/bla')
             self.assertGreaterEqual(
@@ -260,7 +260,7 @@ class StoreTest(TestCase):
         self.assertIn('success', res)
         self.assertTrue(res['success'])
         db = Collection(self.mongo_test_db, hugo.name)
-        self.assertEqual(db.count(), 1)
+        self.assertEqual(db.count_documents(filter={}), 1)
         for document in db.find({'type': 'test'}):
             self.assertEqual(document['assembly'], 'test/bla')
             self.assertGreaterEqual(
@@ -303,7 +303,7 @@ class StoreTest(TestCase):
             self.assertIn('success', res)
             self.assertTrue(res['success'])
             db = Collection(self.mongo_test_db, hugo.name)
-            self.assertEqual(db.count(), 1)
+            self.assertEqual(db.count_documents(filter={}), 1)
             for document in db.find({'type': 'test'}):
                 self.assertEqual(document['assembly'], 'test/bla')
                 self.assertGreaterEqual(
