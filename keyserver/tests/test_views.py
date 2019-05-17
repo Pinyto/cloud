@@ -64,17 +64,19 @@ class KeyserverTest(TestCase):
             reverse('keyserver_authenticate'),
             json.dumps({'password': '123a'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
-        self.assertEqual(res['error'], "Please supply username and password in the JSON request data. Authentication failed.")
+        self.assertEqual(
+            res['error'],
+            "Please supply username and password in the JSON request data. Authentication failed.")
 
     def test_missing_account_returns_error(self):
         response = self.client.post(
             reverse('keyserver_authenticate'),
             json.dumps({'name': 'Max', 'password': '123a'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Max is not a valid account name. Authentication failed.")
@@ -84,7 +86,7 @@ class KeyserverTest(TestCase):
             reverse('keyserver_authenticate'),
             json.dumps({'name': 'Hugo', 'password': '123a'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Wrong password. Authentication failed.")
@@ -99,7 +101,7 @@ class KeyserverTest(TestCase):
             reverse('keyserver_authenticate'),
             json.dumps({'name': 'Hugo', 'password': 'b123'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Pinyto-Cloud signature is wrong. This is a man-in-the-middle-attack! " +

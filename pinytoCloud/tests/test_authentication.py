@@ -48,7 +48,7 @@ class TestAuthenticate(TestCase):
             reverse('authenticate'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Your request contained no valid JSON data. " +
@@ -59,7 +59,7 @@ class TestAuthenticate(TestCase):
             reverse('authenticate'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a username and a key_hash to authenticate.")
@@ -69,7 +69,7 @@ class TestAuthenticate(TestCase):
             reverse('authenticate'),
             json.dumps({'username': 'Max', 'key_hash': 'wrong'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "User 'Max' is unknown. Please register first.")
@@ -79,7 +79,7 @@ class TestAuthenticate(TestCase):
             reverse('authenticate'),
             json.dumps({'username': 'hugo', 'key_hash': 'wrong'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "This is not a registered and active public key of this user.")
@@ -143,7 +143,7 @@ class TestLogout(TestCase):
             reverse('logout'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -153,7 +153,7 @@ class TestLogout(TestCase):
             reverse('logout'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
@@ -177,7 +177,7 @@ class TestRegister(TestCase):
             reverse('register'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the username and public_key as JSON.")
@@ -187,7 +187,7 @@ class TestRegister(TestCase):
             reverse('register'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
@@ -202,7 +202,7 @@ class TestRegister(TestCase):
                 'public_key': 'fake'
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Username Hugo is already taken. Try another username.")
@@ -217,7 +217,7 @@ class TestRegister(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -236,7 +236,7 @@ class TestRegister(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -255,7 +255,7 @@ class TestRegister(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -287,7 +287,7 @@ class TestRegister(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(

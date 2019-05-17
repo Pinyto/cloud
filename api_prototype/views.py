@@ -24,10 +24,9 @@ from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from pymongo.son_manipulator import ObjectId
 from service.database import CollectionWrapper
-from service.response import json_response
+from service.response import json_response, json_bad_request_response, json_not_found_response
 from service.models import Factory as DirectFactory
-from pinytoCloud.checktoken import check_token
-from pinytoCloud.models import Session
+from pinytoCloud.checktoken import check_token, PinytoTokenError
 from pinytoCloud.models import User
 from api_prototype.sandbox import safely_exec
 from api_prototype.sandbox_helpers import EmptyRequest
@@ -55,34 +54,36 @@ def api_call(request, user_name, assembly_name, function_name):
     try:
         json_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "All Pinyto API-calls have to use json. This is not valid JSON data."})
+        return json_bad_request_response(
+            {'error': "All Pinyto API-calls have to use json. This is not valid JSON data."})
     if 'token' not in json_data:
-        return json_response({'error': "Unauthenticated API-calls are not supported. Please supply a token."})
-    session = check_token(json_data['token'])
-    if not isinstance(session, Session):
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "Unauthenticated API-calls are not supported. Please supply a token."})
+    try:
+        session = check_token(json_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
     try:
         assembly_user = User.objects.filter(name=user_name).all()[0]
     except IndexError:
-        return json_response(
+        return json_not_found_response(
             {'error': "The user " + user_name + " was not found. There can not be an assembly " +
                       user_name + "/" + assembly_name + "."}
         )
     try:
         assemblies = assembly_user.assemblies.filter(name=assembly_name).all()
         if len(assemblies) > 1:  # This can't occur because assembly name + user are unique together
-            return json_response(
+            return json_bad_request_response(
                 {'error': "The user has more than one assembly of this name. That does not make any sense."}
             )
         assembly = assemblies[0]
     except IndexError:
-        return json_response(
+        return json_not_found_response(
             {'error': "Assembly not found. Does " + assembly_user.name + " have an Assembly named " +
                       assembly_name + "?"}
         )
     if assembly not in session.user.installed_assemblies.all():
-        return json_response({'error': "The assembly exists but it is not installed."})
+        return json_not_found_response({'error': "The assembly exists but it is not installed."})
     mongo_db = MongoConnection.get_db()
     # Try to load statically defined api functions.
     try:

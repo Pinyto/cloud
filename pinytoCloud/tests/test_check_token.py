@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from django.test import TestCase
+from service.exceptions import PinytoTokenError
 from pinytoCloud.checktoken import check_token
 from pinytoCloud.models import User, StoredPublicKey, Session
 from django.utils import timezone
@@ -25,35 +26,38 @@ from base64 import b64encode
 from pinytoCloud.settings import PINYTO_KEY
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-import json
 
 
 class TokenCheckTest(TestCase):
     def test_no_base16_token(self):
-        response = check_token('xxx')
-        self.assertEqual(response.status_code, 200)
-        res = json.loads(str(response.content, encoding='utf-8'))
-        self.assertIn('error', res)
-        self.assertEqual(res['error'], "The token is not in valid base64-format.")
+        self.assertRaises(PinytoTokenError, check_token('xxx'))
+        try:
+            check_token('xxx')
+        except PinytoTokenError as e:
+            res = e.error_json
+            self.assertIn('error', res)
+            self.assertEqual(res['error'], "The token is not in valid base64-format.")
 
     def test_wrong_length(self):
-        response = check_token(
-            '6385AAC2648396659A7CFD4D0599034F847C4ACD1F9F90BCE6C58D4F79069B5ACA68C81664C1184DF592DD1C4C62C63F01DE9' +
-            '14CF5A00750312BA6F87D13F2DD872EACD7CB23D768E4905A6294FC79D793803A9D105ECC278A3E57339943E45FF970D7DACA' +
-            '74150B269ACDB1ED4A6593B75885A7D59788DE17D6E33C92473E6A3DC59B1A5256F9CDDAD635E65CB502F41C78A7E8890BEC4' +
-            '4DD4A5E837D01982E99FED24F6621E76972F140AAF9EE4B5938BA2FFB967AA08B4F6E8E76DAB6A87B967EE129D33CA7FE76EF' +
-            'A40DDC1F1D74D836083BD10FF85BFC8CFCB7FF552C290D178A102A2AC39E511F9DE66CE8D666A002D29334ED9CF3CB7FFB5B1' +
-            'DF68A09945B7750A90BA4CF37300A97F2C80BA5F91D2D053A78302395514B5D08A4E7F1758641F55C4D64ECFB50BB9202EE48' +
-            'A93BE55C1FB7355461B973A24E1961FDE235CA7E02CE58F90D0C75A044D327A69462ED1027DC793276E91C2FB776A7A78406E' +
-            'A798D01899BD166BA61D9A33DE7FA32E1898BAC6F306D1DDAC1DCEA1400E8AAAA'
-        )
-        self.assertEqual(response.status_code, 200)
-        res = json.loads(str(response.content, encoding='utf-8'))
-        self.assertIn('error', res)
-        self.assertEqual(
-            "The token could not be decoded: Ciphertext length must be equal to key size.",
-            res['error']
-        )
+        token_string = ''.join([
+            '6385AAC2648396659A7CFD4D0599034F847C4ACD1F9F90BCE6C58D4F79069B5ACA68C81664C1184DF592DD1C4C62C63F01DE9',
+            '14CF5A00750312BA6F87D13F2DD872EACD7CB23D768E4905A6294FC79D793803A9D105ECC278A3E57339943E45FF970D7DACA',
+            '74150B269ACDB1ED4A6593B75885A7D59788DE17D6E33C92473E6A3DC59B1A5256F9CDDAD635E65CB502F41C78A7E8890BEC4',
+            '4DD4A5E837D01982E99FED24F6621E76972F140AAF9EE4B5938BA2FFB967AA08B4F6E8E76DAB6A87B967EE129D33CA7FE76EF',
+            'A40DDC1F1D74D836083BD10FF85BFC8CFCB7FF552C290D178A102A2AC39E511F9DE66CE8D666A002D29334ED9CF3CB7FFB5B1',
+            'DF68A09945B7750A90BA4CF37300A97F2C80BA5F91D2D053A78302395514B5D08A4E7F1758641F55C4D64ECFB50BB9202EE48',
+            'A93BE55C1FB7355461B973A24E1961FDE235CA7E02CE58F90D0C75A044D327A69462ED1027DC793276E91C2FB776A7A78406E',
+            'A798D01899BD166BA61D9A33DE7FA32E1898BAC6F306D1DDAC1DCEA1400E8AAAA'])
+        self.assertRaises(PinytoTokenError, check_token(token_string))
+        try:
+            check_token(token_string)
+        except PinytoTokenError as e:
+            res = e.error_json
+            self.assertIn('error', res)
+            self.assertEqual(
+                "The token could not be decoded: Ciphertext length must be equal to key size.",
+                res['error']
+            )
 
     def test_no_session(self):
         authentication_token = str(b64encode(PINYTO_KEY.public_key().encrypt(
@@ -63,11 +67,13 @@ class TokenCheckTest(TestCase):
                 algorithm=hashes.SHA1(),
                 label=None)
         )), encoding='utf-8')
-        response = check_token(authentication_token)
-        self.assertEqual(response.status_code, 200)
-        res = json.loads(str(response.content, encoding='utf-8'))
-        self.assertIn('error', res)
-        self.assertEqual("Unknown token. Please authenticate.", res['error'])
+        self.assertRaises(PinytoTokenError, check_token(authentication_token))
+        try:
+            check_token(authentication_token)
+        except PinytoTokenError as e:
+            res = e.error_json
+            self.assertIn('error', res)
+            self.assertEqual("Unknown token. Please authenticate.", res['error'])
 
     def test_successful(self):
         hugo = User(name='hugo')

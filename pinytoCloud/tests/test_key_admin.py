@@ -64,7 +64,7 @@ class TestListKeys(TestCase):
             reverse('list_keys'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -74,7 +74,7 @@ class TestListKeys(TestCase):
             reverse('list_keys'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
@@ -124,7 +124,7 @@ class TestSetKeyActive(TestCase):
             reverse('set_key_active'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -134,7 +134,7 @@ class TestSetKeyActive(TestCase):
             reverse('set_key_active'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
@@ -146,7 +146,7 @@ class TestSetKeyActive(TestCase):
                 'token': self.authentication_token,
                 'active_state': True}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a key_hash and an active_state.")
@@ -160,7 +160,7 @@ class TestSetKeyActive(TestCase):
                 'active_state': True
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -254,7 +254,7 @@ class TestDeleteKey(TestCase):
             reverse('delete_key'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -264,7 +264,7 @@ class TestDeleteKey(TestCase):
             reverse('delete_key'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
@@ -276,7 +276,7 @@ class TestDeleteKey(TestCase):
                 'token': self.authentication_token,
                 'active_state': True}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "You have to supply a key_hash.")
@@ -289,7 +289,7 @@ class TestDeleteKey(TestCase):
                 'key_hash': self.hugo_key.key_hash
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -357,7 +357,7 @@ class TestRegisterNewKey(TestCase):
             reverse('register_new_key'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token and public_key as JSON.")
@@ -367,7 +367,7 @@ class TestRegisterNewKey(TestCase):
             reverse('register_new_key'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token and the new public_key.")
@@ -377,7 +377,7 @@ class TestRegisterNewKey(TestCase):
             reverse('register_new_key'),
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token and the new public_key.")
@@ -389,7 +389,7 @@ class TestRegisterNewKey(TestCase):
                 'token': 31323334,
                 'public_key': {'N': '123423423', 'e': 36754}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -404,7 +404,7 @@ class TestRegisterNewKey(TestCase):
                 'token': 3132333,
                 'public_key': {'N': '123423423', 'e': 36754}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The token is not in valid base64-format.")
@@ -416,7 +416,7 @@ class TestRegisterNewKey(TestCase):
                 'token': self.authentication_token,
                 'public_key': {'N': '123423423'}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -430,7 +430,7 @@ class TestRegisterNewKey(TestCase):
                 'token': self.authentication_token,
                 'public_key': {'N': 'abc', 'e': 123}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -445,7 +445,7 @@ class TestRegisterNewKey(TestCase):
                 'token': self.authentication_token,
                 'public_key': {'N': '123423423', 'e': 123}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -473,7 +473,7 @@ class TestRegisterNewKey(TestCase):
                 'token': self.authentication_token,
                 'public_key': {'N': n, 'e': 'abc'}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(

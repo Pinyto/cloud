@@ -17,7 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
+from django.http import HttpResponseNotFound, HttpResponseServerError
 import json
 
 
@@ -29,3 +30,43 @@ def json_response(data):
     @return: HttpResponse
     """
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def json_bad_request_response(data):
+    """
+    Returns the json as string with correct mimetype.
+
+    @param data: dict
+    @return: HttpResponse
+    """
+    return HttpResponseBadRequest(json.dumps(data), content_type='application/json')
+
+
+def json_forbidden_response(data):
+    """
+    Returns the json as string with correct mimetype.
+
+    @param data: dict
+    @return: HttpResponse
+    """
+    return HttpResponseForbidden(json.dumps(data), content_type='application/json')
+
+
+def json_not_found_response(data):
+    """
+    Returns the json as string with correct mimetype.
+
+    @param data: dict
+    @return: HttpResponse
+    """
+    return HttpResponseBadRequest(json.dumps(data), content_type='application/json')
+
+
+def json_server_error_response(data):
+    """
+    Returns the json as string with correct mimetype.
+
+    @param data: dict
+    @return: HttpResponse
+    """
+    return HttpResponseServerError(json.dumps(data), content_type='application/json')

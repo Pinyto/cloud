@@ -30,7 +30,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'username': 'hugo', 'public_key': {'N': 1, 'e': 1}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Username hugo is already taken. Try another username.")
@@ -40,7 +40,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'thing': '42'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
@@ -50,7 +50,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'username': 'hugo'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with username and public_key.")
@@ -60,7 +60,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'username': 'hugo', 'public_key': {"No": "1", "ne": "1"}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -73,7 +73,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'username': 'hugo', 'public_key': {"N": "abc", "e": "1"}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(
@@ -87,7 +87,7 @@ class RegisterTest(TestCase):
             json.dumps({'username': 'hugo', 'public_key': {'N': str(pow(2, 4096) - 7458345), 'e': 'xxx'}}),
             content_type='application/json'
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual("Factor e in the public key is not a number. It has to be an integer.", res['error'])
@@ -97,7 +97,7 @@ class RegisterTest(TestCase):
             '/register',
             json.dumps({'username': 'hugo', 'public_key': {"N": 3845, "e": 1}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual("Factor N in the public key is too small. Please use at least 4096 bit.", res['error'])

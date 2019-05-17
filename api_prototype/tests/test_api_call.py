@@ -65,7 +65,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             'wlglml',
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'All Pinyto API-calls have to use json. This is not valid JSON data.')
@@ -75,7 +75,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'a': 'b'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'Unauthenticated API-calls are not supported. Please supply a token.')
@@ -85,7 +85,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'token': 'b'}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'The token is not in valid base64-format.')
@@ -95,7 +95,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'wrongbert', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'The user wrongbert was not found. There can not be an assembly wrongbert/bar.')
@@ -105,7 +105,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'dideldi', 'function_name': 'test'}),
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'Assembly not found. Does foo have an Assembly named dideldi?')
@@ -115,7 +115,7 @@ class TestApiCall(TestCase):
             reverse('api_call', kwargs={'user_name': 'foo', 'assembly_name': 'bar', 'function_name': 'test'}),
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'The assembly exists but it is not installed.')

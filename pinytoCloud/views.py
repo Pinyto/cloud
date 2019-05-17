@@ -25,10 +25,11 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from project_path import project_path
-from service.response import json_response
+from service.response import json_response, json_bad_request_response, json_forbidden_response, json_not_found_response
 from pinytoCloud.models import User, StoredPublicKey, Session, Assembly, ApiFunction, Job
 from pinytoCloud.settings import PINYTO_KEY
 from pinytoCloud.checktoken import check_token
+from service.exceptions import PinytoTokenError, PinytoAuthenticationError, PinytoRegistrationError
 
 
 def home(request):
@@ -57,11 +58,16 @@ def authenticate_request(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Your request contained no valid JSON data. " +
-                                       "You have to supply a username and a key_hash to authenticate."})
+        return json_bad_request_response(
+            {'error': "Your request contained no valid JSON data. " +
+                      "You have to supply a username and a key_hash to authenticate."})
     if 'username' not in request_data or 'key_hash' not in request_data:
-        return json_response({'error': "You have to supply a username and a key_hash to authenticate."})
-    return json_response(authenticate(request_data['username'], request_data['key_hash']))
+        return json_bad_request_response(
+            {'error': "You have to supply a username and a key_hash to authenticate."})
+    try:
+        return json_response(authenticate(request_data['username'], request_data['key_hash']))
+    except PinytoAuthenticationError as e:
+        return json_bad_request_response(e.error_json)
 
 
 def authenticate(username, key_hash):
@@ -78,11 +84,13 @@ def authenticate(username, key_hash):
     try:
         user = User.objects.filter(name=username).all()[0]
     except IndexError:
-        return {'error': "User '" + username + "' is unknown. Please register first."}
+        raise PinytoAuthenticationError(
+            {'error': "User '" + username + "' is unknown. Please register first."})
     try:
         key = user.keys.filter(key_hash=key_hash).exclude(active=False).all()[0]
     except IndexError:
-        return {'error': "This is not a registered and active public key of this user."}
+        raise PinytoAuthenticationError(
+            {'error': "This is not a registered and active public key of this user."})
     session = user.start_session(key)
     encrypted_token = session.get_encrypted_token()
     signature = PINYTO_KEY.sign(
@@ -108,17 +116,17 @@ def logout(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token as JSON."})
+        return json_bad_request_response(
+            {'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        session.delete()
-        return json_response({'success': True})
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    session.delete()
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -134,10 +142,15 @@ def register_request(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the username and public_key as JSON."})
+        return json_bad_request_response(
+            {'error': "Please supply the username and public_key as JSON."})
     if 'username' not in request_data or 'public_key' not in request_data:
-        return json_response({'error': "Please supply JSON with username and public_key."})
-    return json_response(register(request_data['username'], request_data['public_key']))
+        return json_bad_request_response(
+            {'error': "Please supply JSON with username and public_key."})
+    try:
+        return json_response(register(request_data['username'], request_data['public_key']))
+    except PinytoRegistrationError as e:
+        return json_bad_request_response(e.error_json)
 
 
 def register(username, key_data):
@@ -151,20 +164,25 @@ def register(username, key_data):
     :rtype: dict
     """
     if User.objects.filter(name=username).count() > 0:
-        return {'error': "Username " + username + " is already taken. Try another username."}
+        raise PinytoRegistrationError(
+            {'error': "Username " + username + " is already taken. Try another username."})
     if 'N' not in key_data or 'e' not in key_data:
-        return {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."}
+        raise PinytoRegistrationError(
+            {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."})
     try:
         n = int(key_data['N'])
         if n < pow(2, 4095):
-            return {'error': "Factor N in the public key is too small. Please use at least 4096 bit."}
+            raise PinytoRegistrationError(
+                {'error': "Factor N in the public key is too small. Please use at least 4096 bit."})
     except ValueError:
-        return {'error': "Factor N in the public key is not a number. " +
-                         "It has to be a long integer transferred as a string."}
+        raise PinytoRegistrationError(
+            {'error': "Factor N in the public key is not a number. " +
+                      "It has to be a long integer transferred as a string."})
     try:
         e = int(key_data['e'])
     except ValueError:
-        return {'error': "Factor e in the public key is not a number. It has to be an integer."}
+        raise PinytoRegistrationError(
+            {'error': "Factor e in the public key is not a number. It has to be an integer."})
     new_user = User(name=username)
     new_user.save()
     StoredPublicKey.create(new_user, key_data['N'], e)
@@ -183,22 +201,20 @@ def list_keys(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token as JSON."})
+        return json_bad_request_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        key_list = []
-        for key in session.user.keys.all():
-            key_list.append({
-                'key_hash': key.key_hash,
-                'active': key.active
-            })
-        return json_response(key_list)
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    key_list = []
+    for key in session.user.keys.all():
+        key_list.append({
+            'key_hash': key.key_hash,
+            'active': key.active
+        })
+    return json_response(key_list)
 
 
 @csrf_exempt
@@ -213,29 +229,28 @@ def set_key_active(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token as JSON."})
+        return json_bad_request_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'key_hash' not in request_data or 'active_state' not in request_data:
-            return json_response({'error': "You have to supply a key_hash and an active_state."})
-        if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
-            return json_response(
-                {'error': "You are deactivating your last active key. " +
-                          "That is in all possible scenarios a bad idea so it will not be done."}
-            )
-        key = session.user.keys.get(key_hash=request_data['key_hash'])
-        if request_data['active_state']:
-            key.active = True
-        else:
-            key.active = False
-        key.save()
-        return json_response({'success': True})
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'key_hash' not in request_data or 'active_state' not in request_data:
+        return json_bad_request_response(
+            {'error': "You have to supply a key_hash and an active_state."})
+    if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
+        return json_bad_request_response(
+            {'error': "You are deactivating your last active key. " +
+                      "That is in all possible scenarios a bad idea so it will not be done."}
+        )
+    key = session.user.keys.get(key_hash=request_data['key_hash'])
+    if request_data['active_state']:
+        key.active = True
     else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        key.active = False
+    key.save()
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -250,25 +265,22 @@ def delete_key(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token as JSON."})
+        return json_bad_request_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'key_hash' not in request_data:
-            return json_response({'error': "You have to supply a key_hash."})
-        if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
-            return json_response(
-                {'error': "You are deleting your last active key. " +
-                          "That is in all possible scenarios a bad idea so it will not be done."}
-            )
-        key = session.user.keys.get(key_hash=request_data['key_hash'])
-        key.delete()
-        return json_response({'success': True})
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'key_hash' not in request_data:
+        return json_bad_request_response({'error': "You have to supply a key_hash."})
+    if session.user.keys.filter(active=True).exclude(key_hash=request_data['key_hash']).count() < 1:
+        return json_bad_request_response(
+            {'error': "You are deleting your last active key. " +
+                      "That is in all possible scenarios a bad idea so it will not be done."})
+    key = session.user.keys.get(key_hash=request_data['key_hash'])
+    key.delete()
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -283,33 +295,38 @@ def register_new_key(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token and public_key as JSON."})
+        return json_bad_request_response(
+            {'error': "Please supply the token and public_key as JSON."})
     if 'token' not in request_data or 'public_key' not in request_data:
-        return json_response({'error': "Please supply JSON with a token and the new public_key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        key_data = request_data['public_key']
-        if 'N' not in key_data or 'e' not in key_data:
-            return json_response(
-                {'error': "The public_key is in the wrong format. The key data must consist of an N and an e."})
-        try:
-            n = int(key_data['N'])
-            if n < pow(2, 4095):
-                return json_response({
-                    'error': "Factor N in the public key is too small. Please use at least 4096 bit."})
-        except ValueError:
-            return json_response({'error': "Factor N in the public key is not a number. " +
-                                           "It has to be a long integer transferred as a string."})
-        try:
-            e = int(key_data['e'])
-        except ValueError:
-            return json_response({'error': "Factor e in the public key is not a number. It has to be a long integer."})
-        StoredPublicKey.create(session.user, key_data['N'], e)
-        return json_response({'success': True})
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "Please supply JSON with a token and the new public_key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    key_data = request_data['public_key']
+    if 'N' not in key_data or 'e' not in key_data:
+        return json_bad_request_response(
+            {'error': "The public_key is in the wrong format. " +
+                      "The key data must consist of an N and an e."})
+    try:
+        n = int(key_data['N'])
+        if n < pow(2, 4095):
+            return json_bad_request_response({
+                'error': "Factor N in the public key is too small. " +
+                         "Please use at least 4096 bit."})
+    except ValueError:
+        return json_bad_request_response(
+            {'error': "Factor N in the public key is not a number. " +
+                      "It has to be a long integer transferred as a string."})
+    try:
+        e = int(key_data['e'])
+    except ValueError:
+        return json_bad_request_response(
+            {'error': "Factor e in the public key is not a number. " +
+                      "It has to be a long integer."})
+    StoredPublicKey.create(session.user, key_data['N'], e)
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -324,32 +341,30 @@ def list_own_assemblies(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the token as JSON."})
+        return json_bad_request_response({'error': "Please supply the token as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        own_assemblies = []
-        for assembly in session.user.assemblies.all():
-            own_assemblies.append({
-                'name': assembly.name,
-                'description': assembly.description,
-                'api_functions': [{
-                    'name': api_function.name,
-                    'code': api_function.code
-                } for api_function in assembly.api_functions.all()],
-                'jobs': [{
-                    'name': job.name,
-                    'code': job.code,
-                    'schedule': job.schedule
-                } for job in assembly.jobs.all()],
-                'only_own_data': assembly.only_own_data
-            })
-        return json_response(own_assemblies)
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    own_assemblies = []
+    for assembly in session.user.assemblies.all():
+        own_assemblies.append({
+            'name': assembly.name,
+            'description': assembly.description,
+            'api_functions': [{
+                'name': api_function.name,
+                'code': api_function.code
+            } for api_function in assembly.api_functions.all()],
+            'jobs': [{
+                'name': job.name,
+                'code': job.code,
+                'schedule': job.schedule
+            } for job in assembly.jobs.all()],
+            'only_own_data': assembly.only_own_data
+        })
+    return json_response(own_assemblies)
 
 
 @csrf_exempt
@@ -365,111 +380,105 @@ def save_assembly(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'original_name' in request_data and 'data' in request_data:
-            assembly_data = request_data['data']
-            assembly_is_new = False
-            try:
-                assembly = session.user.assemblies.filter(name=request_data['original_name']).all()[0]
-            except IndexError:
-                assembly_is_new = True
-                assembly = Assembly(author=session.user)
-            if 'name' not in assembly_data or 'description' not in assembly_data:
-                return json_response(
-                    {'error': "The assembly data lacks a name or description. Both attributes must be present."}
-                )
-            assembly.name = assembly_data['name']
-            assembly.description = assembly_data['description']
-            assembly.save()
-            if 'api_functions' not in assembly_data:
-                assembly_data['api_functions'] = []
-            if 'jobs' not in assembly_data:
-                assembly_data['jobs'] = []
-            for api_function in assembly.api_functions.all():
-                found = False
-                for loaded_function in assembly_data['api_functions']:
-                    if 'name' not in loaded_function or 'code' not in loaded_function:
-                        return json_response(
-                            {'error': "The assembly data for changing an existing function " +
-                                      "lacks a name or code attribute."}
-                        )
-                    if api_function.name == loaded_function['name']:
-                        api_function.code = loaded_function['code']
-                        api_function.save()
-                        found = True
-                if not found:
-                    api_function.delete()
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'original_name' in request_data and 'data' in request_data:
+        assembly_data = request_data['data']
+        assembly_is_new = False
+        try:
+            assembly = session.user.assemblies.filter(name=request_data['original_name']).all()[0]
+        except IndexError:
+            assembly_is_new = True
+            assembly = Assembly(author=session.user)
+        if 'name' not in assembly_data or 'description' not in assembly_data:
+            return json_bad_request_response(
+                {'error': "The assembly data lacks a name or description. Both attributes must be present."})
+        assembly.name = assembly_data['name']
+        assembly.description = assembly_data['description']
+        assembly.save()
+        if 'api_functions' not in assembly_data:
+            assembly_data['api_functions'] = []
+        if 'jobs' not in assembly_data:
+            assembly_data['jobs'] = []
+        for api_function in assembly.api_functions.all():
+            found = False
             for loaded_function in assembly_data['api_functions']:
-                if 'name' in loaded_function and 'code' in loaded_function:
-                    if not loaded_function['name'] in [x.name for x in assembly.api_functions.all()]:
-                        new_function = ApiFunction(
-                            assembly=assembly,
-                            name=loaded_function['name'],
-                            code=loaded_function['code']
-                        )
-                        new_function.save()
-                else:
-                    if assembly_is_new:
-                        assembly.delete()
-                    return json_response(
-                        {'error': "The assembly data lacks a name or code attribute in a api function."}
+                if 'name' not in loaded_function or 'code' not in loaded_function:
+                    return json_bad_request_response(
+                        {'error': "The assembly data for changing an existing function " +
+                                  "lacks a name or code attribute."})
+                if api_function.name == loaded_function['name']:
+                    api_function.code = loaded_function['code']
+                    api_function.save()
+                    found = True
+            if not found:
+                api_function.delete()
+        for loaded_function in assembly_data['api_functions']:
+            if 'name' in loaded_function and 'code' in loaded_function:
+                if not loaded_function['name'] in [x.name for x in assembly.api_functions.all()]:
+                    new_function = ApiFunction(
+                        assembly=assembly,
+                        name=loaded_function['name'],
+                        code=loaded_function['code']
                     )
-            for job in assembly.jobs.all():
-                found = False
-                for loaded_job in assembly_data['jobs']:
-                    if 'name' not in loaded_job or 'code' not in loaded_job:
-                        return json_response(
-                            {'error': "The assembly data for changing an existing job lacks a name or code attribute."}
-                        )
+                    new_function.save()
+            else:
+                if assembly_is_new:
+                    assembly.delete()
+                return json_bad_request_response(
+                    {'error': "The assembly data lacks a name or code attribute in a api function."})
+        for job in assembly.jobs.all():
+            found = False
+            for loaded_job in assembly_data['jobs']:
+                if 'name' not in loaded_job or 'code' not in loaded_job:
+                    return json_bad_request_response(
+                        {'error': "The assembly data for changing an existing job lacks a name " +
+                                  "or code attribute."})
+                if 'schedule' in loaded_job:
+                    schedule = loaded_job['schedule']
+                else:
+                    schedule = 0
+                if job.name == loaded_job['name']:
+                    job.code = loaded_job['code']
+                    job.schedule = schedule
+                    job.save()
+                    found = True
+            if not found:
+                job.delete()
+        for loaded_job in assembly_data['jobs']:
+            if 'name' in loaded_job and 'code' in loaded_job:
+                if not loaded_job['name'] in [x.name for x in assembly.jobs.all()]:
                     if 'schedule' in loaded_job:
                         schedule = loaded_job['schedule']
                     else:
                         schedule = 0
-                    if job.name == loaded_job['name']:
-                        job.code = loaded_job['code']
-                        job.schedule = schedule
-                        job.save()
-                        found = True
-                if not found:
-                    job.delete()
-            for loaded_job in assembly_data['jobs']:
-                if 'name' in loaded_job and 'code' in loaded_job:
-                    if not loaded_job['name'] in [x.name for x in assembly.jobs.all()]:
-                        if 'schedule' in loaded_job:
-                            schedule = loaded_job['schedule']
-                        else:
-                            schedule = 0
-                        new_job = Job(
-                            assembly=assembly,
-                            name=loaded_job['name'],
-                            code=loaded_job['code'],
-                            schedule=schedule
-                        )
-                        new_job.save()
-                else:
-                    if assembly_is_new:
-                        assembly.delete()
-                    return json_response(
-                        {'error': "The assembly data lacks a name or code attribute in a job."}
+                    new_job = Job(
+                        assembly=assembly,
+                        name=loaded_job['name'],
+                        code=loaded_job['code'],
+                        schedule=schedule
                     )
-            if 'only_own_data' in assembly_data:
-                assembly.only_own_data = assembly_data['only_own_data']
+                    new_job.save()
             else:
-                assembly.only_own_data = True
-            assembly.save()
-            return json_response({'success': True})
+                if assembly_is_new:
+                    assembly.delete()
+                return json_bad_request_response(
+                    {'error': "The assembly data lacks a name or code attribute in a job."})
+        if 'only_own_data' in assembly_data:
+            assembly.only_own_data = assembly_data['only_own_data']
         else:
-            return json_response(
-                {'error': "You have to supply an original_name and the data of the new or changed assembly."}
-            )
+            assembly.only_own_data = True
+        assembly.save()
+        return json_response({'success': True})
     else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "You have to supply an original_name and the data " +
+                      "of the new or changed assembly."})
 
 
 @csrf_exempt
@@ -484,27 +493,23 @@ def delete_assembly(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'name' not in request_data:
-            return json_response(
-                {'error': "You have to supply the name of the assembly you want to delete."}
-            )
-        try:
-            assembly = session.user.assemblies.filter(name=request_data['name']).all()[0]
-        except IndexError:
-            return json_response(
-                {'error': "There was no assembly found with the name " + request_data['name'] + "."}
-            )
-        assembly.delete()
-        return json_response({'success': True})
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'name' not in request_data:
+        return json_bad_request_response(
+            {'error': "You have to supply the name of the assembly you want to delete."})
+    try:
+        assembly = session.user.assemblies.filter(name=request_data['name']).all()[0]
+    except IndexError:
+        return json_not_found_response(
+            {'error': "There was no assembly found with the name " + request_data['name'] + "."})
+    assembly.delete()
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -519,23 +524,21 @@ def list_installed_assemblies(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        installed_assemblies = []
-        for assembly in session.user.installed_assemblies.all():
-            installed_assemblies.append({
-                'name': assembly.name,
-                'author': assembly.author.name,
-                'description': assembly.description
-            })
-        return json_response(installed_assemblies)
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    installed_assemblies = []
+    for assembly in session.user.installed_assemblies.all():
+        installed_assemblies.append({
+            'name': assembly.name,
+            'author': assembly.author.name,
+            'description': assembly.description
+        })
+    return json_response(installed_assemblies)
 
 
 @csrf_exempt
@@ -550,23 +553,21 @@ def list_all_assemblies(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        all_assemblies = []
-        for assembly in Assembly.objects.all():
-            all_assemblies.append({
-                'name': assembly.name,
-                'author': assembly.author.name,
-                'description': assembly.description
-            })
-        return json_response(all_assemblies)
-    else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    all_assemblies = []
+    for assembly in Assembly.objects.all():
+        all_assemblies.append({
+            'name': assembly.name,
+            'author': assembly.author.name,
+            'description': assembly.description
+        })
+    return json_response(all_assemblies)
 
 
 @csrf_exempt
@@ -581,40 +582,34 @@ def install_assembly(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'author' in request_data:
-            try:
-                author = User.objects.filter(name=request_data['author']).all()[0]
-            except IndexError:
-                return json_response(
-                    {'error': "There was no user found with the name " + request_data['author'] + "."}
-                )
-        else:
-            return json_response(
-                {'error': "You have to supply an author to install an assembly."}
-            )
-        if 'name' in request_data:
-            try:
-                assembly = author.assemblies.filter(name=request_data['name']).all()[0]
-            except IndexError:
-                return json_response(
-                    {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
-                              request_data['name'] + "."}
-                )
-        else:
-            return json_response(
-                {'error': "You have to supply the name of the assembly you want to install."}
-            )
-        session.user.installed_assemblies.add(assembly)
-        return json_response({'success': True})
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'author' in request_data:
+        try:
+            author = User.objects.filter(name=request_data['author']).all()[0]
+        except IndexError:
+            return json_not_found_response(
+                {'error': "There was no user found with the name " + request_data['author'] + "."})
     else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "You have to supply an author to install an assembly."})
+    if 'name' in request_data:
+        try:
+            assembly = author.assemblies.filter(name=request_data['name']).all()[0]
+        except IndexError:
+            return json_not_found_response(
+                {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
+                          request_data['name'] + "."})
+    else:
+        return json_bad_request_response(
+            {'error': "You have to supply the name of the assembly you want to install."})
+    session.user.installed_assemblies.add(assembly)
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -629,33 +624,29 @@ def uninstall_assembly(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'author' in request_data and 'name' in request_data:
-            try:
-                assembly = session.user.installed_assemblies.filter(
-                    author__name=request_data['author']
-                ).filter(
-                    name=request_data['name']
-                ).all()[0]
-            except IndexError:
-                return json_response(
-                    {'error': "There was no installed assembly found with the name " + request_data['author'] +
-                              "/" + request_data['name'] + "."}
-                )
-        else:
-            return json_response(
-                {'error': "You have to supply an author and a name to uninstall an assembly."}
-            )
-        session.user.installed_assemblies.remove(assembly)
-        return json_response({'success': True})
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        session = check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'author' in request_data and 'name' in request_data:
+        try:
+            assembly = session.user.installed_assemblies.filter(
+                author__name=request_data['author']
+            ).filter(
+                name=request_data['name']
+            ).all()[0]
+        except IndexError:
+            return json_not_found_response(
+                {'error': "There was no installed assembly found with the name " + request_data['author'] +
+                          "/" + request_data['name'] + "."})
     else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "You have to supply an author and a name to uninstall an assembly."})
+    session.user.installed_assemblies.remove(assembly)
+    return json_response({'success': True})
 
 
 @csrf_exempt
@@ -670,46 +661,40 @@ def get_assembly_source(request):
     try:
         request_data = json.loads(str(request.body, encoding='utf-8'))
     except ValueError:
-        return json_response({'error': "Please supply the data as JSON."})
+        return json_bad_request_response({'error': "Please supply the data as JSON."})
     if 'token' not in request_data:
-        return json_response({'error': "Please supply JSON with a token key."})
-    session = check_token(request_data['token'])
-    # check_token will return an error response if the token is not found or can not be verified.
-    if isinstance(session, Session):
-        if 'author' in request_data:
-            try:
-                author = User.objects.filter(name=request_data['author']).all()[0]
-            except IndexError:
-                return json_response(
-                    {'error': "There was no user found with the name " + request_data['author'] + "."}
-                )
-        else:
-            return json_response(
-                {'error': "You have to supply an author to identify the assembly."}
-            )
-        if 'name' in request_data:
-            try:
-                assembly = author.assemblies.filter(name=request_data['name']).all()[0]
-            except IndexError:
-                return json_response(
-                    {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
-                              request_data['name'] + "."}
-                )
-        else:
-            return json_response(
-                {'error': "You have to supply the name of the assembly."}
-            )
-        return json_response({
-            'api_functions': [{
-                'name': f.name,
-                'code': f.code
-            } for f in assembly.api_functions.all()],
-            'jobs': [{
-                'name': f.name,
-                'code': f.code,
-                'schedule': f.schedule
-            } for f in assembly.jobs.all()]
-        })
+        return json_bad_request_response({'error': "Please supply JSON with a token key."})
+    try:
+        check_token(request_data['token'])
+    except PinytoTokenError as e:
+        return json_bad_request_response(e.error_json)
+    if 'author' in request_data:
+        try:
+            author = User.objects.filter(name=request_data['author']).all()[0]
+        except IndexError:
+            return json_not_found_response(
+                {'error': "There was no user found with the name " + request_data['author'] + "."})
     else:
-        # session is not a session so it has to be response object with an error message
-        return session
+        return json_bad_request_response(
+            {'error': "You have to supply an author to identify the assembly."})
+    if 'name' in request_data:
+        try:
+            assembly = author.assemblies.filter(name=request_data['name']).all()[0]
+        except IndexError:
+            return json_not_found_response(
+                {'error': "There was no assembly found with the name " + request_data['author'] + "/" +
+                          request_data['name'] + "."})
+    else:
+        return json_bad_request_response(
+            {'error': "You have to supply the name of the assembly."})
+    return json_response({
+        'api_functions': [{
+            'name': f.name,
+            'code': f.code
+        } for f in assembly.api_functions.all()],
+        'jobs': [{
+            'name': f.name,
+            'code': f.code,
+            'schedule': f.schedule
+        } for f in assembly.jobs.all()]
+    })
