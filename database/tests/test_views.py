@@ -42,7 +42,7 @@ class StoreTest(TestCase):
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -52,7 +52,7 @@ class StoreTest(TestCase):
             reverse('store', kwargs={'user_name': 'test', 'assembly_name': 'bla'}),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")
@@ -105,7 +105,7 @@ class StoreTest(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The assembly test/bla does not exist.")
@@ -131,7 +131,7 @@ class StoreTest(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "The assembly test/bla is not installed.")
@@ -198,7 +198,7 @@ class StoreTest(TestCase):
                 }
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "If you want to store data you have to send your " +
@@ -223,7 +223,7 @@ class StoreTest(TestCase):
                 'tags': ['a', 'b', 'c']
             }),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "If you want to store data you have to send your " +
@@ -323,7 +323,7 @@ class StatisticsTest(TestCase):
             reverse('statistics'),
             "Didelidi",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply the token as JSON.")
@@ -333,7 +333,7 @@ class StatisticsTest(TestCase):
             reverse('statistics'),
             json.dumps({'x': 1234}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], "Please supply JSON with a token key.")

@@ -30,8 +30,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 
 class TokenCheckTest(TestCase):
     def test_no_base16_token(self):
-        self.assertRaises(PinytoTokenError, check_token('xxx'))
         try:
+            self.assertRaises(PinytoTokenError, check_token('xxx'))
             check_token('xxx')
         except PinytoTokenError as e:
             res = e.error_json
@@ -48,8 +48,8 @@ class TokenCheckTest(TestCase):
             'DF68A09945B7750A90BA4CF37300A97F2C80BA5F91D2D053A78302395514B5D08A4E7F1758641F55C4D64ECFB50BB9202EE48',
             'A93BE55C1FB7355461B973A24E1961FDE235CA7E02CE58F90D0C75A044D327A69462ED1027DC793276E91C2FB776A7A78406E',
             'A798D01899BD166BA61D9A33DE7FA32E1898BAC6F306D1DDAC1DCEA1400E8AAAA'])
-        self.assertRaises(PinytoTokenError, check_token(token_string))
         try:
+            self.assertRaises(PinytoTokenError, check_token(token_string))
             check_token(token_string)
         except PinytoTokenError as e:
             res = e.error_json
@@ -67,8 +67,8 @@ class TokenCheckTest(TestCase):
                 algorithm=hashes.SHA1(),
                 label=None)
         )), encoding='utf-8')
-        self.assertRaises(PinytoTokenError, check_token(authentication_token))
         try:
+            self.assertRaises(PinytoTokenError, check_token(authentication_token))
             check_token(authentication_token)
         except PinytoTokenError as e:
             res = e.error_json

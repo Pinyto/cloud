@@ -22,7 +22,7 @@ from database.mongo_connection import MongoConnection
 from pymongo.collection import Collection
 from service.response import json_response, json_bad_request_response, json_not_found_response
 from pinytoCloud.checktoken import check_token, PinytoTokenError
-from pinytoCloud.models import Session, Assembly
+from pinytoCloud.models import Assembly
 from django.utils import timezone
 from database.helpers import get_tags, get_str_or_discard
 import json

@@ -125,7 +125,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/save',
             "BlaBlubb",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
 
@@ -213,7 +213,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/delete',
             "BlaBlubb",
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
 
