@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 Pinyto cloud - A secure cloud database for your personal data
-Copyright (C) 2105 Johannes Merkert <jonny@pinyto.de>
+Copyright (C) 2019 Pina Merkert <pina@pinae.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import json
 
 
-class DocumentsAdmin():
+class DocumentsAdmin:
     """
     This is the admin assembly for editing all documents in the db.
     """
@@ -42,26 +42,26 @@ class DocumentsAdmin():
         try:
             request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+            return {'error': 'The request needs to be in JSON format. This was not JSON.'}
         if 'skip' in request_data:
             try:
                 skip = int(request_data['skip'])
             except ValueError:
-                return json.dumps({'error': 'The skip value you supplied is not a number.'})
+                return {'error': 'The skip value you supplied is not a number.'}
         else:
             skip = 0
         if 'count' in request_data:
             try:
                 count = int(request_data['count'])
             except ValueError:
-                return json.dumps({'error': 'The count you supplied is not a number.'})
+                return {'error': 'The count you supplied is not a number.'}
         else:
             count = 42
         if 'query' in request_data:
             query = request_data['query']
         else:
             query = {}
-        return json.dumps({'result': db.find(query=query, skip=skip, limit=count)})
+        return {'result': db.find(query=query, skip=skip, limit=count)}
 
     @staticmethod
     def save(request, db, factory):
@@ -79,18 +79,18 @@ class DocumentsAdmin():
         try:
             request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+            return {'error': 'The request needs to be in JSON format. This was not JSON.'}
         if 'document' not in request_data:
-            return json.dumps({'error': 'You have to supply a document to save.'})
+            return {'error': 'You have to supply a document to save.'}
         document = request_data['document']
         if not isinstance(document, dict):
-            return json.dumps({'error': 'The document you supplied is not a single document. ' +
-                                        'Only one document at a time will be saved.'})
+            return {'error': 'The document you supplied is not a single document. ' +
+                             'Only one document at a time will be saved.'}
         if not ('_id' in document and db.count({'_id': document['_id']}) > 0):
             str_id = db.insert(document)
         else:
             str_id = db.save(document)
-        return json.dumps({'success': True, '_id': str_id})
+        return {'success': True, '_id': str_id}
 
     @staticmethod
     def delete(request, db, factory):
@@ -105,13 +105,13 @@ class DocumentsAdmin():
         try:
             request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+            return {'error': 'The request needs to be in JSON format. This was not JSON.'}
         if 'document' not in request_data:
-            return json.dumps({'error': 'You have to supply a document to delete.'})
+            return {'error': 'You have to supply a document to delete.'}
         document = request_data['document']
         if '_id' not in document:
-            return json.dumps({'error': 'You have to specify an _id to identify the document you want to delete.'})
+            return {'error': 'You have to specify an _id to identify the document you want to delete.'}
         if not db.count({'_id': document['_id']}) > 0:
-            return json.dumps({'error': 'There is no document with this ID. The document could not be deleted.'})
+            return {'error': 'There is no document with this ID. The document could not be deleted.'}
         db.remove(document)
-        return json.dumps({'success': True})
+        return {'success': True}

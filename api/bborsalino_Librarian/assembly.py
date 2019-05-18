@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 Pinyto cloud - A secure cloud database for your personal data
-Copyright (C) 2105 Johannes Merkert <jonny@pinyto.de>
+Copyright (C) 2019 Pina Merkert <pina@pinae.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,14 +41,14 @@ class Librarian():
         try:
             data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         if 'ean' in data:
             books = db.find({'type': 'book', 'data.ean': data['ean']}, skip=0, limit=42)
         elif 'isbn' in data:
             books = db.find({'type': 'book', 'data.isbn': data['isbn']}, skip=0, limit=42)
         else:
             books = db.find({'type': 'book'}, skip=0, limit=42)
-        return json.dumps({'index': books})
+        return {'index': books}
 
     @staticmethod
     def search(request, db, factory):
@@ -65,7 +65,7 @@ class Librarian():
         try:
             search_string = json.loads(str(request.body, encoding='utf-8'))['searchstring']
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         except IndexError:
             search_string = ""
         books = db.find({'type': 'book',
@@ -78,7 +78,7 @@ class Librarian():
                              {'data.category': {'$regex': search_string, '$options': 'i'}},
                              {'data.author': {'$regex': search_string, '$options': 'i'}}
                          ]}, skip=0, limit=42)
-        return json.dumps({'index': books})
+        return {'index': books}
 
     @staticmethod
     def update(request, db, factory):
@@ -94,22 +94,22 @@ class Librarian():
         try:
             book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
-            return json.dumps({'error': 'You have to supply a book to update.'})
+            return {'error': 'You have to supply a book to update.'}
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         if 'type' not in book_data:
-            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
+            return {'error': 'The data you supplied has no type. Please supply a book with type: book.'}
         if book_data['type'] != 'book':
-            return json.dumps({'error': 'This is not a book.'})
+            return {'error': 'This is not a book.'}
         if '_id' not in book_data:
-            return json.dumps({'error': 'You have to specify an _id to identify the book you want to update.'})
+            return {'error': 'You have to specify an _id to identify the book you want to update.'}
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
-            return json.dumps({'error': 'There is no book with this ID which could be updated.'})
+            return {'error': 'There is no book with this ID which could be updated.'}
         for key in book_data['data']:
             book['data'][key] = book_data['data'][key]
         db.save(book)
-        return json.dumps({'success': True})
+        return {'success': True}
 
     @staticmethod
     def update_all(request, db, factory):
@@ -124,13 +124,13 @@ class Librarian():
         try:
             book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
-            return json.dumps({'error': 'You have to supply a book to update.'})
+            return {'error': 'You have to supply a book to update.'}
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         if 'type' not in book_data:
-            return json.dumps({'error': 'The data you supplied has no type. Please supply a book with type: book.'})
+            return {'error': 'The data you supplied has no type. Please supply a book with type: book.'}
         if book_data['type'] != 'book':
-            return json.dumps({'error': 'This is not a book.'})
+            return {'error': 'This is not a book.'}
         if 'isbn' in book_data['data']:
             books = list(db.find_documents({'type': 'book',
                                             'data': {'$exists': True},
@@ -142,13 +142,13 @@ class Librarian():
         else:
             books = []
         if not books:  # there was an error
-            return json.dumps({'error': 'There are no books with this ISBN or EAN which could be updated.'})
+            return {'error': 'There are no books with this ISBN or EAN which could be updated.'}
         for key in book_data['data']:
             for book in books:
                 book['data'][key] = book_data['data'][key]
         for book in books:
             db.save(book)
-        return json.dumps({'success': True})
+        return {'success': True}
 
     @staticmethod
     def duplicate(request, db, factory):
@@ -163,20 +163,20 @@ class Librarian():
         try:
             book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
-            return json.dumps({'error': 'You have to supply a book to duplicate.'})
+            return {'error': 'You have to supply a book to duplicate.'}
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         if book_data['type'] != 'book':
-            return json.dumps({'error': 'This is not a book.'})
+            return {'error': 'This is not a book.'}
         if '_id' not in book_data:
-            return json.dumps({'error': 'You have to specify an _id to identify the book you want to duplicate.'})
+            return {'error': 'You have to specify an _id to identify the book you want to duplicate.'}
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
-            return json.dumps({'error': 'There is no book with this ID which could be updated.'})
+            return {'error': 'There is no book with this ID which could be updated.'}
         for key in book_data['data']:
             book['data'][key] = book_data['data'][key]
         db.insert(book)
-        return json.dumps({'success': True})
+        return {'success': True}
 
     @staticmethod
     def remove(request, db, factory):
@@ -191,18 +191,18 @@ class Librarian():
         try:
             book_data = json.loads(str(request.body, encoding='utf-8'))['book']
         except IndexError:
-            return json.dumps({'error': 'You have to supply a book to remove.'})
+            return {'error': 'You have to supply a book to remove.'}
         except ValueError:
-            return json.dumps({'error': 'The data you supplied is not valid json.'})
+            return {'error': 'The data you supplied is not valid json.'}
         if book_data['type'] != 'book':
-            return json.dumps({'error': 'This is not a book.'})
+            return {'error': 'This is not a book.'}
         if '_id' not in book_data:
-            return json.dumps({'error': 'You have to specify an _id to identify the book you want to remove.'})
+            return {'error': 'You have to specify an _id to identify the book you want to remove.'}
         book = db.find_document_for_id(book_data['_id'])
         if not book:  # there was an error
-            return json.dumps({'error': 'There is no book with this ID which could be deleted.'})
+            return {'error': 'There is no book with this ID which could be deleted.'}
         db.remove(book)
-        return json.dumps({'success': True})
+        return {'success': True}
 
     @staticmethod
     def statistics(request, db, factory):
@@ -215,14 +215,14 @@ class Librarian():
         @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
-        return json.dumps({
+        return {
             'book_count': db.count({'type': 'book'}),
             'places_used': db.find_distinct(
                 {'type': 'book', 'data': {'$exists': True}}, 'data.place'),
             'lent_count': db.count({'type': 'book',
                                     'data': {'$exists': True},
                                     'data.lent': {'$exists': True, '$ne': ""}})
-        })
+        }
 
     @staticmethod
     def job_complete_data_by_asking_dnb(db, factory):

@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 Pinyto cloud - A secure cloud database for your personal data
-Copyright (C) 2105 Johannes Merkert <jonny@pinyto.de>
+Copyright (C) 2019 Pina Merkert <pina@pinae.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
