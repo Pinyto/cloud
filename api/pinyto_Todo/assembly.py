@@ -37,12 +37,12 @@ class Todo:
         @param factory: Factory (either service.models.Factory or api_prototype.models.Factory)
         @return: string
         """
-        return json.dumps({'result': db.find(
+        return {'result': db.find(
             query={'type': 'todo'},
             skip=0,
             limit=10000,
             sorting='data.priority',
-            sort_direction='asc')})
+            sort_direction='asc')}
 
     @staticmethod
     def save(request, db, factory):
@@ -60,18 +60,18 @@ class Todo:
         try:
             request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+            return {'error': 'The request needs to be in JSON format. This was not JSON.'}
         if 'document' not in request_data:
-            return json.dumps({'error': 'You have to supply a document to save.'})
+            return {'error': 'You have to supply a document to save.'}
         document = request_data['document']
         if not isinstance(document, dict):
-            return json.dumps({'error': 'The document you supplied is not a single document. ' +
-                                        'Only one document at a time will be saved.'})
+            return {'error': 'The document you supplied is not a single document. ' +
+                             'Only one document at a time will be saved.'}
         if not ('_id' in document and db.count({'_id': document['_id']}) > 0):
             str_id = db.insert(document)
         else:
             str_id = db.save(document)
-        return json.dumps({'success': True, '_id': str_id})
+        return {'success': True, '_id': str_id}
 
     @staticmethod
     def delete(request, db, factory):
@@ -86,13 +86,13 @@ class Todo:
         try:
             request_data = json.loads(str(request.body, encoding='utf-8'))
         except ValueError:
-            return json.dumps({'error': 'The request needs to be in JSON format. This was not JSON.'})
+            return {'error': 'The request needs to be in JSON format. This was not JSON.'}
         if 'document' not in request_data:
-            return json.dumps({'error': 'You have to supply a document to delete.'})
+            return {'error': 'You have to supply a document to delete.'}
         document = request_data['document']
         if '_id' not in document:
-            return json.dumps({'error': 'You have to specify an _id to identify the document you want to delete.'})
+            return {'error': 'You have to specify an _id to identify the document you want to delete.'}
         if not db.count({'_id': document['_id']}) > 0:
-            return json.dumps({'error': 'There is no document with this ID. The document could not be deleted.'})
+            return {'error': 'There is no document with this ID. The document could not be deleted.'}
         db.remove(document)
-        return json.dumps({'success': True})
+        return {'success': True}

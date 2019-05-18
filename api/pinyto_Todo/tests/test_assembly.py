@@ -134,7 +134,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/save',
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to supply a document to save.')
@@ -144,7 +144,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/save',
             json.dumps({'token': self.authentication_token, 'document': [{'type': 'fake'}]}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'The document you supplied is not a single document. ' +
@@ -222,7 +222,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/delete',
             json.dumps({'token': self.authentication_token}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to supply a document to delete.')
@@ -232,7 +232,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/delete',
             json.dumps({'token': self.authentication_token, 'document': {'type': 'todo'}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'You have to specify an _id to identify the document you want to delete.')
@@ -242,7 +242,7 @@ class TestTodo(TestCase):
             '/pinyto/Todo/delete',
             json.dumps({'token': self.authentication_token, 'document': {'type': 'todo', '_id': 'ABC123'}}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
         res = json.loads(str(response.content, encoding='utf-8'))
         self.assertIn('error', res)
         self.assertEqual(res['error'], 'There is no document with this ID. The document could not be deleted.')

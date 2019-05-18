@@ -104,13 +104,16 @@ def api_call(request, user_name, assembly_name, function_name):
                 assembly_name=user_name + '/' + assembly_name,
                 only_own_data=assembly.only_own_data)
             start_time = time.clock()
-            response = function(request, collection_wrapper, DirectFactory())
+            response_json = function(request, collection_wrapper, DirectFactory())
             end_time = time.clock()
             session.user.calculate_time_and_storage(
                 end_time - start_time,
                 MongoConnection.get_db().command('collstats', session.user.name)['size']
             )
-            return HttpResponse(response, content_type='application/json')
+            if 'error' in response_json:
+                return json_bad_request_response(response_json)
+            else:
+                return json_response(response_json)
     # If we reach this point the api_class was found but the function was not defined in the class.
     # So we try to load this code from the database.
     return load_api(request, session=session, assembly=assembly, function_name=function_name,
