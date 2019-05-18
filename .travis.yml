@@ -1,7 +1,7 @@
 language: python
 python:
-  - "3.4"
-  - "3.5"
+  - "3.6"
+  - "3.7"
 # installation of dependencies outside of the virtualenv
 before_install:
   - sudo add-apt-repository ppa:ubuntu-lxc/stable -y
