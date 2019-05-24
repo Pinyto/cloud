@@ -28,12 +28,12 @@ class MongoConnection:
             return MongoClient(settings.MONGO_DB['HOST'],
                                username=settings.MONGO_DB['USER'],
                                password=settings.MONGO_DB['PASSWORD'],
-                               port=settings.MONGO_DB['PORT'])
+                               port=int(settings.MONGO_DB['PORT']))
         else:
             return MongoClient(settings.MONGO_DB['HOST'] if 'HOST' in settings.MONGO_DB else 'localhost',
-                               port=settings.MONGO_DB['PORT'] if 'PORT' in settings.MONGO_DB else 27017)
+                               port=int(settings.MONGO_DB['PORT']) if 'PORT' in settings.MONGO_DB else 27017)
 
     @staticmethod
     def get_db():
         return MongoConnection.create_mongo_client()[settings.MONGO_DB['NAME']
-                                                     if 'NAME' in settings.MONGO_DB else 'test_pinyto']
+                                                     if 'NAME' in settings.MONGO_DB else 'pinyto']
