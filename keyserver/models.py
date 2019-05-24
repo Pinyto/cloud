@@ -43,11 +43,11 @@ class Account(models.Model):
     salt = models.CharField(max_length=10)
     hash_iterations = models.IntegerField(default=10000)
     hash = models.CharField(max_length=32)
-    N = models.CharField(max_length=1000)
+    N = models.CharField(max_length=1400)
     e = models.BigIntegerField()
-    d = models.CharField(max_length=1000)
-    p = models.CharField(max_length=1000)
-    q = models.CharField(max_length=1000)
+    d = models.CharField(max_length=1400)
+    p = models.CharField(max_length=800)
+    q = models.CharField(max_length=800)
 
     @staticmethod
     def hash_password(password, salt, hash_iterations):
@@ -80,11 +80,11 @@ class Account(models.Model):
                       salt=salt,
                       hash_iterations=hash_iterations,
                       hash=hash_string,
-                      N=key.public_key().public_numbers().n,
-                      e=key.public_key().public_numbers().e,
-                      d=key.private_numbers().d,
-                      p=key.private_numbers().p,
-                      q=key.private_numbers().q)
+                      N=str(key.public_key().public_numbers().n),
+                      e=str(key.public_key().public_numbers().e),
+                      d=str(key.private_numbers().d),
+                      p=str(key.private_numbers().p),
+                      q=str(key.private_numbers().q))
         account.save()
         return account
 

@@ -137,7 +137,7 @@ def register(request):
             {'error': "The requested username is already taken. Registration failed."})
     new_account = Account.create(name, password)
     # Register at the PinytoCloud
-    key_data = {'N': str(new_account.N), 'e': str(new_account.e)}
+    key_data = {'N': new_account.N, 'e': str(new_account.e)}
     response = cloud_register(name, key_data)
     if 'success' not in response or not response['success']:
         new_account.delete()
