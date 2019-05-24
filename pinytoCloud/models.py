@@ -112,7 +112,7 @@ class StoredPublicKey(models.Model):
     #: (str) The first 10 characters of a sha256 hash computed from ``n + e``.
     key_hash = models.CharField(max_length=10, primary_key=True, unique=True)
     #: (str) N is a very big prime number so we have to save it as a string.
-    N = models.CharField(max_length=1000)
+    N = models.CharField(max_length=1400)
     #: (long) e is not a very big number so we store it as a big integer.
     e = models.BigIntegerField()
     #: (User) This is the foreign-key to the User who owns this key.
