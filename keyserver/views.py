@@ -128,7 +128,7 @@ def register(request):
     try:
         name = request_data['name']
         password = request_data['password']
-    except IndexError:
+    except KeyError:
         return json_bad_request_response(
                 {'error': "Please supply username and password in the JSON request data. " +
                           "Registration failed."})
