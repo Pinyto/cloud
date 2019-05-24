@@ -1,7 +1,7 @@
 # coding=utf-8
 """
 Pinyto cloud - A secure cloud database for your personal data
-Copyright (C) 2105 Johannes Merkert <jonny@pinyto.de>
+Copyright (C) 2019 Pina Merkert <pina@pinae.net>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,6 +49,15 @@ class Account(models.Model):
     p = models.CharField(max_length=1000)
     q = models.CharField(max_length=1000)
 
+    @staticmethod
+    def hash_password(password, salt, hash_iterations):
+        hash_string = password + salt
+        for i in range(hash_iterations):
+            hasher = sha256()
+            hasher.update(hash_string.encode('utf-8'))
+            hash_string = hasher.hexdigest()
+        return hash_string[:32]
+
     @classmethod
     def create(cls, name, password='', hash_iterations=420):
         """
@@ -65,11 +74,7 @@ class Account(models.Model):
         :rtype: keyserver.models.Account
         """
         salt = create_salt(10)
-        hash_string = password + salt
-        for i in range(hash_iterations):
-            hasher = sha256()
-            hasher.update(hash_string.encode('utf-8'))
-            hash_string = hasher.hexdigest()
+        hash_string = cls.hash_password(password, salt, hash_iterations)
         key = rsa.generate_private_key(public_exponent=65537, key_size=4096, backend=default_backend())
         account = cls(name=name,
                       salt=salt,
@@ -91,11 +96,7 @@ class Account(models.Model):
         :type password: str
         :rtype: boolean
         """
-        hash_string = password + self.salt
-        for i in range(self.hash_iterations):
-            hasher = sha256()
-            hasher.update(hash_string.encode('utf-8'))
-            hash_string = hasher.hexdigest()
+        hash_string = self.hash_password(password, self.salt, self.hash_iterations)
         return hash_string == self.hash
 
     def change_password(self, password, hash_iterations=420):
@@ -109,11 +110,7 @@ class Account(models.Model):
         :type hash_iterations: int
         """
         self.salt = create_salt(10)
-        hash_string = (password + self.salt).encode('utf-8')
-        for i in range(hash_iterations):
-            hasher = sha256()
-            hasher.update(hash_string)
-            hash_string = hasher.hexdigest()
+        hash_string = self.hash_password(password, self.salt, hash_iterations)
         self.hash_iterations = hash_iterations
         self.hash = str(hash_string, encoding='utf-8')
         self.save()
