@@ -25,7 +25,7 @@ from datetime import datetime
 
 class CollectionWrapper(object):
     """
-    This wrapper is user to expose the db to the users assemblies.
+    This wrapper is used to expose the db to the users assemblies.
     """
     def __init__(self, collection, assembly_name, only_own_data=True):
         self.db = collection
@@ -129,7 +129,7 @@ class CollectionWrapper(object):
         the documents matched by the query.
 
         :param query: json
-        :type query: str
+        :type query: dict
         :param attribute: String describing the attribute
         :type attribute: str
         :return: A list of values the attribute can have in the set of documents described by the query
@@ -222,7 +222,7 @@ def inject_object_id(query):
     Traverses all fields of the query dict and converts all '_id' to ObjectId instances.
 
     :param query:
-    :type query: dict
+    :type query: dict, list
     :rtype: dict
     """
     if isinstance(query, list):
